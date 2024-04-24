@@ -1,8 +1,8 @@
-using settlement_business_library;
+using HappyFiveBusiness.Services;
 
 namespace HappyFiveBusinessTests;
 
-public class HappyFiveModdsTests
+public class CalculateMOddsTests
 {
     [Theory]
     [InlineData(8101, "b", "53", "5", 1)]
@@ -26,10 +26,10 @@ public class HappyFiveModdsTests
     [InlineData(8105, "so", "52", "33", -1)]
     [InlineData(8105, "se", "52", "33", 1)]
     [InlineData(8105, "se", "51", "33", -1)]
-    public void GetModds_Always_ReturnCorrectValue(int profileID, string betTeam, string homeValue, string awayValue, int expected)
+    public void GetMOdds_Always_ReturnCorrectValue(int profileID, string betTeam, string homeValue, string awayValue, int expected)
     {
 
-        var actual = HappyFiveModds.GetModds(profileID, betTeam, homeValue, awayValue);
+        var actual = CalculateMOdds.Execute(profileID, betTeam, homeValue, awayValue);
 
         Assert.Equal(expected, actual);
     }
@@ -39,13 +39,13 @@ public class HappyFiveModdsTests
     [InlineData(8103, "su", 34, 52)]
     [InlineData(8103, "au", 53, 71)]
     [InlineData(8103, "wi", 72, 90)]
-    public void GetModds_ProfileThird_ReturnCorrectValue(int profileID, string betTeam, int min, int max)
+    public void GetMOdds_ProfileThird_ReturnCorrectValue(int profileID, string betTeam, int min, int max)
     {
         var actual = true;
         for (var i = min; i <= max; i++)
         {
             var homeValue = i.ToString();
-            actual = actual && HappyFiveModds.GetModds(profileID, betTeam, homeValue, "20") == 1;
+            actual = actual && CalculateMOdds.Execute(profileID, betTeam, homeValue, "20") == 1;
         }
 
         Assert.True(actual);

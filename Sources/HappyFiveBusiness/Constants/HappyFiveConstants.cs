@@ -1,4 +1,4 @@
-﻿namespace settlement_business_library.Constants;
+﻿namespace settlement_business_library;
 public static class HappyFiveConstants
 {
 

@@ -10,7 +10,7 @@
     <Language>en-US</Language>
     <LangVersion>latest</LangVersion>
     <IncludeSymbols>false</IncludeSymbols>
-    <Version>0.0.1-beta1</Version>
+    <Version>0.0.1-beta2</Version>
   </PropertyGroup>
   <PropertyGroup>
     <NoWarn>AD0001,S2436,S3240,S126,S131,S3908,S4049,S1200,S4457,S4136</NoWarn>

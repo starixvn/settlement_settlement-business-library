@@ -1,12 +1,10 @@
-﻿// Ignore Spelling: Modds
+﻿using settlement_business_library;
 
-using settlement_business_library.Constants;
+namespace HappyFiveBusiness.Services;
 
-namespace settlement_business_library;
-
-public static class HappyFiveModds
+public static class CalculateMOdds
 {
-    public static int GetModds(int profileID, string betTeam, string homeValue, string awayValue)
+    public static int Execute(int profileID, string betTeam, string homeValue, string awayValue)
     {
         var mainValue = GetMainValue(profileID, homeValue, awayValue);
 
