@@ -1,5 +1,6 @@
 ﻿namespace Settlement.Business.Core.Constants;
-public class StatusTitles
+
+public static class StatusTitles
 {
     public const string Won = "WON";
 
