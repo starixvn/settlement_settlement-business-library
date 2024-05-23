@@ -1,7 +1,8 @@
-﻿using Settlement.Business.Core.Constants;
-using Settlement.Business.Core.Models;
+﻿using Settlement.Business.Core.Models;
+using static Settlement.Business.Core.Constants.Status;
 
 namespace HappyFiveBusiness.Services;
+
 public static class CalculateFunction
 {
     public static decimal WinLost(Transaction tx, BetTransaction betTrans, decimal odds)
@@ -37,7 +38,6 @@ public static class CalculateFunction
 
     public static decimal MWinLost(Transaction tx, BetTransaction betTrans, decimal odds)
     {
-
         if (tx.WinLost is not null && tx.IsMaxPayout)
         {
             return (decimal)(tx.MOdds > 0 ? (tx.WinLost - betTrans.ActualStake) * betTrans.MPositionTaking : 0);
@@ -51,7 +51,6 @@ public static class CalculateFunction
 
     public static decimal SWinLost(Transaction tx, BetTransaction betTrans, decimal odds)
     {
-
         if (tx.WinLost is not null && tx.IsMaxPayout)
         {
             return (decimal)(tx.MOdds > 0 ? (tx.WinLost - betTrans.ActualStake) * betTrans.SPositionTaking : 0);
@@ -103,22 +102,22 @@ public static class CalculateFunction
 
     public static int GetStatusId(byte mOdds)
     {
-        return mOdds > 0 ? StatusIds.Won : StatusIds.Lose;
+        return mOdds > 0 ? StatusId.Won : StatusId.Lose;
     }
 
     public static bool IsUpdVoid(BetTransaction betTrans, Transaction tx)
     {
-        return betTrans.StatusId != StatusIds.Void && !tx.IsMarked;
+        return betTrans.StatusId != StatusId.Void && !tx.IsMarked;
     }
 
     public static byte GetStatusId(decimal mOdds)
     {
-        return mOdds > 0 ? StatusIds.Won : StatusIds.Lose;
+        return mOdds > 0 ? StatusId.Won : StatusId.Lose;
     }
 
     public static string GetStatus(decimal mOdds)
     {
-        return mOdds > 0 ? StatusTitles.Won : StatusTitles.Lose;
+        return mOdds > 0 ? StatusName.Won : StatusName.Lose;
     }
 
     public static DateTime GetSettlementTime(BetTransaction betTrans, decimal winLost, byte statusId)

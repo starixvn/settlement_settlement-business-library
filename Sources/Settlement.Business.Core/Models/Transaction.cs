@@ -1,4 +1,5 @@
 ﻿namespace Settlement.Business.Core.Models;
+
 public class Transaction
 {
     public long TransId { get; set; }
@@ -7,7 +8,7 @@ public class Transaction
 
     public byte OddsType { get; set; }
 
-    public int Srecommend { get; set; }
+    public int SRecommend { get; set; }
 
     public short BetType { get; set; }
 

@@ -1,7 +1,7 @@
-﻿namespace settlement_business_library;
+﻿namespace Settlement.Business.Constants;
+
 public static class HappyFiveConstants
 {
-
     public const int FirstProfileId = 8101;
 
     public const int SecondProfileId = 8102;

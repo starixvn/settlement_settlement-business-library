@@ -1,12 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace Settlement.Business.Core.Constants;
 
-namespace Settlement.Business.Core.Constants
+public static class Status
 {
-    internal class Status
+    public static class StatusId
     {
+        public const byte Won = 112;
+
+        public const byte Lose = 113;
+
+        public const byte Void = 102;
+    }
+
+    public static class StatusName
+    {
+        public const string Won = "WON";
+
+        public const string Lose = "LOSE";
     }
 }

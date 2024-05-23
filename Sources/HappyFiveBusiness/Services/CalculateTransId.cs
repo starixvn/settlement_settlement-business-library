@@ -3,9 +3,10 @@ using HappyFiveBusiness.Requests;
 using Settlement.Business.Core.Models;
 
 namespace HappyFiveBusiness.Services;
+
 public static class CalculateTransId
 {
-    private const short InvalidBetDaqId = -1;
+    private const short InvalidBetDaqId = -2;
 
     public static ResultCalculated Execute(IEnumerable<BetTransaction> listBetTrans, List<Transaction> listTrans)
     {
@@ -27,7 +28,6 @@ public static class CalculateTransId
         return resultCalculated;
     }
 
-
     private static (RequestUpdateBetTrans, TransactionInfo) CalculateBetTrans(BetTransaction betTrans, Transaction trans)
     {
         var prepareBetTransInfo = new PrepareBetTranInfo(betTrans, trans);
@@ -46,5 +46,4 @@ public static class CalculateTransId
 
         return (requestUpdateBetTrans, transactionInfo);
     }
-
 }
