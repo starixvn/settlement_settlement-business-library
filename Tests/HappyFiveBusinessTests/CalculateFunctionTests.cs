@@ -2,7 +2,7 @@
 using Settlement.Business.Core.Models;
 
 namespace HappyFiveBusinessTests;
-public class PrepareBetTranInfoTests
+public class CalculateFunctionTests
 {
     private readonly BetTransaction betTrans;
 
@@ -10,7 +10,7 @@ public class PrepareBetTranInfoTests
 
     private readonly PrepareBetTranInfo model;
 
-    public PrepareBetTranInfoTests()
+    public CalculateFunctionTests()
     {
         betTrans = new BetTransaction();
         tx = new Transaction();

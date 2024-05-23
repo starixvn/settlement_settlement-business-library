@@ -16,6 +16,7 @@ public static class CalculateFunction
             return tx.DeadHeat > 0 ?
                 (odds / tx.DeadHeat + 1) * betTrans.Stake
                 : betTrans.ActualStake + betTrans.Stake * tx.MOdds;
+
         }
 
         return 0;

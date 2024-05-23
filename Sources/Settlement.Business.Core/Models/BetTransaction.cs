@@ -1,4 +1,7 @@
-﻿namespace Settlement.Business.Core.Models;
+﻿using Settlement.Business.Core.Attributes;
+using Settlement.Business.Core.Constants;
+
+namespace Settlement.Business.Core.Models;
 
 public class BetTransaction
 {
@@ -23,6 +26,7 @@ public class BetTransaction
     public DateTime RepUpdateTime { get; set; }
     public DateTime SettlementTime { get; set; }
     public DateTime WinLostDate { get; set; }
+    [Type(DataTypes.Money), Rounding]
     public decimal Stake { get; set; }
     public decimal AComm { get; set; }
     public decimal ActualStake { get; set; }
