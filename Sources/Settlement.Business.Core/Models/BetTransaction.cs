@@ -7,7 +7,7 @@ public class BetTransaction
 {
     public int CustId { get; set; }
 
-    public bool LiveIndicator { get; set; }
+    public bool? LiveIndicator { get; set; }
 
     public bool SecAcceptFlag { get; set; }
 
@@ -17,9 +17,7 @@ public class BetTransaction
 
     public byte DeviceType { get; set; }
 
-    public byte OddsType { get; set; }
-
-    public byte Ruben { get; set; }
+    public byte? Ruben { get; set; }
 
     public byte StatusId { get; set; }
 
@@ -46,10 +44,11 @@ public class BetTransaction
     public DateTime SettlementTime { get; set; }
 
     public DateTime WinLostDate { get; set; }
+
     [Type(DataTypes.Money), Rounding]
     public decimal Stake { get; set; }
 
-    public decimal AComm { get; set; }
+    public decimal? AComm { get; set; }
 
     public decimal ActualStake { get; set; }
 
@@ -57,31 +56,31 @@ public class BetTransaction
 
     public decimal APositionTaking { get; set; }
 
-    public decimal AWinLost { get; set; }
+    public decimal? AWinLost { get; set; }
 
     public decimal Balance { get; set; }
 
-    public decimal Comm { get; set; }
+    public decimal? Comm { get; set; }
 
     public decimal Discount { get; set; }
 
     public decimal EPositionTaking { get; set; }
 
-    public decimal Hdp1 { get; set; }
+    public decimal? Hdp1 { get; set; }
 
-    public decimal Hdp2 { get; set; }
+    public decimal? Hdp2 { get; set; }
 
-    public decimal MOdds { get; set; }
+    public decimal Modds { get; set; }
 
     public decimal MPositionTaking { get; set; }
 
-    public decimal MWinLost { get; set; }
+    public decimal? MWinLost { get; set; }
 
     public decimal Odds { get; set; }
 
     public decimal OddsSpread { get; set; }
 
-    public decimal PlayerComm { get; set; }
+    public decimal? PlayerComm { get; set; }
 
     public decimal PlayerDiscount { get; set; }
 
@@ -95,7 +94,7 @@ public class BetTransaction
 
     public decimal TPositionTaking { get; set; }
 
-    public decimal WinLost { get; set; }
+    public decimal? WinLost { get; set; }
 
     public double ActualRate { get; set; }
 
@@ -135,7 +134,7 @@ public class BetTransaction
 
     public short BetType { get; set; }
 
-    public short LiveAwayScore { get; set; }
+    public short? LiveAwayScore { get; set; }
 
     public short LiveHomeScore { get; set; }
 
@@ -155,13 +154,25 @@ public class BetTransaction
 
     public string CurrencyName { get; set; }
 
-    public string ExtraInfo { get; set; }
+    public string? ExtraInfo { get; set; }
 
     public string Ip { get; set; }
 
-    public string Status { get; set; }
+    public string? Status { get; set; }
 
     public string TransDesc { get; set; }
 
     public string UserName { get; set; }
+
+    public int ProfileId { get; set; }
+
+    public short OddsType { get; set; }
+
+    public bool IsMarked { get; set; }
+
+    public decimal ActualPayout { get; set; }
+
+    public bool IsApplyMaxPayout { get; set; }
+
+    public byte DeadHeat { get; set; }
 }

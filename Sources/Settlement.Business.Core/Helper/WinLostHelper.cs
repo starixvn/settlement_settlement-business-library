@@ -4,59 +4,42 @@ namespace Settlement.Business.Core.Helper;
 
 public static class WinLostHelper
 {
-    public static decimal WinLost(Transaction tx, BetTransaction betTrans, decimal odds)
+    public static decimal AWinLost(BetTransaction betTran, decimal odds)
     {
-        if (tx is { WinLost: not null, IsMaxPayout: true })
+        if (betTran is { WinLost: not null, IsApplyMaxPayout: true })
         {
-            return (decimal)tx.WinLost;
+            return (decimal)(betTran.Modds > 0 ? (betTran.WinLost - betTran.ActualStake) * betTran.APositionTaking : 0);
         }
 
-        if (tx.MOdds > 0)
-        {
-            return tx.DeadHeat > 0 ?
-                (odds / tx.DeadHeat + 1) * betTrans.Stake
-                : betTrans.ActualStake + betTrans.Stake * tx.MOdds;
-        }
-
-        return 0;
+        var deadHeat = betTran.DeadHeat == 0 ? 1 : betTran.DeadHeat;
+        return betTran.Modds > 0
+            ? betTran.Stake * odds * -betTran.APositionTaking / deadHeat
+            : betTran.ActualStake * betTran.APositionTaking;
     }
 
-    public static decimal AWinLost(Transaction tx, BetTransaction betTrans, decimal odds)
+    public static decimal MWinLost(BetTransaction betTran, decimal odds)
     {
-        if (tx.WinLost is not null && tx.IsMaxPayout)
+        if (betTran is { WinLost: not null, IsApplyMaxPayout: true })
         {
-            return (decimal)(tx.MOdds > 0 ? (tx.WinLost - betTrans.ActualStake) * betTrans.APositionTaking : 0);
+            return (decimal)(betTran.Modds > 0 ? (betTran.WinLost - betTran.ActualStake) * betTran.MPositionTaking : 0);
         }
 
-        var deadHeat = tx.DeadHeat == 0 ? 1 : tx.DeadHeat;
-        return tx.MOdds > 0
-            ? betTrans.Stake * odds * -betTrans.APositionTaking / deadHeat
-            : betTrans.ActualStake * betTrans.APositionTaking;
+        var deadHeat = betTran.DeadHeat == 0 ? 1 : betTran.DeadHeat;
+        return betTran.Modds > 0
+            ? betTran.Stake * odds * -betTran.MPositionTaking / deadHeat
+            : betTran.ActualStake * betTran.MPositionTaking;
     }
 
-    public static decimal MWinLost(Transaction tx, BetTransaction betTrans, decimal odds)
+    public static decimal SWinLost(BetTransaction betTran, decimal odds)
     {
-        if (tx.WinLost is not null && tx.IsMaxPayout)
+        if (betTran is { WinLost: not null, IsApplyMaxPayout: true })
         {
-            return (decimal)(tx.MOdds > 0 ? (tx.WinLost - betTrans.ActualStake) * betTrans.MPositionTaking : 0);
+            return (decimal)(betTran.Modds > 0 ? (betTran.WinLost - betTran.ActualStake) * betTran.SPositionTaking : 0);
         }
 
-        var deadHeat = tx.DeadHeat == 0 ? 1 : tx.DeadHeat;
-        return tx.MOdds > 0
-            ? betTrans.Stake * odds * -betTrans.MPositionTaking / deadHeat
-            : betTrans.ActualStake * betTrans.MPositionTaking;
-    }
-
-    public static decimal SWinLost(Transaction tx, BetTransaction betTrans, decimal odds)
-    {
-        if (tx.WinLost is not null && tx.IsMaxPayout)
-        {
-            return (decimal)(tx.MOdds > 0 ? (tx.WinLost - betTrans.ActualStake) * betTrans.SPositionTaking : 0);
-        }
-
-        var deadHeat = tx.DeadHeat == 0 ? 1 : tx.DeadHeat;
-        return tx.MOdds > 0
-            ? betTrans.Stake * odds * -betTrans.SPositionTaking / deadHeat
-            : betTrans.ActualStake * betTrans.SPositionTaking;
+        var deadHeat = betTran.DeadHeat == 0 ? 1 : betTran.DeadHeat;
+        return betTran.Modds > 0
+            ? betTran.Stake * odds * -betTran.SPositionTaking / deadHeat
+            : betTran.ActualStake * betTran.SPositionTaking;
     }
 }

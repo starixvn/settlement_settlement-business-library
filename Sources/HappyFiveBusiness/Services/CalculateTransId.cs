@@ -1,6 +1,4 @@
-﻿using HappyFiveBusiness.Models;
-using HappyFiveBusiness.Requests;
-using Settlement.Business.Core.Models;
+﻿using Settlement.Business.Core.Models;
 
 namespace HappyFiveBusiness.Services;
 
@@ -8,42 +6,52 @@ public static class CalculateTransId
 {
     private const short InvalidBetDaqId = -2;
 
-    public static ResultCalculated Execute(IEnumerable<BetTransaction> listBetTrans, List<Transaction> listTrans)
+    private const byte DefaultRuben = 1;
+
+    public static void Execute(IEnumerable<BetTransaction> listBetTrans, List<Transaction> listTrans)
     {
         var validBetTrans = listBetTrans.Where(b => b.BetDaqId != InvalidBetDaqId);
-        var resultCalculated = new ResultCalculated();
-        foreach (var validBetTx in validBetTrans)
+        foreach (var betTrans in validBetTrans)
         {
-            var transInfo = listTrans.FirstOrDefault(t => t.TransId == validBetTx.TransId);
+            var transInfo = listTrans.FirstOrDefault(t => t.TransId == betTrans.TransId);
             if (transInfo == null)
             {
                 continue;
             }
 
-            var (requestUpdate, transactionInfo) = CalculateBetTrans(validBetTx, transInfo);
-            resultCalculated.Requests.Add(requestUpdate);
-            resultCalculated.Infos.Add(transactionInfo);
+            CalculateBetTrans(betTrans, transInfo);
+            // var (requestUpdate, transactionInfo) = CalculateBetTrans(validBetTx, transInfo);
+            //resultCalculated.Requests.Add(requestUpdate);
+            //resultCalculated.Infos.Add(transactionInfo);
         }
-
-        return resultCalculated;
     }
 
-    private static (RequestUpdateBetTrans, TransactionInfo) CalculateBetTrans(BetTransaction betTrans, Transaction trans)
+    private static void CalculateBetTrans(BetTransaction betTrans, Transaction trans)
     {
-        var prepareBetTransInfo = new PrepareBetTranInfo(betTrans, trans);
-        RequestUpdateBetTrans requestUpdateBetTrans;
+        var prepareData = new PrepareBetTransInfo(betTrans, trans);
+        betTrans.MOdds = trans.MOdds;
+        betTrans.StatusWinLost = CalculateFunction.GetStatusWL(trans.MOdds);
+        betTrans.ExtraInfo = CalculateFunction.GetExtraInfo(betTrans, trans);
 
-        if (prepareBetTransInfo.IsUpdVoid)
+        if (prepareData.IsUpdVoid)
         {
-            requestUpdateBetTrans = new RequestByTrans(betTrans, trans, prepareBetTransInfo);
-        }
-        else
-        {
-            requestUpdateBetTrans = new RequestByBetTrans(betTrans, trans);
+            betTrans.WinLost = CalculateFunction.WinLost(trans, betTrans, prepareData.Odds);
+            betTrans.AWinLost = CalculateFunction.AWinLost(trans, betTrans, prepareData.Odds);
+            betTrans.MWinLost = CalculateFunction.MWinLost(trans, betTrans, prepareData.Odds);
+            betTrans.SWinLost = CalculateFunction.SWinLost(trans, betTrans, prepareData.Odds);
+            betTrans.PlayerComm = CalculateFunction.PlayerComm(betTrans, trans.MOdds, prepareData);
+            betTrans.Comm = CalculateFunction.Comm(betTrans, trans.MOdds, prepareData);
+            betTrans.AComm = CalculateFunction.AComm(betTrans, trans.MOdds, prepareData);
+            betTrans.SComm = CalculateFunction.SComm(betTrans, trans.MOdds, prepareData);
+            betTrans.Status = prepareData.Status;
+            betTrans.StatusId = prepareData.StatusId;
+            betTrans.Ruben = DefaultRuben;
+            betTrans.SettlementTime = CalculateFunction.GetSettlementTime(betTrans, betTrans.WinLost, prepareData.StatusId);
         }
 
-        var transactionInfo = CreateInfoService.CreateTransactionInfo(betTrans, requestUpdateBetTrans);
+        // For logging
+        // var transactionInfo = CreateInfoService.CreateTransactionInfo(betTrans, requestUpdateBetTrans);
 
-        return (requestUpdateBetTrans, transactionInfo);
+        // return (requestUpdateBetTrans, transactionInfo);
     }
 }

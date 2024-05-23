@@ -10,6 +10,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="CalculateFunctionTests.cs" />
+    <Compile Remove="CalculateMOddsTests.cs" />
+    <Compile Remove="CalculateTransIdTests.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="JetBrains.DotMemoryUnit" Version="3.2.20220510" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.6.0" />
     <PackageReference Include="xunit" Version="2.4.2" />
@@ -24,7 +30,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Sources\HappyFiveBusiness\HappyFiveBusiness.csproj" />
+    <ProjectReference Include="..\..\Sources\Settlement.Business.Core\Settlement.Business.Core.csproj" />
+    <ProjectReference Include="..\..\Sources\Settlement.Business\Settlement.Business.csproj" />
   </ItemGroup>
 
 </Project>

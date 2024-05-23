@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Services\CreateInfoService.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Settlement.Business.Core\Settlement.Business.Core.csproj" />
   </ItemGroup>
 
