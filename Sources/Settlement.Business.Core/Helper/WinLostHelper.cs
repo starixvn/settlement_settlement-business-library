@@ -4,7 +4,7 @@ namespace Settlement.Business.Core.Helper;
 
 public static class WinLostHelper
 {
-    public static decimal AWinLost(BetTransaction betTran, decimal odds)
+    public static decimal AWinLost(BetTran betTran, decimal odds)
     {
         if (betTran is { WinLost: not null, IsApplyMaxPayout: true })
         {
@@ -17,7 +17,7 @@ public static class WinLostHelper
             : betTran.ActualStake * betTran.APositionTaking;
     }
 
-    public static decimal MWinLost(BetTransaction betTran, decimal odds)
+    public static decimal MWinLost(BetTran betTran, decimal odds)
     {
         if (betTran is { WinLost: not null, IsApplyMaxPayout: true })
         {
@@ -30,7 +30,7 @@ public static class WinLostHelper
             : betTran.ActualStake * betTran.MPositionTaking;
     }
 
-    public static decimal SWinLost(BetTransaction betTran, decimal odds)
+    public static decimal SWinLost(BetTran betTran, decimal odds)
     {
         if (betTran is { WinLost: not null, IsApplyMaxPayout: true })
         {

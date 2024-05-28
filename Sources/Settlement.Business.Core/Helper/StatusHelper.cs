@@ -4,13 +4,13 @@ namespace Settlement.Business.Core.Helper;
 
 public static class StatusHelper
 {
-    public static DateTime GetSettlementTime(BetTransaction betTrans, decimal? winLost, byte statusId)
+    public static DateTime GetSettlementTime(BetTran betTrans, decimal? winLost, byte statusId)
     {
         return betTrans.WinLost != winLost
                || betTrans.StatusId != statusId ? DateTime.Now : betTrans.SettlementTime;
     }
 
-    public static string? GetExtraInfo(BetTransaction betTrans)
+    public static string? GetExtraInfo(BetTran betTrans)
     {
         return betTrans.IsApplyMaxPayout
             ? betTrans.ExtraInfo ?? $"<l255 apo=\"{betTrans.ActualPayout}\" />"

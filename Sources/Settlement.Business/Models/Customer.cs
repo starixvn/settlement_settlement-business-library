@@ -2,9 +2,9 @@
 
 public class Customer
 {
-    [JsonPropertyName("t")]
+    [JsonPropertyName("c")]
     public int CustId { get; set; }
 
-    [JsonPropertyName("c")]
+    [JsonPropertyName("cur")]
     public byte Currency { get; set; }
 }
