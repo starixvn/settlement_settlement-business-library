@@ -16,5 +16,9 @@ public class PrepareBetTran
 
     public bool IsUpdated { get; set; }
 
+    public bool IsApplyMaxPayout { get; set; }
+
+    public decimal? MaxWinLost { get; set; }
+
     public decimal WinLost { get; set; }
 }

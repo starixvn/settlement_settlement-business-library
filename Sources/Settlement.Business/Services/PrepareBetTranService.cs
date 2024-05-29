@@ -1,5 +1,4 @@
-﻿using Settlement.Business.Core.Constants;
-using Settlement.Business.Core.Models;
+﻿using Settlement.Business.Core.Models;
 using Settlement.Business.Models;
 using static Settlement.Business.Core.Constants.Status;
 
@@ -7,32 +6,15 @@ namespace Settlement.Business.Services;
 
 public interface PrepareBetTranService
 {
-    (bool isApplyMaxPayout, decimal? winLost) GetWinLost(BetTran betTran, List<WinLimit> listWinLimit);
-
-    PrepareBetTran CreateValue(BetTran betTran);
+    PrepareBetTran CreateValue(BetTran betTran, List<WinLimit> maxWinLimit);
 }
 
-public class PrepareBetTranServiceImp : PrepareBetTranService
+public class PrepareBetTranServiceImp(WinLostService winLostService) : PrepareBetTranService
 {
-    public (bool isApplyMaxPayout, decimal? winLost) GetWinLost(BetTran betTran, List<WinLimit> listWinLimit)
-    {
-        var winLimit = listWinLimit.Find(w => w.CustId == betTran.CustId);
-        if (winLimit != null && CheckMaxWinLimit(betTran, winLimit))
-        {
-            return (true, winLimit.MaxWinLimit);
-        }
-
-        return (false, betTran.WinLost);
-    }
-
-    private static bool CheckMaxWinLimit(BetTran betTran, WinLimit winLimit)
-    {
-        return betTran.Modds >= Modds.ModdsQuarter && betTran.ActualPayout > winLimit.MaxWinLimit;
-    }
-
-    public PrepareBetTran CreateValue(BetTran betTran)
+    public PrepareBetTran CreateValue(BetTran betTran, List<WinLimit> maxWinLimit)
     {
         var (statusId, statusName) = Status(betTran.Modds);
+        var (isApplyMaxPayout, maxWinLost) = winLostService.GetWinLost(betTran, maxWinLimit);
 
         return new PrepareBetTran
         {
@@ -43,6 +25,8 @@ public class PrepareBetTranServiceImp : PrepareBetTranService
             StatusId = statusId,
             Status = statusName,
             IsUpdated = betTran.StatusId != StatusId.Void && !betTran.IsMarked,
+            IsApplyMaxPayout = isApplyMaxPayout,
+            MaxWinLost = maxWinLost,
             WinLost = WinLost(betTran)
         };
     }

@@ -86,7 +86,7 @@ public class BetTran
     public decimal SPositionTaking { get; set; }
 
     [JsonPropertyName("swi")]
-    public decimal SWinLost { get; set; }
+    public decimal? SWinLost { get; set; }
 
     [JsonIgnore]
     public decimal TPositionTaking { get; set; }

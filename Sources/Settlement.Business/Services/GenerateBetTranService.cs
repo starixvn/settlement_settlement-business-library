@@ -1,5 +1,6 @@
 ﻿using Settlement.Business.Core.Helper;
 using Settlement.Business.Core.Models;
+using Settlement.Business.Models;
 
 namespace Settlement.Business.Services;
 
@@ -10,7 +11,6 @@ public interface GenerateBetTranService
 
 public class GenerateBetTranServiceImp(
     ModdsService moddsService,
-    CustomerService customerService,
     WinLimitService winLimitService,
     PrepareBetTranService prepareBetTranService) : GenerateBetTranService
 {
@@ -18,26 +18,21 @@ public class GenerateBetTranServiceImp(
 
     public List<BetTran> Happy5(List<BetTran> betTrans)
     {
-        betTrans.ToList().ForEach(item => item.Modds = moddsService.Happy5(item.ProfileId, item.BetTeam, "", ""));
+        betTrans.ForEach(item => item.Modds = moddsService.Happy5(item.ProfileId, item.BetTeam, "", ""));
 
-        var listCustIds = customerService.GetCustomersByModds(betTrans);
-        var maxWinLimit = winLimitService.GetMaxWinLimit(listCustIds);
+        var maxWinLimit = winLimitService.GetMaxWinLimit(betTrans);
 
-        foreach (var item in betTrans)
-        {
-            var (isApplyMaxPayout, winLost) = prepareBetTranService.GetWinLost(item, maxWinLimit);
-            item.IsApplyMaxPayout = isApplyMaxPayout;
-            item.WinLost = winLost;
-
-            SetValue(item);
-        }
+        betTrans.ForEach(item => SetValue(item, maxWinLimit));
 
         return betTrans;
     }
 
-    private void SetValue(BetTran betTran)
+    private void SetValue(BetTran betTran, List<WinLimit> maxWinLimit)
     {
-        var prepareBetTran = prepareBetTranService.CreateValue(betTran);
+        var prepareBetTran = prepareBetTranService.CreateValue(betTran, maxWinLimit);
+        betTran.IsApplyMaxPayout = prepareBetTran.IsApplyMaxPayout;
+        betTran.WinLost = prepareBetTran.MaxWinLost;
+
         betTran.StatusWinLost = StatusHelper.GetStatusWinLost(betTran.Modds);
         betTran.ExtraInfo = StatusHelper.GetExtraInfo(betTran);
 
@@ -50,11 +45,12 @@ public class GenerateBetTranServiceImp(
             betTran.Comm = CommHelper.Comm(betTran, betTran.Modds, prepareBetTran);
             betTran.AComm = CommHelper.AComm(betTran, betTran.Modds, prepareBetTran);
             betTran.SComm = CommHelper.SComm(betTran, betTran.Modds, prepareBetTran);
-            betTran.Status = prepareBetTran.Status;
-            betTran.StatusId = prepareBetTran.StatusId;
-            betTran.Ruben = DefaultRuben;
             betTran.SettlementTime = StatusHelper.GetSettlementTime(betTran, prepareBetTran.WinLost, prepareBetTran.StatusId);
+
+            betTran.Ruben = DefaultRuben;
             betTran.WinLost = prepareBetTran.WinLost;
+            betTran.StatusId = prepareBetTran.StatusId;
+            betTran.Status = prepareBetTran.Status;
         }
         // Todo: betTran.Odds = ...
     }
