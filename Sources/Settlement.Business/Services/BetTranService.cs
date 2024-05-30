@@ -1,17 +1,17 @@
 ﻿using Newtonsoft.Json;
 using Settlement.Business.Core.Models;
-using Settlement.Business.Criteria;
+using Settlement.Business.Criteria.HappyFive;
 
 namespace Settlement.Business.Services;
 
-public interface UpdateBetTranService
+public interface BetTranService
 {
     Task<Result> Happy5UpdateBetTran(string server, List<BetTran> betTrans);
 }
 
-public class UpdateBetTranServiceImp(
+public class BetTranServiceImp(
     IDynamicRepository repository,
-    GenerateBetTranService generateBetTransService) : UpdateBetTranService
+    GenerateBetTranService generateBetTransService) : BetTranService
 {
     public async Task<Result> Happy5UpdateBetTran(string server, List<BetTran> betTrans)
     {

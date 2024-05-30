@@ -1,6 +1,6 @@
 ﻿using Fanex.Data;
 
-namespace Settlement.Business.Criteria;
+namespace Settlement.Business.Criteria.HappyFive;
 
 public class HappyFiveCriteria : NonQueryCommand
 {

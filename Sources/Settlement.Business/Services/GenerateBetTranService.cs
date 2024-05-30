@@ -6,7 +6,7 @@ namespace Settlement.Business.Services;
 
 public interface GenerateBetTranService
 {
-    List<BetTran> Happy5(List<BetTran> betTrans);
+    Task<List<BetTran>> Happy5(List<BetTran> betTrans);
 }
 
 public class GenerateBetTranServiceImp(
@@ -16,11 +16,11 @@ public class GenerateBetTranServiceImp(
 {
     private const byte DefaultRuben = 1;
 
-    public List<BetTran> Happy5(List<BetTran> betTrans)
+    public async Task<List<BetTran>> Happy5(List<BetTran> betTrans)
     {
         betTrans.ForEach(item => item.Modds = moddsService.Happy5(item.ProfileId, item.BetTeam, "", ""));
 
-        var maxWinLimit = winLimitService.GetMaxWinLimit(betTrans);
+        var maxWinLimit = (await winLimitService.GetMaxWinLimit(betTrans)).ToList();
 
         betTrans.ForEach(item => SetValue(item, maxWinLimit));
 

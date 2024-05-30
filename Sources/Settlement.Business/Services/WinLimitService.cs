@@ -1,21 +1,24 @@
 ﻿using Newtonsoft.Json;
 using Settlement.Business.Core.Models;
+using Settlement.Business.Criteria;
 using Settlement.Business.Models;
 
 namespace Settlement.Business.Services;
 
 public interface WinLimitService
 {
-    List<WinLimit> GetMaxWinLimit(IEnumerable<BetTran> betTrans);
+    Task<IEnumerable<WinLimit>> GetMaxWinLimit(IEnumerable<BetTran> betTrans);
 }
 
-public class WinLimitServiceImp(CustomerService customerService) : WinLimitService
+public class WinLimitServiceImp(
+    CustomerService customerService,
+    IDynamicRepository repository) : WinLimitService
 {
-    public List<WinLimit> GetMaxWinLimit(IEnumerable<BetTran> betTrans)
+    public async Task<IEnumerable<WinLimit>> GetMaxWinLimit(IEnumerable<BetTran> betTrans)
     {
         var listCustIds = customerService.GetCustomersByModds(betTrans);
 
-        var json = JsonConvert.SerializeObject(listCustIds);
-        return new List<WinLimit>();
+        var customers = JsonConvert.SerializeObject(listCustIds);
+        return await repository.FetchAsync<WinLimit>(new GetMaxPayoutSettingCriteria { ListCust = customers });
     }
 }
