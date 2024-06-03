@@ -2,9 +2,9 @@
 
 public class Result
 {
-    public int ErrorCode { get; set; }
+    public int ErrCode { get; set; }
 
-    public string ErrorMessage { get; set; }
+    public string ErrMessage { get; set; }
 
-    public bool IsSuccessful => string.IsNullOrEmpty(ErrorMessage) && ErrorCode == 0;
+    public bool IsSuccessful => string.IsNullOrEmpty(ErrMessage) && ErrCode == 0;
 }

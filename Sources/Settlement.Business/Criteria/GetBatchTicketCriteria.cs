@@ -2,7 +2,7 @@
 
 namespace Settlement.Business.Criteria;
 
-public class GetBatchCriteria : CriteriaBase
+public class GetBatchTicketCriteria : CriteriaBase
 {
     public int MatchId { get; set; }
 

@@ -1,0 +1,72 @@
+﻿using Settlement.Business.Core.Models;
+using Settlement.Business.Criteria;
+using Settlement.Business.Models;
+using Settlement.Business.Requests;
+
+namespace Settlement.Business.Services;
+
+public interface TicketService
+{
+    Task<List<BetTranBatch>> GetBatchTicket(BatchTicketRequest request);
+
+    Task<List<BetTran>> GetTickets(TicketRequest request);
+
+    Task<Result> UpdateTicket(UpdateTicketRequest request);
+}
+
+public class TicketServiceImp(
+    IDynamicRepository repository) : TicketService
+{
+    public async Task<List<BetTranBatch>> GetBatchTicket(BatchTicketRequest request)
+    {
+        var criteria = new GetBatchTicketCriteria
+        {
+            MatchId = request.MatchId,
+            SportType = request.SportType,
+            Resources = request.Resources,
+            Action = request.Action,
+            LastCustId = request.LastCustId,
+            LastTransId = request.LastTransId,
+            BatchSize = request.BatchSize,
+            BatchTotal = request.BatchTotal,
+            DbServer = request.DbServer
+        };
+        return (await repository.FetchAsync<BetTranBatch>(criteria)).ToList();
+    }
+
+    public async Task<List<BetTran>> GetTickets(TicketRequest request)
+    {
+        var criteria = new GetTicketCriteria
+        {
+            MatchId = request.MatchId,
+            SportType = request.SportType,
+            Resources = request.Resources,
+            Action = request.Action,
+            DbServer = request.DbServer,
+
+            MinCustId = request.MinCustId,
+            MinCustId_MinTransId = request.MinCustId_MinTransId,
+            MinCustId_MaxTransId = request.MinCustId_MaxTransId,
+
+            MaxCustId = request.MaxCustId,
+            MaxCustId_MinTransId = request.MaxCustId_MinTransId,
+            MaxCustId_MaxTransId = request.MaxCustId_MaxTransId
+        };
+        return (await repository.FetchAsync<BetTran>(criteria)).ToList();
+    }
+
+    public async Task<Result> UpdateTicket(UpdateTicketRequest request)
+    {
+        var criteria = new UpdateOtherSportsCriteria
+        {
+            DbServer = request.DbServer
+        };
+        await repository.ExecuteAsync(criteria);
+
+        return new Result
+        {
+            ErrCode = criteria.ErrCode,
+            ErrMessage = criteria.ErrMessage
+        };
+    }
+}

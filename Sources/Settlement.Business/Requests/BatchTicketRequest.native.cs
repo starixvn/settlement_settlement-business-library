@@ -1,6 +1,6 @@
 ﻿namespace Settlement.Business.Requests;
 
-public class BatchRequest
+public class BatchTicketRequest
 {
     public int MatchId { get; set; }
 
@@ -17,4 +17,6 @@ public class BatchRequest
     public int BatchSize { get; set; }
 
     public int BatchTotal { get; set; }
+
+    public string DbServer { get; set; }
 }
