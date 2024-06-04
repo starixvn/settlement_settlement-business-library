@@ -1,34 +1,62 @@
-﻿using Settlement.Business.Core.Models;
+﻿using Settlement.Business.Core.Constants;
+using Settlement.Business.Core.Models;
 
 namespace Settlement.Business.Core.Helper;
 
 public static class CommHelper
 {
-    public static decimal PlayerComm(BetTran betTrans, decimal mOdds, PrepareBetTran infos)
+    public static Commission CreateCommission(BetTran betTrans, decimal mOdds, PrepareBetTran infos)
     {
-        return mOdds > 0
-            ? infos.CommWinRate * betTrans.PlayerDiscount * betTrans.Stake
-            : infos.CommLostRate * betTrans.PlayerDiscount * betTrans.Stake;
+        return mOdds switch
+        {
+            < Modds.NegativeModdsQuarter => ModdsLowerThanNegativeQuarter(betTrans, infos),
+            Modds.NegativeModdsQuarter => ModdsEqualNegativeQuarter(betTrans, infos),
+            Modds.ModdsQuarter => ModdsEqualQuarter(betTrans, infos),
+            > Modds.ModdsQuarter => ModdsHigherThanQuarter(betTrans, infos),
+            _ => new Commission()
+        };
     }
 
-    public static decimal Comm(BetTran betTrans, decimal mOdds, PrepareBetTran infos)
+    private static Commission ModdsHigherThanQuarter(BetTran betTrans, PrepareBetTran infos)
     {
-        return mOdds > 0
-            ? infos.CommWinRate * betTrans.Discount * betTrans.Stake * (1 - betTrans.APositionTaking)
-            : infos.CommLostRate * betTrans.Discount * betTrans.Stake * (1 - betTrans.APositionTaking);
+        return new Commission()
+        {
+            Comm = infos.CommWinRate * betTrans.Discount * betTrans.Stake * (1 - betTrans.APositionTaking),
+            AComm = infos.CommWinRate * betTrans.ADiscount * betTrans.Stake * (1 - (betTrans.MPositionTaking + betTrans.APositionTaking)),
+            SComm = infos.CommWinRate * betTrans.SDiscount * betTrans.Stake * (1 - (betTrans.SPositionTaking + betTrans.MPositionTaking + betTrans.APositionTaking)),
+            PlayerComm = infos.CommWinRate * betTrans.PlayerDiscount * betTrans.Stake
+        };
+    }
+    private static Commission ModdsEqualQuarter(BetTran betTrans, PrepareBetTran infos)
+    {
+        return new Commission()
+        {
+            Comm = infos.CommWinRate * betTrans.Discount * betTrans.Stake * (1 - betTrans.APositionTaking) * infos.CommHalfWLRate,
+            AComm = infos.CommWinRate * betTrans.ADiscount * betTrans.Stake * (1 - (betTrans.MPositionTaking + betTrans.APositionTaking)) * infos.CommHalfWLRate,
+            SComm = infos.CommWinRate * betTrans.SDiscount * betTrans.Stake * (1 - (betTrans.SPositionTaking + betTrans.MPositionTaking + betTrans.APositionTaking)) * infos.CommHalfWLRate,
+            PlayerComm = infos.CommWinRate * betTrans.PlayerDiscount * betTrans.Stake * infos.CommHalfWLRate
+        };
     }
 
-    public static decimal AComm(BetTran betTrans, decimal mOdds, PrepareBetTran infos)
+    private static Commission ModdsEqualNegativeQuarter(BetTran betTrans, PrepareBetTran infos)
     {
-        return mOdds > 0
-            ? infos.CommWinRate * betTrans.ADiscount * betTrans.Stake * (1 - (betTrans.MPositionTaking + betTrans.APositionTaking))
-            : infos.CommLostRate * betTrans.Discount * betTrans.Stake * (1 - (betTrans.MPositionTaking + betTrans.APositionTaking));
+        return new Commission()
+        {
+            Comm = infos.CommLostRate * betTrans.Discount * betTrans.Stake * (1 - betTrans.APositionTaking) * infos.CommHalfWLRate,
+            AComm = infos.CommLostRate * betTrans.ADiscount * betTrans.Stake * (1 - (betTrans.MPositionTaking + betTrans.APositionTaking)) * infos.CommHalfWLRate,
+            SComm = infos.CommLostRate * betTrans.SDiscount * betTrans.Stake * (1 - (betTrans.SPositionTaking + betTrans.MPositionTaking + betTrans.APositionTaking)) * infos.CommHalfWLRate,
+            PlayerComm = infos.CommLostRate * betTrans.PlayerDiscount * betTrans.Stake * infos.CommHalfWLRate
+        };
     }
 
-    public static decimal SComm(BetTran betTrans, decimal mOdds, PrepareBetTran infos)
+    private static Commission ModdsLowerThanNegativeQuarter(BetTran betTrans, PrepareBetTran infos)
     {
-        return mOdds > 0
-            ? infos.CommWinRate * betTrans.ADiscount * betTrans.Stake * (1 - (betTrans.SPositionTaking + betTrans.MPositionTaking + betTrans.APositionTaking))
-            : infos.CommLostRate * betTrans.Discount * betTrans.Stake * (1 - (betTrans.SPositionTaking + betTrans.MPositionTaking + betTrans.APositionTaking));
+        return new Commission()
+        {
+            Comm = infos.CommLostRate * betTrans.Discount * betTrans.Stake * (1 - betTrans.APositionTaking),
+            AComm = infos.CommLostRate * betTrans.ADiscount * betTrans.Stake * (1 - (betTrans.MPositionTaking + betTrans.APositionTaking)),
+            SComm = infos.CommLostRate * betTrans.SDiscount * betTrans.Stake * (1 - (betTrans.SPositionTaking + betTrans.MPositionTaking + betTrans.APositionTaking)),
+            PlayerComm = infos.CommLostRate * betTrans.PlayerDiscount * betTrans.Stake
+        };
     }
 }

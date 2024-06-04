@@ -38,17 +38,19 @@ public class GenerateBetTranServiceImp(
 
         if (prepareBetTran.IsUpdated)
         {
-            betTran.AWinLost = WinLostHelper.AWinLost(betTran, prepareBetTran.Odds);
-            betTran.MWinLost = WinLostHelper.MWinLost(betTran, prepareBetTran.Odds);
-            betTran.SWinLost = WinLostHelper.SWinLost(betTran, prepareBetTran.Odds);
-            betTran.PlayerComm = CommHelper.PlayerComm(betTran, betTran.Modds, prepareBetTran);
-            betTran.Comm = CommHelper.Comm(betTran, betTran.Modds, prepareBetTran);
-            betTran.AComm = CommHelper.AComm(betTran, betTran.Modds, prepareBetTran);
-            betTran.SComm = CommHelper.SComm(betTran, betTran.Modds, prepareBetTran);
+            var commission = CommHelper.CreateCommission(betTran, betTran.Modds, prepareBetTran);
+            var winlost = WinLostHelper.CreateWinLost(betTran, prepareBetTran);
+            betTran.AWinLost = winlost.AWinLost;
+            betTran.MWinLost = winlost.MWinLost;
+            betTran.SWinLost = winlost.SWinLost;
+            betTran.PlayerComm = commission.PlayerComm;
+            betTran.Comm = commission.Comm;
+            betTran.AComm = commission.AComm;
+            betTran.SComm = commission.SComm;
             betTran.SettlementTime = StatusHelper.GetSettlementTime(betTran, prepareBetTran.WinLost, prepareBetTran.StatusId);
 
             betTran.Ruben = DefaultRuben;
-            betTran.WinLost = prepareBetTran.WinLost;
+            betTran.WinLost = winlost.WinLost;
             betTran.StatusId = prepareBetTran.StatusId;
             betTran.Status = prepareBetTran.Status;
         }

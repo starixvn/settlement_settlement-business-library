@@ -20,5 +20,8 @@ public class PrepareBetTran
 
     public decimal? MaxWinLost { get; set; }
 
-    public decimal WinLost { get; set; }
+    public decimal? WinLost { get; set; }
+
+    public decimal FinalOdds { get; set; }
+
 }

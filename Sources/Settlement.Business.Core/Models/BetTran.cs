@@ -137,5 +137,5 @@ public class BetTran
     public bool IsApplyMaxPayout { get; set; }
 
     [JsonIgnore]
-    public byte DeadHeat { get; set; }
+    public byte? DeadHeat { get; set; }
 }

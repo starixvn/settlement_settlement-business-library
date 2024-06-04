@@ -1,4 +1,5 @@
-﻿using Settlement.Business.Core.Models;
+﻿using Settlement.Business.Core.Constants;
+using Settlement.Business.Core.Models;
 using Settlement.Business.Models;
 using static Settlement.Business.Core.Constants.Status;
 
@@ -15,35 +16,53 @@ public class PrepareBetTranServiceImp(WinLostService winLostService) : PrepareBe
     {
         var (statusId, statusName) = Status(betTran.Modds);
         var (isApplyMaxPayout, maxWinLost) = winLostService.GetWinLost(betTran, maxWinLimit);
+        var finalOdds = 0;
 
         return new PrepareBetTran
         {
             CommWinRate = betTran.ComStatus.Equals("1") ? 0 : 1,
             CommLostRate = betTran.ComStatus.Equals("1") ? 2 : 1,
             CommHalfWLRate = 0.5m, // Need to check: CASE WHEN sr.isCN88 = 1 AND sr.isMajorGroup = 1 THEN 1 ELSE 0.5
-            Odds = Odds(betTran.Odds, betTran.OddsType),
+            Odds = Odds(betTran, finalOdds),
+            FinalOdds = finalOdds,
             StatusId = statusId,
             Status = statusName,
             IsUpdated = betTran.StatusId != StatusId.Void && !betTran.IsMarked,
             IsApplyMaxPayout = isApplyMaxPayout,
             MaxWinLost = maxWinLost,
-            WinLost = WinLost(betTran)
+            WinLost = WinLost(betTran, maxWinLost)
         };
     }
 
-    private static decimal Odds(decimal odds, short oddsType)
+    private static decimal Odds(BetTran betTran, decimal finalOdds)
     {
-        if (odds < 0)
+        if (betTran.Odds < 0)
         {
             return 1;
         }
 
-        if (oddsType == 1)
+        if (betTran.OddsType == 1)
         {
-            return odds - 1;
+            return GetOddsByBetTrans(betTran, finalOdds);
         }
 
-        return odds;
+        return betTran.Odds;
+    }
+
+    private static decimal GetOddsByBetTrans(BetTran betTran, decimal finalOdds)
+    {
+        if (betTran.BetType == BetTypes.FirstHalfHomeTeamOddEven)
+        {
+            return finalOdds - 1;
+        }
+
+        if (betTran.Modds > Modds.ModdsQuarter && BetTypes.BackLayBetType.Contains(betTran.BetType) &&
+            betTran.BetTeam.EndsWith('l'))
+        {
+            return 1;
+        }
+
+        return betTran.Odds - 1;
     }
 
     private static (byte, string) Status(decimal modds)
@@ -56,18 +75,16 @@ public class PrepareBetTranServiceImp(WinLostService winLostService) : PrepareBe
         };
     }
 
-    private static decimal WinLost(BetTran betTran)
+    private static decimal? WinLost(BetTran betTran, decimal? maxWinLost)
     {
         if (betTran is { WinLost: not null, IsApplyMaxPayout: true })
         {
-            return (decimal)betTran.WinLost;
+            return maxWinLost;
         }
 
-        if (betTran.Modds > 0)
+        if (betTran.Modds > Modds.ModdsQuarter)
         {
-            return betTran.DeadHeat > 0 ?
-                (betTran.Odds / betTran.DeadHeat + 1) * betTran.Stake
-                : betTran.ActualStake + betTran.Stake * betTran.Modds;
+            return betTran.DeadHeat > 0 ? (betTran.Odds / betTran.DeadHeat + 1) * betTran.Stake : betTran.ActualStake + betTran.Stake * betTran.Modds;
         }
 
         return 0;
