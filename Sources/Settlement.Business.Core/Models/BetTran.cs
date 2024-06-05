@@ -1,4 +1,6 @@
-﻿using System.Text.Json.Serialization;
+﻿using Settlement.Business.Core.Attributes;
+using Settlement.Business.Core.Constants;
+using System.Text.Json.Serialization;
 
 namespace Settlement.Business.Core.Models;
 
@@ -35,6 +37,7 @@ public class BetTran
     public decimal Stake { get; set; }
 
     [JsonPropertyName("aco")]
+    [Rounding, Type(DataTypes.SmallMoney)]
     public decimal? AComm { get; set; }
 
     [JsonIgnore]
@@ -50,6 +53,7 @@ public class BetTran
     public decimal? AWinLost { get; set; }
 
     [JsonPropertyName("co")]
+    [Rounding, Type(DataTypes.SmallMoney)]
     public decimal? Comm { get; set; }
 
     [JsonIgnore]
@@ -71,12 +75,14 @@ public class BetTran
     public decimal OddsSpread { get; set; }
 
     [JsonPropertyName("pco")]
+    [Rounding, Type(DataTypes.SmallMoney)]
     public decimal? PlayerComm { get; set; }
 
     [JsonIgnore]
     public decimal PlayerDiscount { get; set; }
 
     [JsonPropertyName("sco")]
+    [Rounding, Type(DataTypes.SmallMoney)]
     public decimal SComm { get; set; }
 
     [JsonIgnore]

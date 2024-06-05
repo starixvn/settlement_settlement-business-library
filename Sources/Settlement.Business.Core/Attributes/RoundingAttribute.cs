@@ -10,7 +10,7 @@ public class RoundingAttribute : Attribute
     private static readonly Dictionary<MethodBase, PropertyInfo> Cache = new();
 
     [Advice(Kind.After, Targets = Target.Setter)]
-    public void Setter(
+    public void Getter(
         [Argument(Source.Method)] MethodBase method,
         [Argument(Source.Instance)] object obj,
         [Argument(Source.Arguments)] object[] args
@@ -21,7 +21,7 @@ public class RoundingAttribute : Attribute
         var field = GetBackingField(prop);
         if (args.Length > 0 && args[0] is decimal decimalValue && type is not null)
         {
-            field.SetValue(obj, Math.Round(decimalValue, type.DecimalPlaces));
+            field.SetValue(obj, Math.Round(decimalValue, type.DecimalPlaces, MidpointRounding.AwayFromZero));
         }
     }
 
