@@ -26,5 +26,11 @@ public static class ServiceInjector
         services.AddSingleton<WinLimitService, WinLimitServiceImp>();
         services.AddSingleton<WinLostService, WinLostServiceImp>();
         services.AddSingleton<ProcessService, ProcessServiceImp>();
+
+        services.AddControllers()
+            .AddJsonOptions(options =>
+            {
+                options.JsonSerializerOptions.WriteIndented = true;
+            });
     }
 }

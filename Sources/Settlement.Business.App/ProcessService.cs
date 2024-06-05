@@ -1,20 +1,20 @@
 ﻿using Settlement.Business.Core.Models;
+using Settlement.Business.Models;
 using Settlement.Business.Requests;
 using Settlement.Business.Services;
 using BusinessConstants = Settlement.Business.Core.Constants;
-using BusinessModels = Settlement.Business.Models.HappyFive;
 
 namespace Settlement.Business.App;
 
 public interface ProcessService
 {
-    Task<Result> Settle(InputRequest request, string site, List<BusinessModels.ResourcesModel> resources);
+    Task<Result> Settle(InputRequest request, string site, List<Resources> resources);
 }
 
 public class ProcessServiceImp(Services.MatchService matchService,
     BatchTicketsService batchTicketsService) : ProcessService
 {
-    public async Task<Result> Settle(InputRequest request, string site, List<BusinessModels.ResourcesModel> resources)
+    public async Task<Result> Settle(InputRequest request, string site, List<Resources> resources)
     {
         try
         {
@@ -43,20 +43,19 @@ public class ProcessServiceImp(Services.MatchService matchService,
         }
     }
 
-    private static BatchTicketRequest CreateBatchTicketRequest(InputRequest request, string site, List<BusinessModels.ResourcesModel> resources)
+    private static BatchTicketRequest CreateBatchTicketRequest(InputRequest request, string site, List<Resources> resources)
     {
-        var resourceIds = string.Join(',', resources.Select(x => x.ResourceId).Distinct().ToArray());
         return new BatchTicketRequest
         {
             MatchId = request.MatchId,
             SportType = request.SportType,
             Action = request.Action,
-            Resources = resourceIds,
+            Resources = resources,
+            DbServer = site,
             LastCustId = 0,
             LastTransId = 0,
             BatchSize = BusinessConstants.Settings.MaxBatchSize,
-            BatchTotal = BusinessConstants.Settings.MaxWorker,
-            DbServer = site
+            BatchTotal = BusinessConstants.Settings.MaxWorker
         };
     }
 }

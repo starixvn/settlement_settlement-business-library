@@ -1,6 +1,6 @@
-﻿namespace Settlement.Business.Models.HappyFive;
+﻿namespace Settlement.Business.Models;
 
-public class ResourcesModel
+public class Resources
 {
     public int ProfileId { get; set; }
 

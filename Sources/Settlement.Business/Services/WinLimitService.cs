@@ -1,7 +1,7 @@
-﻿using Newtonsoft.Json;
-using Settlement.Business.Core.Models;
+﻿using Settlement.Business.Core.Models;
 using Settlement.Business.Criteria;
 using Settlement.Business.Models;
+using System.Text.Json;
 
 namespace Settlement.Business.Services;
 
@@ -18,7 +18,8 @@ public class WinLimitServiceImp(
     {
         var listCustIds = customerService.GetCustomersByModds(betTrans);
 
-        var customers = JsonConvert.SerializeObject(listCustIds);
-        return await repository.FetchAsync<WinLimit>(new GetMaxPayoutSettingCriteria { ListCust = customers });
+        var customersJson = JsonSerializer.Serialize(listCustIds);
+
+        return await repository.FetchAsync<WinLimit>(new GetMaxPayoutSettingCriteria { ListCust = customersJson });
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace Settlement.Business.Requests;
+﻿using Settlement.Business.Models;
+
+namespace Settlement.Business.Requests;
 
 public class BatchTicketRequest
 {
@@ -6,7 +8,7 @@ public class BatchTicketRequest
 
     public int SportType { get; set; }
 
-    public string Resources { get; set; }
+    public List<Resources> Resources { get; set; }
 
     public string Action { get; set; }
 

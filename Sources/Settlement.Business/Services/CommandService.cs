@@ -28,8 +28,8 @@ public class CommandServiceImp(
                 tasks.Remove(finishedTask);
             }
 
-            var request = CreateRequest(batchTicketRequest, batch);
-            var task = GetAndUpdateTicket(request);
+            var request = CreateTicketRequest(batchTicketRequest, batch);
+            var task = GetAndUpdateTicket(request, batchTicketRequest.Resources);
             tasks.Add(task);
         }
 
@@ -43,10 +43,10 @@ public class CommandServiceImp(
         };
     }
 
-    private async Task<Result> GetAndUpdateTicket(TicketRequest request)
+    private async Task<Result> GetAndUpdateTicket(TicketRequest request, List<Resources> resources)
     {
         var tickets = await ticketService.GetTickets(request);
-        var ticketsAfterCalculate = await generateBetTranService.Happy5(tickets);
+        var ticketsAfterCalculate = await generateBetTranService.Happy5(tickets, resources);
 
         var ticketsJson = JsonConvert.SerializeObject(ticketsAfterCalculate);
 
@@ -55,13 +55,15 @@ public class CommandServiceImp(
         return new Result();
     }
 
-    private static TicketRequest CreateRequest(BatchTicketRequest batchTicketRequest, BetTranBatch batch)
+    private static TicketRequest CreateTicketRequest(BatchTicketRequest batchTicketRequest, BetTranBatch batch)
     {
+        var resourceIds = string.Join(',', batchTicketRequest.Resources.Select(x => x.ResourceId).Distinct().ToArray());
+
         return new TicketRequest
         {
             MatchId = batchTicketRequest.MatchId,
             SportType = batchTicketRequest.SportType,
-            Resources = batchTicketRequest.Resources,
+            Resources = resourceIds,
             Action = batchTicketRequest.Action,
             DbServer = batchTicketRequest.DbServer,
 

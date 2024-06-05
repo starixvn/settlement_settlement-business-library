@@ -19,11 +19,13 @@ public class TicketServiceImp(
 {
     public async Task<List<BetTranBatch>> GetBatchTicket(BatchTicketRequest request)
     {
+        var resourceIds = string.Join(',', request.Resources.Select(x => x.ResourceId).Distinct().ToArray());
+
         var criteria = new GetBatchTicketCriteria
         {
             MatchId = request.MatchId,
             SportType = request.SportType,
-            Resources = request.Resources,
+            Resources = resourceIds,
             Action = request.Action,
             LastCustId = request.LastCustId,
             LastTransId = request.LastTransId,

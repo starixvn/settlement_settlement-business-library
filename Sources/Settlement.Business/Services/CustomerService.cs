@@ -20,6 +20,6 @@ public class CustomerServiceImp : CustomerService
                 {
                     CustId = b.CustId,
                     Currency = b.Currency
-                }).Distinct();
+                }).DistinctBy(x => x.CustId).ToList();
     }
 }
