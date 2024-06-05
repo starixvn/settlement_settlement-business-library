@@ -1,8 +1,8 @@
-﻿using Newtonsoft.Json;
-using Settlement.Business.Core.Constants;
+﻿using Settlement.Business.Core.Constants;
 using Settlement.Business.Core.Models;
 using Settlement.Business.Models;
 using Settlement.Business.Requests;
+using System.Text.Json;
 
 namespace Settlement.Business.Services;
 
@@ -48,11 +48,21 @@ public class CommandServiceImp(
         var tickets = await ticketService.GetTickets(request);
         var ticketsAfterCalculate = await generateBetTranService.Happy5(tickets, resources);
 
-        var ticketsJson = JsonConvert.SerializeObject(ticketsAfterCalculate);
+        var ticketsJson = JsonSerializer.Serialize(ticketsAfterCalculate);
+        var updateRequest = CreateUpdateRequest(request, ticketsJson);
 
-        //ticketService.UpdateTicket()
+        return await ticketService.UpdateTicket(updateRequest);
+    }
 
-        return new Result();
+    private static UpdateTicketRequest CreateUpdateRequest(TicketRequest request, string ticketsJson)
+    {
+        return new UpdateTicketRequest
+        {
+            MatchId = request.MatchId,
+            TransJson = ticketsJson,
+            Action = request.Action,
+            DbServer = request.DbServer
+        };
     }
 
     private static TicketRequest CreateTicketRequest(BatchTicketRequest batchTicketRequest, BetTranBatch batch)

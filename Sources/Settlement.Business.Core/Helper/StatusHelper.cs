@@ -6,8 +6,10 @@ public static class StatusHelper
 {
     public static DateTime GetSettlementTime(BetTran betTrans, decimal? winLost, byte statusId)
     {
-        return betTrans.WinLost != winLost
+        var date = betTrans.WinLost != winLost
                || betTrans.StatusId != statusId ? DateTime.Now : betTrans.SettlementTime;
+
+        return Convert.ToDateTime(date.ToLongDateString());
     }
 
     public static string? GetExtraInfo(BetTran betTrans)

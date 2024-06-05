@@ -61,6 +61,15 @@ public class TicketServiceImp(
     {
         var criteria = new UpdateOtherSportsCriteria
         {
+            MatchId = request.MatchId,
+            TransJson = request.TransJson,
+            Action = request.Action,
+            EventTable = 1,
+            Is3rd = true,
+            IsCalculateBalance = true,
+            BalanceType = 81,
+            CWLBettype = 4,
+            SettleByApp = true,
             DbServer = request.DbServer
         };
         await repository.ExecuteAsync(criteria);

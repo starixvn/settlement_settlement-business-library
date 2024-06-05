@@ -22,7 +22,7 @@ public class UpdateOtherSportsCriteria : NonQueryCommand
 
     public string TransJson { get; set; }
 
-    public string BroadcastSessionId { get; set; } = Guid.NewGuid().ToString();
+    public string BroadcastSessionId { get; set; }
 
     public int ErrCode { get; set; }
 
@@ -31,7 +31,7 @@ public class UpdateOtherSportsCriteria : NonQueryCommand
     [SpParam(Ignored = true)]
     public string DbServer { get; set; }
 
-    public override string GetSettingKey() => $"NAP_UpdateBetTransHappy5_{DbServer}";
+    public override string GetSettingKey() => $"NAP_Admin_Calculate_OtherSports_{DbServer}";
 
-    public override bool IsValid() => MatchId > 0;
+    public override bool IsValid() => MatchId > 0 && !string.IsNullOrWhiteSpace(TransJson);
 }
