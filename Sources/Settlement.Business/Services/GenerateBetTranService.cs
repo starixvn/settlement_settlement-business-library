@@ -30,8 +30,6 @@ public class GenerateBetTranServiceImp(
     {
         var prepareBetTran = prepareBetTranService.CreateValue(betTran, maxWinLimit);
         betTran.IsApplyMaxPayout = prepareBetTran.IsApplyMaxPayout;
-        //betTran.WinLost = prepareBetTran.MaxWinLost;
-
         betTran.StatusWinLost = StatusHelper.GetStatusWinLost(betTran.Modds);
         betTran.ExtraInfo = StatusHelper.GetExtraInfo(betTran);
 

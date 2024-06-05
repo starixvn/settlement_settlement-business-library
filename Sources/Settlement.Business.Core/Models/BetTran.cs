@@ -1,6 +1,4 @@
-﻿using Settlement.Business.Core.Attributes;
-using Settlement.Business.Core.Constants;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace Settlement.Business.Core.Models;
 
@@ -12,9 +10,6 @@ public class BetTran
     [JsonPropertyName("c")]
     public int CustId { get; set; }
 
-    [JsonIgnore]
-    public byte Currency { get; set; }
-
     [JsonPropertyName("r")]
     public byte? Ruben { get; set; }
 
@@ -24,21 +19,56 @@ public class BetTran
     [JsonPropertyName("sw")]
     public byte StatusWinLost { get; set; }
 
-    [JsonIgnore]
-    public byte WalletType { get; set; }
+    [JsonPropertyName("wi")]
+    public decimal? WinLost { get; set; }
+
+    [JsonPropertyName("awi")]
+    public decimal? AWinLost { get; set; }
+
+    [JsonPropertyName("mwi")]
+    public decimal? MWinLost { get; set; }
+
+    [JsonPropertyName("swi")]
+    public decimal? SWinLost { get; set; }
+
+    [JsonPropertyName("pco")]
+    public decimal? PlayerComm { get; set; }
 
     [JsonPropertyName("tm")]
     public DateTime SettlementTime { get; set; }
 
-    [JsonIgnore]
-    public DateTime WinLostDate { get; set; }
-
     [JsonPropertyName("st")]
     public decimal Stake { get; set; }
 
+    [JsonPropertyName("co")]
+    public decimal? Comm { get; set; }
+
     [JsonPropertyName("aco")]
-    [Rounding, Type(DataTypes.SmallMoney)]
     public decimal? AComm { get; set; }
+
+    [JsonPropertyName("sco")]
+    public decimal SComm { get; set; }
+
+    [JsonPropertyName("o")]
+    public decimal Odds { get; set; }
+
+    [JsonPropertyName("mo")]
+    public decimal Modds { get; set; }
+
+    [JsonPropertyName("e")]
+    public string? ExtraInfo { get; set; }
+
+    [JsonPropertyName("stn")]
+    public string? Status { get; set; }
+
+    [JsonIgnore]
+    public byte Currency { get; set; }
+
+    [JsonIgnore]
+    public byte WalletType { get; set; }
+
+    [JsonIgnore]
+    public DateTime WinLostDate { get; set; }
 
     [JsonIgnore]
     public decimal ActualStake { get; set; }
@@ -49,41 +79,17 @@ public class BetTran
     [JsonIgnore]
     public decimal APositionTaking { get; set; }
 
-    [JsonPropertyName("awi")]
-    public decimal? AWinLost { get; set; }
-
-    [JsonPropertyName("co")]
-    [Rounding, Type(DataTypes.SmallMoney)]
-    public decimal? Comm { get; set; }
-
     [JsonIgnore]
     public decimal Discount { get; set; }
-
-    [JsonPropertyName("mo")]
-    public decimal Modds { get; set; }
 
     [JsonIgnore]
     public decimal MPositionTaking { get; set; }
 
-    [JsonPropertyName("mwi")]
-    public decimal? MWinLost { get; set; }
-
-    [JsonPropertyName("o")]
-    public decimal Odds { get; set; }
-
     [JsonIgnore]
     public decimal OddsSpread { get; set; }
 
-    [JsonPropertyName("pco")]
-    [Rounding, Type(DataTypes.SmallMoney)]
-    public decimal? PlayerComm { get; set; }
-
     [JsonIgnore]
     public decimal PlayerDiscount { get; set; }
-
-    [JsonPropertyName("sco")]
-    [Rounding, Type(DataTypes.SmallMoney)]
-    public decimal SComm { get; set; }
 
     [JsonIgnore]
     public decimal SDiscount { get; set; }
@@ -91,14 +97,8 @@ public class BetTran
     [JsonIgnore]
     public decimal SPositionTaking { get; set; }
 
-    [JsonPropertyName("swi")]
-    public decimal? SWinLost { get; set; }
-
     [JsonIgnore]
     public decimal TPositionTaking { get; set; }
-
-    [JsonPropertyName("wi")]
-    public decimal? WinLost { get; set; }
 
     [JsonIgnore]
     public int SRecommend { get; set; }
@@ -120,12 +120,6 @@ public class BetTran
 
     [JsonIgnore]
     public string ComStatus { get; set; }
-
-    [JsonPropertyName("e")]
-    public string? ExtraInfo { get; set; }
-
-    [JsonPropertyName("stn")]
-    public string? Status { get; set; }
 
     [JsonIgnore]
     public int ProfileId { get; set; }
