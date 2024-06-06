@@ -5,14 +5,13 @@ namespace Settlement.Business.Services;
 
 public interface ModdsService
 {
-    int Happy5(int profileId, string betTeam, List<Resources> resources);
+    int Happy5(int profileId, string betTeam, Resources resource);
 }
 
 public class ModdsServiceImp(ModdsValueService moddsValueService) : ModdsService
 {
-    public int Happy5(int profileId, string betTeam, List<Resources> resources)
+    public int Happy5(int profileId, string betTeam, Resources resource)
     {
-        var resource = resources.Find(r => r.ProfileId == profileId) ?? new Resources();
         var mainValue = moddsValueService.GetValueByProfileIdOfHappy5(profileId, resource.Result1, resource.Result2);
 
         if (HappyFiveConstants.Evaluate.TryGetValue((profileId, betTeam), out var evaluate))

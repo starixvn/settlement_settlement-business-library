@@ -18,7 +18,12 @@ public class GenerateBetTranServiceImp(
 
     public async Task<List<BetTran>> Happy5(List<BetTran> betTrans, List<Resources> resources)
     {
-        betTrans.ForEach(item => item.Modds = moddsService.Happy5(item.ProfileId, item.BetTeam, resources));
+        betTrans.ForEach(item =>
+        {
+            var resource = resources.Find(r => r.ProfileId == item.ProfileId) ?? new Resources();
+            item.Modds = moddsService.Happy5(item.ProfileId, item.BetTeam, resource);
+            item.OddsType = resource.OddsType;
+        });
         var maxWinLimit = (await winLimitService.GetMaxWinLimit(betTrans)).ToList();
 
         betTrans.ForEach(item => SetValue(item, maxWinLimit));
