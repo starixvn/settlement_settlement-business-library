@@ -1,4 +1,5 @@
-﻿using Settlement.Business.Core.Models;
+﻿using Polly;
+using Settlement.Business.Core.Models;
 using Settlement.Business.Criteria;
 using Settlement.Business.Criteria.HappyFive;
 using Settlement.Business.Models;
@@ -14,6 +15,9 @@ public interface MatchService
 
 public class MatchServiceImp(IDynamicRepository repository) : MatchService
 {
+    private const byte RetryCount = 3;
+
+    private const byte RetryTime = 3;
     public async Task<List<Resources>> GetResourceHappy5(int matchId, string action)
     {
         var criteria = new GetResultCriteria { MatchId = matchId, Action = action };
@@ -22,6 +26,18 @@ public class MatchServiceImp(IDynamicRepository repository) : MatchService
 
     public async Task<Result> LockMatch(int matchId, byte isLock, string site)
     {
-        return await repository.GetAsync<Result>(new LockMatchCriteria { MatchId = matchId, Lock = isLock, DbServer = site });
+        var result = new Result();
+        await Policy
+            .HandleResult<bool>(c => c == false && isLock == 1)
+            .WaitAndRetryAsync(RetryCount,
+                    _ => TimeSpan.FromSeconds(RetryTime))
+            .ExecuteAsync(async () =>
+            {
+                result = await repository.GetAsync<Result>(new LockMatchCriteria
+                { MatchId = matchId, Lock = isLock, DbServer = site });
+                return result.IsSuccessful;
+            });
+
+        return result;
     }
 }

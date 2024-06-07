@@ -18,16 +18,13 @@ public class ProcessServiceImp(Services.MatchService matchService,
     {
         try
         {
-            var unLockMatch = await matchService.LockMatch(request.MatchId, 0, site);
-
             var lockMatch = await matchService.LockMatch(request.MatchId, 1, site);
             if (lockMatch.IsSuccessful)
             {
                 var batchTicketRequest = CreateBatchTicketRequest(request, site, resources);
                 await batchTicketsService.SettleByBatch(batchTicketRequest);
+                await matchService.LockMatch(request.MatchId, 0, site);
             }
-
-            await matchService.LockMatch(request.MatchId, 0, site);
 
             return new Result
             {
@@ -37,9 +34,8 @@ public class ProcessServiceImp(Services.MatchService matchService,
         }
         catch (Exception e)
         {
-            var unLockMatch = await matchService.LockMatch(request.MatchId, 0, site);
-            Console.WriteLine(e);
-            throw;
+            await matchService.LockMatch(request.MatchId, 0, site);
+            throw e;
         }
     }
 
