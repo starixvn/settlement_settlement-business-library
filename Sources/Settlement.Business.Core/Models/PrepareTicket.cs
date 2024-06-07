@@ -1,6 +1,6 @@
 ﻿namespace Settlement.Business.Core.Models;
 
-public class PrepareBetTran
+public class PrepareTicket
 {
     public decimal CommWinRate { get; set; }
 
@@ -14,6 +14,8 @@ public class PrepareBetTran
 
     public string Status { get; set; }
 
+    public byte StatusWinLost { get; set; }
+
     public bool IsUpdated { get; set; }
 
     public bool IsApplyMaxPayout { get; set; }
@@ -24,4 +26,7 @@ public class PrepareBetTran
 
     public decimal FinalOdds { get; set; }
 
+    public string? ExtraInfo { get; set; }
+
+    public DateTime? SettlementTime { get; set; }
 }

@@ -1,8 +1,6 @@
-﻿using System.Text.Json.Serialization;
+﻿namespace Settlement.Business.Core.Models;
 
-namespace Settlement.Business.Core.Models;
-
-public class BetTran
+public class Ticket
 {
     [JsonPropertyName("t")]
     public long TransId { get; set; }
@@ -35,7 +33,7 @@ public class BetTran
     public decimal? PlayerComm { get; set; }
 
     [JsonPropertyName("tm")]
-    public DateTime SettlementTime { get; set; }
+    public DateTime? SettlementTime { get; set; }
 
     [JsonPropertyName("st")]
     public decimal Stake { get; set; }
@@ -131,7 +129,7 @@ public class BetTran
     public bool IsMarked { get; set; }
 
     [JsonIgnore]
-    public decimal ActualPayout { get; set; }
+    public decimal? ActualPayout { get; set; }
 
     [JsonIgnore]
     public bool IsApplyMaxPayout { get; set; }

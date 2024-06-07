@@ -16,10 +16,10 @@ public class SettleService(
     private async Task<Result> Testing()
     {
         //var request =
-        string[] siteDbServer = { "DBSID03" };
+        string[] siteDbServer = { "DBTXN" }; //, "DBSID01", "DBSID02"
         var request = new InputRequest
         {
-            MatchId = 83537868,
+            MatchId = 83539554,
             Action = "CAL",
         };
 
@@ -29,6 +29,7 @@ public class SettleService(
 
         var results = await Task.WhenAll(tasks.ToArray());
         var resultFailed = results.Where(r => r.ErrCode > 0).ToList();
+
         return new Result
         {
             ErrCode = resultFailed.Count,

@@ -18,6 +18,7 @@ public class ProcessServiceImp(Services.MatchService matchService,
     {
         try
         {
+            await matchService.LockMatch(request.MatchId, 0, site);
             var lockMatch = await matchService.LockMatch(request.MatchId, 1, site);
             if (lockMatch.IsSuccessful)
             {
@@ -32,10 +33,14 @@ public class ProcessServiceImp(Services.MatchService matchService,
                 ErrMessage = lockMatch.ErrMessage
             };
         }
-        catch (Exception e)
+        catch (Exception exception)
         {
             await matchService.LockMatch(request.MatchId, 0, site);
-            throw e;
+            return new Result
+            {
+                ErrCode = 1,
+                ErrMessage = $"Match Id = {request.MatchId} - SiteDb = {site} - {exception.Message}"
+            };
         }
     }
 

@@ -8,7 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddFanexSql(builder.Configuration);
 
-builder.Services.InitializeServices(builder.Configuration);
+builder.Services.InitializeServices();
 
 builder.Services.AddHostedService<SettleService>();
 

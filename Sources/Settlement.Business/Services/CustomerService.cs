@@ -7,14 +7,14 @@ using System.Linq;
 
 public interface CustomerService
 {
-    IEnumerable<Customer> GetCustomersByModds(IEnumerable<BetTran> betTrans);
+    IEnumerable<Customer> GetCustomersByModds(IEnumerable<Ticket> tickets);
 }
 
 public class CustomerServiceImp : CustomerService
 {
-    public IEnumerable<Customer> GetCustomersByModds(IEnumerable<BetTran> betTrans)
+    public IEnumerable<Customer> GetCustomersByModds(IEnumerable<Ticket> tickets)
     {
-        return (from b in betTrans
+        return (from b in tickets
                 where b.Modds >= Modds.ModdsQuarter
                 select new Customer
                 {

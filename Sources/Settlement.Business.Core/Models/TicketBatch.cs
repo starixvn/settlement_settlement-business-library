@@ -1,6 +1,6 @@
-﻿namespace Settlement.Business.Models;
+﻿namespace Settlement.Business.Core.Models;
 
-public class BetTranBatch
+public class TicketBatch
 {
     public int BatchNo { get; set; }
 

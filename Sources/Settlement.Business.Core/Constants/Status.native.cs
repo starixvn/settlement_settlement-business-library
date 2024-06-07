@@ -21,6 +21,13 @@ public static class Status
         public const byte Lose = 113;
     }
 
+    public static class StatusWinlost
+    {
+        public const byte Win = 2;
+
+        public const byte Lost = 4;
+    }
+
     public static class StatusName
     {
         public const string Won = "WON";

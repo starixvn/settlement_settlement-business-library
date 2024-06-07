@@ -7,33 +7,24 @@ using Settlement.Business.Core.Constants;
 
 public interface WinLostService
 {
-    (bool isApplyMaxPayout, decimal? winLost) GetWinLost(BetTran betTran, List<WinLimit> listWinLimit);
+    (bool isApplyMaxPayout, decimal? winLost) GetWinLost(Ticket ticket, List<WinLimit> listWinLimit);
 }
 
 public class WinLostServiceImp : WinLostService
 {
-    public (bool isApplyMaxPayout, decimal? winLost) GetWinLost(BetTran betTran, List<WinLimit> listWinLimit)
+    public (bool isApplyMaxPayout, decimal? winLost) GetWinLost(Ticket ticket, List<WinLimit> listWinLimit)
     {
-        var winLimit = listWinLimit.Find(w => w.CustId == betTran.CustId);
-        var actualPo = GetActualPayout(betTran);
-        if (winLimit != null && actualPo > winLimit.MaxWinLimit)
+        var winLimit = listWinLimit.Find(w => w.CustId == ticket.CustId);
+        if (winLimit != null && CheckMaxWinLimit(ticket.Modds, ticket.ActualPayout, winLimit.MaxWinLimit))
         {
-            betTran.ActualPayout = (decimal)actualPo;
             return (true, winLimit.MaxWinLimit);
         }
 
-        return (false, betTran.WinLost);
+        return (false, ticket.WinLost);
     }
 
-
-    private static decimal? GetActualPayout(BetTran betTran)
+    private static bool CheckMaxWinLimit(decimal modds, decimal? actualPayout, decimal maxWinLimit)
     {
-        var odds = betTran.Odds < 0 ? 1 : betTran.OddsType == 1 ? betTran.Odds - 1 : betTran.Odds;
-        return betTran.Modds switch
-        {
-            > Modds.ModdsQuarter => betTran.ActualStake + betTran.Stake * odds,
-            Modds.ModdsQuarter => betTran.ActualStake + (betTran.Stake * 0.5m * odds),
-            _ => null
-        };
+        return modds >= Modds.ModdsQuarter && actualPayout > maxWinLimit;
     }
 }

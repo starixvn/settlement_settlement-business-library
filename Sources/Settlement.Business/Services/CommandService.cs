@@ -1,5 +1,4 @@
-﻿using Settlement.Business.Core.Constants;
-using Settlement.Business.Core.Models;
+﻿using Settlement.Business.Core.Models;
 using Settlement.Business.Models;
 using Settlement.Business.Requests;
 using System.Text.Json;
@@ -8,26 +7,19 @@ namespace Settlement.Business.Services;
 
 public interface CommandService
 {
-    Task<Result> Settle(BatchTicketRequest batchTicketRequest, List<BetTranBatch> batches);
+    Task<Result> Settle(BatchTicketRequest batchTicketRequest, List<TicketBatch> batches);
 }
 
 public class CommandServiceImp(
     TicketService ticketService,
-    GenerateBetTranService generateBetTranService
-    ) : CommandService
+    GenerateTicketService generateTicketService) : CommandService
 {
-    public async Task<Result> Settle(BatchTicketRequest batchTicketRequest, List<BetTranBatch> batches)
+    public async Task<Result> Settle(BatchTicketRequest batchTicketRequest, List<TicketBatch> batches)
     {
         var tasks = new List<Task<Result>>();
 
         foreach (var batch in batches)
         {
-            if (tasks.Count >= Settings.MaxWorker)
-            {
-                var finishedTask = await Task.WhenAny(tasks);
-                tasks.Remove(finishedTask);
-            }
-
             var request = CreateTicketRequest(batchTicketRequest, batch);
             var task = GetAndUpdateTicket(request, batchTicketRequest.Resources);
             tasks.Add(task);
@@ -36,6 +28,7 @@ public class CommandServiceImp(
         var results = await Task.WhenAll(tasks);
 
         var resultFailed = results.Where(r => r.ErrCode > 0).ToList();
+
         return new Result
         {
             ErrCode = resultFailed.Count,
@@ -46,11 +39,10 @@ public class CommandServiceImp(
     private async Task<Result> GetAndUpdateTicket(TicketRequest request, List<Resources> resources)
     {
         var tickets = await ticketService.GetTickets(request);
-        var ticketsAfterCalculate = await generateBetTranService.Happy5(tickets, resources);
+        var ticketsAfterCalculate = await generateTicketService.Happy5(tickets, resources);
 
         var ticketsJson = JsonSerializer.Serialize(ticketsAfterCalculate);
         var updateRequest = CreateUpdateRequest(request, ticketsJson);
-
         return await ticketService.UpdateTicket(updateRequest);
     }
 
@@ -65,7 +57,7 @@ public class CommandServiceImp(
         };
     }
 
-    private static TicketRequest CreateTicketRequest(BatchTicketRequest batchTicketRequest, BetTranBatch batch)
+    private static TicketRequest CreateTicketRequest(BatchTicketRequest batchTicketRequest, TicketBatch batch)
     {
         var resourceIds = string.Join(',', batchTicketRequest.Resources.Select(x => x.ResourceId).Distinct().ToArray());
 

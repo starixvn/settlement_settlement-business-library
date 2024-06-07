@@ -7,9 +7,9 @@ namespace Settlement.Business.Services;
 
 public interface TicketService
 {
-    Task<List<BetTranBatch>> GetBatchTicket(BatchTicketRequest request);
+    Task<List<TicketBatch>> GetBatchTicket(BatchTicketRequest request);
 
-    Task<List<BetTran>> GetTickets(TicketRequest request);
+    Task<List<Ticket>> GetTickets(TicketRequest request);
 
     Task<Result> UpdateTicket(UpdateTicketRequest request);
 }
@@ -17,7 +17,7 @@ public interface TicketService
 public class TicketServiceImp(
     IDynamicRepository repository) : TicketService
 {
-    public async Task<List<BetTranBatch>> GetBatchTicket(BatchTicketRequest request)
+    public async Task<List<TicketBatch>> GetBatchTicket(BatchTicketRequest request)
     {
         var resourceIds = string.Join(',', request.Resources.Select(x => x.ResourceId).Distinct().ToArray());
 
@@ -33,10 +33,10 @@ public class TicketServiceImp(
             BatchTotal = request.BatchTotal,
             DbServer = request.DbServer
         };
-        return (await repository.FetchAsync<BetTranBatch>(criteria)).ToList();
+        return (await repository.FetchAsync<TicketBatch>(criteria)).ToList();
     }
 
-    public async Task<List<BetTran>> GetTickets(TicketRequest request)
+    public async Task<List<Ticket>> GetTickets(TicketRequest request)
     {
         var criteria = new GetTicketCriteria
         {
@@ -54,7 +54,7 @@ public class TicketServiceImp(
             MaxCustId_MinTransId = request.MaxCustId_MinTransId,
             MaxCustId_MaxTransId = request.MaxCustId_MaxTransId
         };
-        return (await repository.FetchAsync<BetTran>(criteria)).ToList();
+        return (await repository.FetchAsync<Ticket>(criteria)).ToList();
     }
 
     public async Task<Result> UpdateTicket(UpdateTicketRequest request)

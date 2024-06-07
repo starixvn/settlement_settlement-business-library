@@ -7,16 +7,16 @@ namespace Settlement.Business.Services;
 
 public interface WinLimitService
 {
-    Task<IEnumerable<WinLimit>> GetMaxWinLimit(IEnumerable<BetTran> betTrans);
+    Task<IEnumerable<WinLimit>> GetMaxWinLimit(IEnumerable<Ticket> tickets);
 }
 
 public class WinLimitServiceImp(
     CustomerService customerService,
     IDynamicRepository repository) : WinLimitService
 {
-    public async Task<IEnumerable<WinLimit>> GetMaxWinLimit(IEnumerable<BetTran> betTrans)
+    public async Task<IEnumerable<WinLimit>> GetMaxWinLimit(IEnumerable<Ticket> tickets)
     {
-        var listCustIds = customerService.GetCustomersByModds(betTrans);
+        var listCustIds = customerService.GetCustomersByModds(tickets);
 
         var customersJson = JsonSerializer.Serialize(listCustIds);
 
