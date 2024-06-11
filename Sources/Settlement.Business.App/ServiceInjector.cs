@@ -1,4 +1,5 @@
 ﻿using Fanex.Data.Repository;
+using Fanex.Settlement.Converter.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Settlement.Business.Services;
@@ -11,6 +12,7 @@ public static class ServiceInjector
     {
         services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
         services.AddSingleton<IDynamicRepository, DynamicRepository>();
+        services.AddSingleton<XmlConvertService, XmlConvertServiceImp>();
         services.AddSingleton<BatchTicketsService, BatchTicketsServiceImp>();
         services.AddSingleton<CommandService, CommandServiceImp>();
         services.AddSingleton<CustomerService, CustomerServiceImp>();
@@ -21,6 +23,7 @@ public static class ServiceInjector
         services.AddSingleton<ModdsValueService, ModdsValueServiceImp>();
         services.AddSingleton<PrepareTicketService, PrepareTicketServiceImp>();
 
+        services.AddSingleton<InsertHistoryData, InsertHistoryDataImp>();
         services.AddSingleton<TicketService, TicketServiceImp>();
         services.AddSingleton<WinLimitService, WinLimitServiceImp>();
         services.AddSingleton<WinLostService, WinLostServiceImp>();

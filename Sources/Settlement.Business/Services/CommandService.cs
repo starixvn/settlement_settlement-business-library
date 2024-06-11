@@ -12,7 +12,8 @@ public interface CommandService
 
 public class CommandServiceImp(
     TicketService ticketService,
-    GenerateTicketService generateTicketService) : CommandService
+    GenerateTicketService generateTicketService,
+    InsertHistoryData insertHistoryData) : CommandService
 {
     public async Task<Result> Settle(BatchTicketRequest batchTicketRequest, List<TicketBatch> batches)
     {
@@ -43,7 +44,13 @@ public class CommandServiceImp(
 
         var ticketsJson = JsonSerializer.Serialize(ticketsAfterCalculate);
         var updateRequest = CreateUpdateRequest(request, ticketsJson);
-        return await ticketService.UpdateTicket(updateRequest);
+        var updateTicketResult = await ticketService.UpdateTicket(updateRequest);
+        if (updateTicketResult.IsSuccessful)
+        {
+            await insertHistoryData.InsertHappy5(tickets, request.AdminId, updateTicketResult);
+        }
+
+        return updateTicketResult;
     }
 
     private static UpdateTicketRequest CreateUpdateRequest(TicketRequest request, string ticketsJson)
@@ -64,6 +71,7 @@ public class CommandServiceImp(
         return new TicketRequest
         {
             MatchId = batchTicketRequest.MatchId,
+            AdminId = batchTicketRequest.AdminId,
             SportType = batchTicketRequest.SportType,
             Resources = resourceIds,
             Action = batchTicketRequest.Action,

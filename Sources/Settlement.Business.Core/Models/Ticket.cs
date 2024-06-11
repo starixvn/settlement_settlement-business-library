@@ -135,5 +135,11 @@ public class Ticket
     public bool IsApplyMaxPayout { get; set; }
 
     [JsonIgnore]
+    public decimal? MaxWinLimit { get; set; }
+
+    [JsonIgnore]
     public byte? DeadHeat { get; set; }
+
+    [JsonIgnore]
+    public DateTime TransDate { get; set; }
 }

@@ -49,6 +49,7 @@ public class ProcessServiceImp(Services.MatchService matchService,
         return new BatchTicketRequest
         {
             MatchId = request.MatchId,
+            AdminId = request.AdminId,
             SportType = request.SportType,
             Action = request.Action,
             Resources = resources,

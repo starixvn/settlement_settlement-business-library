@@ -6,6 +6,8 @@ public class BatchTicketRequest
 {
     public int MatchId { get; set; }
 
+    public int AdminId { get; set; }
+
     public int SportType { get; set; }
 
     public List<Resources> Resources { get; set; }

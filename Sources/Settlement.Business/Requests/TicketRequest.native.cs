@@ -4,6 +4,8 @@ public class TicketRequest
 {
     public int MatchId { get; set; }
 
+    public int AdminId { get; set; }
+
     public int SportType { get; set; }
 
     public string Resources { get; set; }

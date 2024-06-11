@@ -58,6 +58,7 @@ public class GenerateTicketServiceImp(
     {
         var prepareTicket = prepareTicketService.CreateValue(ticket, maxWinLimit);
         ticket.IsApplyMaxPayout = prepareTicket.IsApplyMaxPayout;
+        ticket.MaxWinLimit = prepareTicket.MaxWinLost;
         ticket.StatusWinLost = prepareTicket.StatusWinLost;
         ticket.ExtraInfo = prepareTicket.ExtraInfo;
 
