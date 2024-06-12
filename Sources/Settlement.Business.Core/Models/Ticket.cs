@@ -54,10 +54,10 @@ public class Ticket
     public decimal Modds { get; set; }
 
     [JsonPropertyName("e")]
-    public string? ExtraInfo { get; set; }
+    public string ExtraInfo { get; set; }
 
     [JsonPropertyName("stn")]
-    public string? Status { get; set; }
+    public string Status { get; set; }
 
     [JsonIgnore]
     public byte Currency { get; set; }

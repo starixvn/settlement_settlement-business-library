@@ -1,6 +1,7 @@
 ﻿using System.Xml.Serialization;
 
-namespace Settlement.Business.Models;
+namespace Settlement.Business.Core.Models;
+
 [XmlRoot("root")]
 public class Root<T>
 {

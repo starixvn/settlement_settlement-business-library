@@ -1,25 +1,21 @@
 ﻿using Fanex.Settlement.Converter.Services;
-using Settlement.Business.Constants;
+using Settlement.Business.Core.Constants;
 using Settlement.Business.Core.Models;
 using Settlement.Business.Criteria;
-using Settlement.Business.Models;
 
 namespace Settlement.Business.Services;
 
 public interface InsertHistoryData
 {
-    Task InsertHappy5(IEnumerable<Ticket> tickets, int adminId, Result resultSettle);
+    Task InsertHappy5(IEnumerable<Ticket> tickets, int adminId);
 }
 
-public class InsertHistoryDataImp(XmlConvertService xmlConvertService, IDynamicRepository repository) : InsertHistoryData
+public class InsertHistoryDataImp(
+    XmlConvertService xmlConvertService,
+    IDynamicRepository repository) : InsertHistoryData
 {
-    public async Task InsertHappy5(IEnumerable<Ticket> tickets, int adminId, Result resultSettle)
+    public async Task InsertHappy5(IEnumerable<Ticket> tickets, int adminId)
     {
-        if (!resultSettle.IsSuccessful)
-        {
-            return;
-        }
-
         var infos = CreateXmlObject(tickets, adminId);
 
         if (infos.Rows.Count != 0)
@@ -35,14 +31,14 @@ public class InsertHistoryDataImp(XmlConvertService xmlConvertService, IDynamicR
         }
     }
 
-    private static Root<InfoMaxPO> CreateXmlObject(IEnumerable<Ticket> tickets, int adminId)
+    private static Root<MaxPayout> CreateXmlObject(IEnumerable<Ticket> tickets, int adminId)
     {
-        return new Root<InfoMaxPO>()
+        return new Root<MaxPayout>()
         {
-            Rows = tickets.Where(t => t.IsApplyMaxPayout).Select(t => new InfoMaxPO
+            Rows = tickets.Where(t => t.IsApplyMaxPayout).Select(t => new MaxPayout
             {
                 CustId = t.CustId,
-                ProductId = ProductConstants.Happy5,
+                ProductId = Products.Happy5,
                 GroupId = 0,
                 LevelId = 255,
                 ActionId = 255,

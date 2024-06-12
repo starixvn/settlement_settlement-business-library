@@ -1,5 +1,5 @@
 ﻿using Settlement.Business.Constants;
-using Settlement.Business.Models;
+using Settlement.Business.Core.Models;
 
 namespace Settlement.Business.Services;
 

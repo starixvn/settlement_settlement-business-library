@@ -1,6 +1,5 @@
 ﻿using Settlement.Business.Core.Models;
 using Settlement.Business.Criteria;
-using Settlement.Business.Models;
 using Settlement.Business.Requests;
 
 namespace Settlement.Business.Services;

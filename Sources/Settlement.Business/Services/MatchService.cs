@@ -2,7 +2,6 @@
 using Settlement.Business.Core.Models;
 using Settlement.Business.Criteria;
 using Settlement.Business.Criteria.HappyFive;
-using Settlement.Business.Models;
 
 namespace Settlement.Business.Services;
 
@@ -18,6 +17,7 @@ public class MatchServiceImp(IDynamicRepository repository) : MatchService
     private const byte RetryCount = 3;
 
     private const byte RetryTime = 3;
+
     public async Task<List<Resources>> GetResourceHappy5(int matchId, string action)
     {
         var criteria = new GetResultCriteria { MatchId = matchId, Action = action };
@@ -28,7 +28,7 @@ public class MatchServiceImp(IDynamicRepository repository) : MatchService
     {
         var result = new Result();
         await Policy
-            .HandleResult<bool>(c => c == false && isLock == 1)
+            .HandleResult<bool>(c => !c && isLock == 1)
             .WaitAndRetryAsync(RetryCount,
                     _ => TimeSpan.FromSeconds(RetryTime))
             .ExecuteAsync(async () =>

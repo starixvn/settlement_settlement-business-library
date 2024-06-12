@@ -1,7 +1,6 @@
 ﻿namespace Settlement.Business.Services;
 
 using Core.Models;
-using Models;
 using Settlement.Business.Core.Constants;
 using System.Linq;
 

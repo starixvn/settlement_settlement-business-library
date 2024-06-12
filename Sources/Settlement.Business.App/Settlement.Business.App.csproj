@@ -22,7 +22,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Fanex.Data.SqlServer" Version="4.2.5.3" />
+	  <!-- ReSharper disable once VulnerablePackage -->
+	  <PackageReference Include="Fanex.Data.SqlServer" Version="4.2.5.3" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
   </ItemGroup>
 	<ItemGroup>

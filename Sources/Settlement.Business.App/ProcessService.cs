@@ -1,5 +1,4 @@
 ﻿using Settlement.Business.Core.Models;
-using Settlement.Business.Models;
 using Settlement.Business.Requests;
 using Settlement.Business.Services;
 using BusinessConstants = Settlement.Business.Core.Constants;
@@ -11,35 +10,32 @@ public interface ProcessService
     Task<Result> Settle(InputRequest request, string site, List<Resources> resources);
 }
 
-public class ProcessServiceImp(Services.MatchService matchService,
+public class ProcessServiceImp(MatchService matchService,
     BatchTicketsService batchTicketsService) : ProcessService
 {
     public async Task<Result> Settle(InputRequest request, string site, List<Resources> resources)
     {
         try
         {
-            await matchService.LockMatch(request.MatchId, 0, site);
-            var lockMatch = await matchService.LockMatch(request.MatchId, 1, site);
-            if (lockMatch.IsSuccessful)
+            var result = await matchService.LockMatch(request.MatchId, 1, site);
+            if (result.IsSuccessful)
             {
                 var batchTicketRequest = CreateBatchTicketRequest(request, site, resources);
-                await batchTicketsService.SettleByBatch(batchTicketRequest);
+                result = await batchTicketsService.SettleByBatch(batchTicketRequest);
                 await matchService.LockMatch(request.MatchId, 0, site);
             }
 
-            return new Result
-            {
-                ErrCode = lockMatch.ErrCode,
-                ErrMessage = lockMatch.ErrMessage
-            };
+            return result;
         }
         catch (Exception exception)
         {
+            var errorMessage = $"Match Id = {request.MatchId} - SiteDb = {site} - {exception.Message}";
             await matchService.LockMatch(request.MatchId, 0, site);
+
             return new Result
             {
                 ErrCode = 1,
-                ErrMessage = $"Match Id = {request.MatchId} - SiteDb = {site} - {exception.Message}"
+                ErrMessage = errorMessage
             };
         }
     }

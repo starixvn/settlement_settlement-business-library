@@ -1,4 +1,4 @@
-﻿namespace Settlement.Business.Models;
+﻿namespace Settlement.Business.Core.Models;
 
 public class Resources
 {

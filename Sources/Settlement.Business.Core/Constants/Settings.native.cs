@@ -6,3 +6,8 @@ public static class Settings
 
     public const int MaxWorker = 5;
 }
+
+public static class Products
+{
+    public const int Happy5 = 164;
+}

@@ -118,7 +118,7 @@ public class PrepareTicketServiceImp(
         return mOdds > 0 ? StatusWinlost.Win : StatusWinlost.Lost;
     }
 
-    private static string? ExtraInfo(bool isApplyMaxPayout, string? extraInfo, decimal? actualPayout)
+    private static string ExtraInfo(bool isApplyMaxPayout, string extraInfo, decimal? actualPayout)
     {
         if (isApplyMaxPayout && actualPayout != null)
         {

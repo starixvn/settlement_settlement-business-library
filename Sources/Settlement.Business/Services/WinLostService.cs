@@ -2,7 +2,6 @@
 
 namespace Settlement.Business.Services;
 
-using Models;
 using Settlement.Business.Core.Constants;
 
 public interface WinLostService

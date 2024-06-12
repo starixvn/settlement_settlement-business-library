@@ -1,4 +1,4 @@
-﻿using Settlement.Business.Models;
+﻿using Settlement.Business.Core.Models;
 
 namespace Settlement.Business.Requests;
 

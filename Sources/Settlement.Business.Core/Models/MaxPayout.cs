@@ -1,7 +1,8 @@
 ﻿using System.Xml.Serialization;
 
 namespace Settlement.Business.Core.Models;
-public class InfoMaxPO
+
+public class MaxPayout
 {
     [XmlElement("a1")]
     public long CustId { get; set; }
@@ -35,5 +36,4 @@ public class InfoMaxPO
 
     [XmlElement("a17")]
     public long TransId { get; set; }
-
 }

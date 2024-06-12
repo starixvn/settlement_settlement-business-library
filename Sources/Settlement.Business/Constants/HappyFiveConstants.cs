@@ -14,7 +14,9 @@ public static class HappyFiveConstants
 
     public const int FifthProfileId = 8105;
 
-    public static readonly Dictionary<(int, string), Func<int, bool>> Evaluate = new()
+    public static IReadOnlyDictionary<(int, string), Func<int, bool>> Evaluate => EvaluateMapping;
+
+    private static readonly Dictionary<(int, string), Func<int, bool>> EvaluateMapping = new()
     {
         { (8101, BetTeam.B), value => value >= 53 },
         { (8101, BetTeam.S), value => value < 53 },
@@ -25,10 +27,10 @@ public static class HappyFiveConstants
         { (8103, BetTeam.AU), value => value is >= 53 and <= 71 },
         { (8103, BetTeam.WI), value => value is >= 72 and <= 90 },
         { (8104, BetTeam.MO), value => value > 0 },
-        { (8104, BetTeam.ME), value => value < 0},
+        { (8104, BetTeam.ME), value => value < 0 },
         { (8105, BetTeam.BO), value => value >= 53 && value % 2 == 1 },
-        { (8105, BetTeam.BE), value => value >= 53 && value % 2 == 0},
-        { (8105, BetTeam.SO), value => value < 53 && value % 2 == 1},
-        { (8105, BetTeam.SE), value => value < 53 && value % 2 == 0},
+        { (8105, BetTeam.BE), value => value >= 53 && value % 2 == 0 },
+        { (8105, BetTeam.SO), value => value < 53 && value % 2 == 1 },
+        { (8105, BetTeam.SE), value => value < 53 && value % 2 == 0 }
     };
 }

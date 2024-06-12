@@ -16,7 +16,6 @@ public class BatchTicketsServiceImp(
     {
         var listResult = new List<Result>();
 
-        var watch = System.Diagnostics.Stopwatch.StartNew();
         var flag = true;
         while (flag)
         {
@@ -32,9 +31,6 @@ public class BatchTicketsServiceImp(
 
             flag = request is { LastTransId: > 0, LastCustId: > 0 };
         }
-        watch.Stop();
-        var log = $"Time execute: {watch.ElapsedMilliseconds}\r\n";
-        Console.WriteLine(log);
 
         return new Result
         {

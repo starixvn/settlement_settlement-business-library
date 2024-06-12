@@ -1,5 +1,4 @@
 ﻿using Settlement.Business.Core.Models;
-using Settlement.Business.Models;
 using Settlement.Business.Requests;
 using System.Text.Json;
 
@@ -45,9 +44,10 @@ public class CommandServiceImp(
         var ticketsJson = JsonSerializer.Serialize(ticketsAfterCalculate);
         var updateRequest = CreateUpdateRequest(request, ticketsJson);
         var updateTicketResult = await ticketService.UpdateTicket(updateRequest);
+
         if (updateTicketResult.IsSuccessful)
         {
-            await insertHistoryData.InsertHappy5(tickets, request.AdminId, updateTicketResult);
+            await insertHistoryData.InsertHappy5(tickets, request.AdminId);
         }
 
         return updateTicketResult;
