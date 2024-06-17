@@ -22,10 +22,10 @@ public class SettleService(
             Action = "CAL",
         };
 
-        var resources = await matchService.GetResourceHappy5(request.MatchId, request.Action);
+        var (resources, _) = await matchService.GetResourceHappy5(request.MatchId, request.Action);
         var watch = System.Diagnostics.Stopwatch.StartNew();
         var tasks = siteDbServer
-            .Select(site => processService.Settle(request, site, resources)).ToList();
+            .Select(site => processService.Settle(request, site, resources.ToList())).ToList();
 
         var results = await Task.WhenAll(tasks.ToArray());
         var resultFailed = results.Where(r => r.ErrCode > 0).ToList();

@@ -25,7 +25,6 @@ public class PrepareTicketServiceImp(
         var (isApplyMaxPayout, maxWinLost) = winLostService.GetWinLost(ticket, maxWinLimit);
         var (commWinRate, commLostRate) = CommRate(ticket.ComStatus);
 
-        const int finalOdds = 0;
         var winLost = WinLost(ticket, isApplyMaxPayout, maxWinLost);
 
         return new PrepareTicket
@@ -33,8 +32,7 @@ public class PrepareTicketServiceImp(
             CommWinRate = commWinRate,
             CommLostRate = commLostRate,
             CommHalfWLRate = 0.5m, // Need to check: CASE WHEN sr.isCN88 = 1 AND sr.isMajorGroup = 1 THEN 1 ELSE 0.5
-            Odds = Odds(ticket, finalOdds),
-            FinalOdds = finalOdds,
+            Odds = Odds(ticket),
             StatusId = statusId,
             Status = statusName,
             StatusWinLost = StatusWinLost(ticket.Modds),
@@ -57,21 +55,21 @@ public class PrepareTicketServiceImp(
         return ticket.SettlementTime;
     }
 
-    private static decimal Odds(Ticket ticket, decimal finalOdds)
+    private static decimal Odds(Ticket ticket)
     {
         if (ticket.Odds < 0)
         {
             return 1;
         }
 
-        return ticket.OddsType == 1 ? GetOddsByTicket(ticket, finalOdds) : ticket.Odds;
+        return ticket.OddsType == 1 ? GetOddsByTicket(ticket) : ticket.Odds;
     }
 
-    private static decimal GetOddsByTicket(Ticket ticket, decimal finalOdds)
+    private static decimal GetOddsByTicket(Ticket ticket)
     {
         if (ticket.BetType == BetTypes.FirstHalfHomeTeamOddEven)
         {
-            return finalOdds - 1;
+            return ticket.Modds - 1;
         }
 
         if (ticket.Modds > Modds.ModdsQuarter && BetTypes.BackLayBetType.Contains(ticket.BetType) &&

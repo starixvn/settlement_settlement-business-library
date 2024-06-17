@@ -3,8 +3,6 @@
 public static class Settings
 {
     public const int MaxBatchSize = 2000;
-
-    public const int MaxWorker = 5;
 }
 
 public static class Products

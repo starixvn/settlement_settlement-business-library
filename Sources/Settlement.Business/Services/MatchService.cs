@@ -7,7 +7,7 @@ namespace Settlement.Business.Services;
 
 public interface MatchService
 {
-    Task<List<Resources>> GetResourceHappy5(int matchId, string action);
+    Task<(IEnumerable<Resources>, IEnumerable<Ball>)> GetResourceHappy5(int matchId, string action);
 
     Task<Result> LockMatch(int matchId, byte isLock, string site);
 }
@@ -18,10 +18,10 @@ public class MatchServiceImp(IDynamicRepository repository) : MatchService
 
     private const byte RetryTime = 3;
 
-    public async Task<List<Resources>> GetResourceHappy5(int matchId, string action)
+    public async Task<(IEnumerable<Resources>, IEnumerable<Ball>)> GetResourceHappy5(int matchId, string action)
     {
         var criteria = new GetResultCriteria { MatchId = matchId, Action = action };
-        return (await repository.FetchAsync<Resources>(criteria)).ToList();
+        return await repository.FetchMultipleAsync<Resources, Ball>(criteria);
     }
 
     public async Task<Result> LockMatch(int matchId, byte isLock, string site)

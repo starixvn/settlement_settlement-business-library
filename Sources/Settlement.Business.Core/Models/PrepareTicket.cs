@@ -24,8 +24,6 @@ public class PrepareTicket
 
     public decimal? WinLost { get; set; }
 
-    public decimal FinalOdds { get; set; }
-
     public string ExtraInfo { get; set; }
 
     public DateTime? SettlementTime { get; set; }
