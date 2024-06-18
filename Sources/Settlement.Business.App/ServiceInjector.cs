@@ -3,6 +3,7 @@ using Fanex.Settlement.Converter.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Settlement.Business.Services;
+using Settlement.Business.Services.HappyFive;
 
 namespace Settlement.Business.App;
 
@@ -14,9 +15,8 @@ public static class ServiceInjector
         services.AddSingleton<IDynamicRepository, DynamicRepository>();
         services.AddSingleton<XmlConvertService, XmlConvertServiceImp>();
         services.AddSingleton<BatchTicketsService, BatchTicketsServiceImp>();
-        services.AddSingleton<CommandService, CommandServiceImp>();
+        services.AddSingleton<ProcessService, ProcessServiceImp>();
         services.AddSingleton<CustomerService, CustomerServiceImp>();
-        services.AddSingleton<GenerateTicketService, GenerateTicketServiceImp>();
         services.AddSingleton<MatchService, MatchServiceImp>();
         services.AddSingleton<ModdsService, ModdsServiceImp>();
 

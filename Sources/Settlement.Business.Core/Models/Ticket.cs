@@ -59,6 +59,9 @@ public class Ticket
     [JsonPropertyName("stn")]
     public string Status { get; set; }
 
+    [JsonPropertyName("ut")]
+    public DateTime? FcUpdateTime { get; set; }
+
     [JsonIgnore]
     public byte Currency { get; set; }
 

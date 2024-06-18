@@ -9,3 +9,10 @@ public static class Products
 {
     public const int Happy5 = 164;
 }
+
+public static class ActionName
+{
+    public const string Calculate = "Cal";
+
+    public const string Refund = "Refund";
+}

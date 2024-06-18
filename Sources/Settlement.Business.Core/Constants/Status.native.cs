@@ -26,6 +26,8 @@ public static class Status
         public const byte Win = 2;
 
         public const byte Lost = 4;
+
+        public const byte Refund = 6;
     }
 
     public static class StatusName
@@ -35,5 +37,7 @@ public static class Status
         public const string Draw = "DRAW";
 
         public const string Lose = "LOSE";
+
+        public const string Refund = "Refund";
     }
 }

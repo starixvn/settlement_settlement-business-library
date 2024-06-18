@@ -6,7 +6,7 @@ namespace Settlement.Business.Services;
 
 public interface TicketService
 {
-    Task<List<TicketBatch>> GetBatchTicket(BatchTicketRequest request);
+    Task<List<TicketBatch>> GetBatches(BatchTicketRequest request);
 
     Task<List<Ticket>> GetTickets(TicketRequest request);
 
@@ -16,7 +16,25 @@ public interface TicketService
 public class TicketServiceImp(
     IDynamicRepository repository) : TicketService
 {
-    public async Task<List<TicketBatch>> GetBatchTicket(BatchTicketRequest request)
+    public async Task<List<TicketBatch>> GetBatches(BatchTicketRequest request)
+    {
+        var batches = await GetBatchTicket(request);
+        var count = batches.Count;
+        if (count <= 0)
+        {
+            request.LastCustId = 0;
+            request.LastTransId = 0;
+            return batches;
+        }
+
+        var latestBatch = batches[count - 1];
+        request.LastCustId = latestBatch.MaxCustId;
+        request.LastTransId = latestBatch.MaxCustId_MaxTransId;
+
+        return batches;
+    }
+
+    private async Task<List<TicketBatch>> GetBatchTicket(BatchTicketRequest request)
     {
         var resourceIds = string.Join(',', request.Resources.Select(x => x.ResourceId).Distinct().ToArray());
 

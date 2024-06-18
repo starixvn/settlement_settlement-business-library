@@ -49,7 +49,7 @@ public class PrepareTicketServiceImp(
     {
         if (ticket.WinLost != newWinLost || ticket.StatusId != newStatusId)
         {
-            return Convert.ToDateTime(DateTime.Now.ToStandardString());
+            return Convert.ToDateTime(DateTime.Now.ToDateTimeString());
         }
 
         return ticket.SettlementTime;

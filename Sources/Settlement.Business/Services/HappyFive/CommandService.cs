@@ -1,21 +1,25 @@
 ﻿using Settlement.Business.Core.Constants;
+using Settlement.Business.Core.Extensions;
 using Settlement.Business.Core.Models;
+using static Settlement.Business.Core.Constants.Status;
 
-namespace Settlement.Business.Services;
+namespace Settlement.Business.Services.HappyFive;
 
-public interface GenerateTicketService
+public interface CommandService
 {
-    Task<List<Ticket>> Happy5(List<Ticket> tickets, List<Resources> resources);
+    Task<List<Ticket>> Calc(List<Ticket> tickets, List<Resources> resources);
+
+    List<Ticket> Refund(List<Ticket> tickets, List<Resources> resources);
 }
 
-public class GenerateTicketServiceImp(
+public class CommandServiceImp(
     ModdsService moddsService,
     WinLimitService winLimitService,
-    PrepareTicketService prepareTicketService) : GenerateTicketService
+    PrepareTicketService prepareTicketService) : CommandService
 {
     private const byte DefaultRuben = 1;
 
-    public async Task<List<Ticket>> Happy5(List<Ticket> tickets, List<Resources> resources)
+    public async Task<List<Ticket>> Calc(List<Ticket> tickets, List<Resources> resources)
     {
         tickets.ForEach(item =>
         {
@@ -27,6 +31,29 @@ public class GenerateTicketServiceImp(
         var maxWinLimit = (await winLimitService.GetMaxWinLimit(tickets)).ToList();
 
         tickets.ForEach(item => SetValue(item, maxWinLimit));
+
+        return tickets;
+    }
+
+    public List<Ticket> Refund(List<Ticket> tickets, List<Resources> resources)
+    {
+        tickets.ForEach(item =>
+        {
+            item.WinLost = item.ActualStake;
+            item.AWinLost = 0;
+            item.MWinLost = 0;
+            item.SWinLost = 0;
+            item.PlayerComm = 0;
+            item.Comm = 0;
+            item.AComm = 0;
+            item.SComm = 0;
+            item.Ruben = DefaultRuben;
+            item.StatusWinLost = StatusWinlost.Refund;
+            item.StatusId = StatusId.Refund;
+            item.Status = StatusName.Refund;
+            item.SettlementTime = Convert.ToDateTime(DateTime.Now.ToDateTimeString());
+            item.FcUpdateTime = Convert.ToDateTime(DateTime.Now.ToDateTime2String());
+        });
 
         return tickets;
     }

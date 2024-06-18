@@ -2,6 +2,7 @@
 using Settlement.Business.Core.Models;
 using Settlement.Business.Requests;
 using Settlement.Business.Services;
+using Settlement.Business.Services.HappyFive;
 using BusinessConstants = Settlement.Business.Core.Constants;
 
 namespace Settlement.Business.App;
@@ -23,7 +24,7 @@ public class ProcessServiceImp(MatchService matchService,
             if (result.IsSuccessful)
             {
                 var batchTicketRequest = CreateBatchTicketRequest(request, site, resources);
-                result = await batchTicketsService.SettleByBatch(batchTicketRequest);
+                result = await batchTicketsService.Settle(batchTicketRequest);
                 await matchService.LockMatch(request.MatchId, 0, site);
             }
 

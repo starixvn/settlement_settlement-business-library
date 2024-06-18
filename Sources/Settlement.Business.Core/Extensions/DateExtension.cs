@@ -2,8 +2,13 @@
 
 public static class DateExtension
 {
-    public static string ToStandardString(this DateTime value)
+    public static string ToDateTimeString(this DateTime value)
     {
         return value.ToString("yyyy-MM-dd hh:mm:ss.fff", System.Globalization.CultureInfo.InvariantCulture);
+    }
+
+    public static string ToDateTime2String(this DateTime value)
+    {
+        return value.ToString("yyyy-MM-dd hh:mm:ss.fffffff", System.Globalization.CultureInfo.InvariantCulture);
     }
 }
