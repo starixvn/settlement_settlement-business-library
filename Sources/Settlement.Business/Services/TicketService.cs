@@ -81,6 +81,7 @@ public class TicketServiceImp(
             MatchId = request.MatchId,
             TransJson = request.TransJson,
             Action = request.Action,
+            ActionId = request.ActionId,
             EventTable = 1,
             Is3rd = true,
             IsCalculateBalance = true,

@@ -49,6 +49,7 @@ public class ProcessServiceImp(
             MatchId = request.MatchId,
             TransJson = ticketsJson,
             Action = request.Action,
+            ActionId = request.ActionId,
             DbServer = request.DbServer
         };
     }

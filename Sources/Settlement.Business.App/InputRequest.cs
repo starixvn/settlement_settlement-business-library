@@ -10,6 +10,8 @@ public class InputRequest
 
     public string Action { get; set; } = "CAL";
 
+    public int ActionId { get; set; }
+
     public string Ip { get; set; } = string.Empty;
 
     public bool IsAuto { get; set; } = true;

@@ -77,6 +77,7 @@ public class BatchTicketsServiceImp(
             SportType = batchTicketRequest.SportType,
             Resources = resourceIds,
             Action = batchTicketRequest.Action,
+            ActionId = batchTicketRequest.ActionId,
             DbServer = batchTicketRequest.DbServer,
 
             MinCustId = batch.MinCustId,

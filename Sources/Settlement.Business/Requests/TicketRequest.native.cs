@@ -12,6 +12,8 @@ public class TicketRequest
 
     public string Action { get; set; }
 
+    public int ActionId { get; set; }
+
     public int MinCustId { get; set; }
 
     public long MinCustId_MinTransId { get; set; }

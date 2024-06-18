@@ -15,11 +15,12 @@ public class SettleService(
     private async Task Testing()
     {
         //var request =
-        string[] siteDbServer = { "DBTXN", "DBSID01", "DBSID02" }; //, "DBSID01", "DBSID02"
+        string[] siteDbServer = { "DBTXN" }; //, "DBSID01", "DBSID02"
         var request = new InputRequest
         {
-            MatchId = 83539554,
-            Action = "CAL",
+            MatchId = 83541097,
+            Action = "Refund",
+            ActionId = 81001
         };
 
         var (resources, _) = await matchService.GetResourceHappy5(request.MatchId, request.Action);

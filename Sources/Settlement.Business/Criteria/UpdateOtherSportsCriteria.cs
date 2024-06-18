@@ -8,6 +8,8 @@ public class UpdateOtherSportsCriteria : NonQueryCommand
 
     public string Action { get; set; }
 
+    public int ActionId { get; set; }
+
     public byte EventTable { get; set; }
 
     public bool Is3rd { get; set; }

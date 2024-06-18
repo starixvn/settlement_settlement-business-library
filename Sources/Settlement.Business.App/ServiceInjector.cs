@@ -15,7 +15,6 @@ public static class ServiceInjector
         services.AddSingleton<IDynamicRepository, DynamicRepository>();
         services.AddSingleton<XmlConvertService, XmlConvertServiceImp>();
         services.AddSingleton<BatchTicketsService, BatchTicketsServiceImp>();
-        services.AddSingleton<ProcessService, ProcessServiceImp>();
         services.AddSingleton<CustomerService, CustomerServiceImp>();
         services.AddSingleton<MatchService, MatchServiceImp>();
         services.AddSingleton<ModdsService, ModdsServiceImp>();
@@ -30,6 +29,8 @@ public static class ServiceInjector
         services.AddSingleton<WinLostByModdsService, WinLostByModdsServiceImp>();
         services.AddSingleton<CommissionService, CommissionServiceImp>();
         services.AddSingleton<ProcessService, ProcessServiceImp>();
+        services.AddSingleton<CommandService, CommandServiceImp>();
+        services.AddSingleton<Services.HappyFive.ProcessService, Services.HappyFive.ProcessServiceImp>();
 
         services.AddControllers()
             .AddJsonOptions(options =>

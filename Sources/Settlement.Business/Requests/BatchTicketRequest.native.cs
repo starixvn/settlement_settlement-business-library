@@ -14,6 +14,8 @@ public class BatchTicketRequest
 
     public string Action { get; set; }
 
+    public int ActionId { get; set; }
+
     public int LastCustId { get; set; }
 
     public long LastTransId { get; set; }

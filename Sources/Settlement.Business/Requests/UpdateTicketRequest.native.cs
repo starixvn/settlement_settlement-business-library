@@ -6,6 +6,8 @@ public class UpdateTicketRequest
 
     public string Action { get; set; }
 
+    public int ActionId { get; set; }
+
     public string TransJson { get; set; }
 
     public string DbServer { get; set; }
