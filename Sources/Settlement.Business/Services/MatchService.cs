@@ -14,7 +14,7 @@ public interface MatchService
 
 public class MatchServiceImp(IDynamicRepository repository) : MatchService
 {
-    private const byte RetryCount = 3;
+    private const byte RetryCount = 2;
 
     private const byte RetryTime = 3;
 

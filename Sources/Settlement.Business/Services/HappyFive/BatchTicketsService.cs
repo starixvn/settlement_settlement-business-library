@@ -1,5 +1,4 @@
-﻿using Settlement.Business.Core.Constants;
-using Settlement.Business.Core.Models;
+﻿using Settlement.Business.Core.Models;
 using Settlement.Business.Requests;
 
 namespace Settlement.Business.Services.HappyFive;
@@ -48,10 +47,7 @@ public class BatchTicketsServiceImp(
         {
             var request = CreateTicketRequest(batchTicketRequest, batch);
 
-            var task = string.Equals(request.Action, ActionName.Calculate, StringComparison.OrdinalIgnoreCase)
-                ? processService.Calc(request, batchTicketRequest.Resources)
-                : processService.Refund(request, batchTicketRequest.Resources);
-
+            var task = processService.ProcessAsync(request, batchTicketRequest.Resources);
             tasks.Add(task);
         }
 
