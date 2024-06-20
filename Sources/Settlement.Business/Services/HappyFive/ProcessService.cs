@@ -1,5 +1,4 @@
-﻿using Polly;
-using Settlement.Business.Core.Constants;
+﻿using Settlement.Business.Core.Constants;
 using Settlement.Business.Core.Models;
 using Settlement.Business.Requests;
 using System.Text.Json;
@@ -22,54 +21,58 @@ public class ProcessServiceImp(
 
     public async Task<Result> ProcessAsync(TicketRequest request, List<Resources> resources)
     {
-        var result = new Result();
+        return string.Equals(request.Action, ActionName.Calculate, StringComparison.OrdinalIgnoreCase)
+            ? await Calc(request, resources)
+            : await Refund(request, resources);
 
-        await Policy
-            .HandleResult<bool>(flag => !flag)
-            .WaitAndRetryAsync(RetryCount,
-                _ => TimeSpan.FromSeconds(RetryTime))
-            .ExecuteAsync(async () =>
-            {
-                result = string.Equals(request.Action, ActionName.Calculate, StringComparison.OrdinalIgnoreCase)
-                    ? await Calc(request, resources)
-                    : await Refund(request, resources);
-                return result.IsSuccessful;
-            });
+        //var result = new Result();
 
-        return result;
+        //await Policy
+        //    .HandleResult<bool>(flag => !flag)
+        //    .WaitAndRetryAsync(RetryCount,
+        //        _ => TimeSpan.FromSeconds(RetryTime))
+        //    .ExecuteAsync(async () =>
+        //    {
+        //        result = string.Equals(request.Action, ActionName.Calculate, StringComparison.OrdinalIgnoreCase)
+        //            ? await Calc(request, resources)
+        //            : await Refund(request, resources);
+        //        return result.IsSuccessful;
+        //    });
+
+        //return result;
     }
 
     private async Task<Result> Calc(TicketRequest request, List<Resources> resources)
     {
-        return await TryCatch(request, async () =>
+        //return await TryCatch(request, async () =>
+        //{
+        var tickets = await ticketService.GetTickets(request);
+        var ticketsAfterCalculate = await generateTicketService.Calc(tickets, resources);
+
+        var ticketsJson = JsonSerializer.Serialize(ticketsAfterCalculate);
+        var updateRequest = CreateUpdateRequest(request, ticketsJson);
+        var result = await ticketService.UpdateTicket(updateRequest);
+
+        if (result.IsSuccessful)
         {
-            var tickets = await ticketService.GetTickets(request);
-            var ticketsAfterCalculate = await generateTicketService.Calc(tickets, resources);
+            await insertHistoryData.InsertHappy5(tickets, request.AdminId);
+        }
 
-            var ticketsJson = JsonSerializer.Serialize(ticketsAfterCalculate);
-            var updateRequest = CreateUpdateRequest(request, ticketsJson);
-            var result = await ticketService.UpdateTicket(updateRequest);
-
-            if (result.IsSuccessful)
-            {
-                await insertHistoryData.InsertHappy5(tickets, request.AdminId);
-            }
-
-            return result;
-        });
+        return result;
+        // });
     }
 
     private async Task<Result> Refund(TicketRequest request, List<Resources> resources)
     {
-        return await TryCatch(request, async () =>
-        {
-            var tickets = await ticketService.GetTickets(request);
-            var ticketsAfterRefund = generateTicketService.Refund(tickets, resources);
-            var ticketsJson = JsonSerializer.Serialize(ticketsAfterRefund);
-            var updateRequest = CreateUpdateRequest(request, ticketsJson);
+        //return await TryCatch(request, async () =>
+        //{
+        var tickets = await ticketService.GetTickets(request);
+        var ticketsAfterRefund = generateTicketService.Refund(tickets, resources);
+        var ticketsJson = JsonSerializer.Serialize(ticketsAfterRefund);
+        var updateRequest = CreateUpdateRequest(request, ticketsJson);
 
-            return await ticketService.UpdateTicket(updateRequest);
-        });
+        return await ticketService.UpdateTicket(updateRequest);
+        // });
     }
 
     private static async Task<Result> TryCatch(TicketRequest request, Func<Task<Result>> action)

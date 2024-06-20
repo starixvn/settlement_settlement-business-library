@@ -2,8 +2,6 @@
 
 public class TicketBatch
 {
-    public int BatchNo { get; set; }
-
     public int MinCustId { get; set; }
 
     public long MinCustId_MinTransId { get; set; }

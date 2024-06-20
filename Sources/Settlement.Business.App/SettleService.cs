@@ -18,9 +18,9 @@ public class SettleService(
         string[] siteDbServer = { "DBTXN" }; //, "DBSID01", "DBSID02"
         var request = new InputRequest
         {
-            MatchId = 83541097,
-            Action = "Refund",
-            ActionId = 81001
+            MatchId = 83541409,
+            Action = "Cal",
+            ActionId = 81000
         };
 
         var (resources, _) = await matchService.GetResourceHappy5(request.MatchId, request.Action);
@@ -32,7 +32,7 @@ public class SettleService(
         var resultFailed = results.Where(r => r.ErrCode > 0).ToList();
 
         watch.Stop();
-        var log = $"Time execute: {watch.ElapsedMilliseconds}\r\n";
+        var log = $"Total Time execute: {watch.ElapsedMilliseconds}\r\n";
         Console.WriteLine(log);
 
         Console.WriteLine(string.Join(" | ", resultFailed.Select(r => r.ErrMessage).ToArray()));

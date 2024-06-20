@@ -42,16 +42,21 @@ public class BatchTicketsServiceImp(
     private async Task<Result> ExecuteBatches(BatchTicketRequest batchTicketRequest, List<TicketBatch> batches)
     {
         var tasks = new List<Task<Result>>();
-
+        var i = 1;
         foreach (var batch in batches)
         {
+            Console.WriteLine($"-Batch {i++}. Action = {batchTicketRequest.Action}");
             var request = CreateTicketRequest(batchTicketRequest, batch);
 
             var task = processService.ProcessAsync(request, batchTicketRequest.Resources);
             tasks.Add(task);
         }
 
+        var watch = System.Diagnostics.Stopwatch.StartNew();
         var results = await Task.WhenAll(tasks);
+        watch.Stop();
+        var log = $"Execute batch: {watch.ElapsedMilliseconds}\r\n";
+        Console.WriteLine(log);
 
         var resultFailed = results.Where(r => r.ErrCode > 0).ToList();
 
