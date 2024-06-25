@@ -16,3 +16,15 @@ public static class ActionName
 
     public const string Refund = "Refund";
 }
+
+public static class Retry
+{
+    public const byte Count = 2;
+
+    public const byte Time = 2;
+}
+
+public static class DBNameAlias
+{
+    public const string Central = "DBTXN";
+}

@@ -19,7 +19,12 @@ public class BatchTicketsServiceImp(
         var flag = true;
         while (flag)
         {
+            var watch = System.Diagnostics.Stopwatch.StartNew();
             var batches = await ticketService.GetBatches(request);
+            watch.Stop();
+            var log = $"- GetBatches: {watch.ElapsedMilliseconds}\r\n";
+            Console.WriteLine(log);
+
             if (batches.Count > 0)
             {
                 var result = await ExecuteBatches(request, batches);

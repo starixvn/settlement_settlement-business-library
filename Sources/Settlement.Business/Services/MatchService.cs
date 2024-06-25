@@ -1,4 +1,5 @@
 ﻿using Polly;
+using Settlement.Business.Core.Constants;
 using Settlement.Business.Core.Models;
 using Settlement.Business.Criteria;
 using Settlement.Business.Criteria.HappyFive;
@@ -14,10 +15,6 @@ public interface MatchService
 
 public class MatchServiceImp(IDynamicRepository repository) : MatchService
 {
-    private const byte RetryCount = 2;
-
-    private const byte RetryTime = 3;
-
     public async Task<(IEnumerable<Resources>, IEnumerable<Ball>)> GetResourceHappy5(int matchId, string action)
     {
         var criteria = new GetResultCriteria { MatchId = matchId, Action = action };
@@ -29,8 +26,8 @@ public class MatchServiceImp(IDynamicRepository repository) : MatchService
         var result = new Result();
         await Policy
             .HandleResult<bool>(c => !c && isLock == 1)
-            .WaitAndRetryAsync(RetryCount,
-                    _ => TimeSpan.FromSeconds(RetryTime))
+            .WaitAndRetryAsync(Retry.Count,
+                    _ => TimeSpan.FromSeconds(Retry.Time))
             .ExecuteAsync(async () =>
             {
                 result = await repository.GetAsync<Result>(new LockMatchCriteria

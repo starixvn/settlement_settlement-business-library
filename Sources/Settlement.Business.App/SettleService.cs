@@ -15,10 +15,10 @@ public class SettleService(
     private async Task Testing()
     {
         //var request =
-        string[] siteDbServer = { "DBTXN" }; //, "DBSID01", "DBSID02"
+        string[] siteDbServer = { "DBTXN", "DBSID01" }; //, "DBSID01", "DBSID02"
         var request = new InputRequest
         {
-            MatchId = 83541409,
+            MatchId = 83541408,
             Action = "Cal",
             ActionId = 81000
         };
