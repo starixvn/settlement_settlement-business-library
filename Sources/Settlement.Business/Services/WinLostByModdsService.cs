@@ -18,6 +18,8 @@ public interface WinLostByModdsService
 
 public class WinLostByModdsServiceImp : WinLostByModdsService
 {
+    private const decimal halfValue = 0.5m;
+
     public Winlost WinLostMaxPayout(Ticket ticket, PrepareTicket infos)
     {
         var winlost = (decimal)infos.WinLost!;
@@ -52,10 +54,10 @@ public class WinLostByModdsServiceImp : WinLostByModdsService
     {
         return new Winlost
         {
-            WinLost = ticket.ActualStake + ticket.Stake * infos.Odds * 0.5m,
-            AWinLost = ticket.Stake * infos.Odds * -ticket.APositionTaking * 0.5m,
-            MWinLost = ticket.Stake * infos.Odds * -ticket.MPositionTaking * 0.5m,
-            SWinLost = ticket.Stake * infos.Odds * -ticket.SPositionTaking * 0.5m,
+            WinLost = ticket.ActualStake + ticket.Stake * infos.Odds * halfValue,
+            AWinLost = ticket.Stake * infos.Odds * -ticket.APositionTaking * halfValue,
+            MWinLost = ticket.Stake * infos.Odds * -ticket.MPositionTaking * halfValue,
+            SWinLost = ticket.Stake * infos.Odds * -ticket.SPositionTaking * halfValue,
         };
     }
 
@@ -63,10 +65,10 @@ public class WinLostByModdsServiceImp : WinLostByModdsService
     {
         return new Winlost
         {
-            WinLost = ticket.ActualStake * 0.5m,
-            AWinLost = ticket.ActualStake * ticket.APositionTaking * 0.5m,
-            MWinLost = ticket.ActualStake * ticket.MPositionTaking * 0.5m,
-            SWinLost = ticket.ActualStake * ticket.SPositionTaking * 0.5m,
+            WinLost = ticket.ActualStake * halfValue,
+            AWinLost = ticket.ActualStake * ticket.APositionTaking * halfValue,
+            MWinLost = ticket.ActualStake * ticket.MPositionTaking * halfValue,
+            SWinLost = ticket.ActualStake * ticket.SPositionTaking * halfValue,
         };
     }
 

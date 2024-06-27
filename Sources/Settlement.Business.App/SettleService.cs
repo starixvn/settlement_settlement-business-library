@@ -18,7 +18,7 @@ public class SettleService(
         string[] siteDbServer = { "DBTXN", "DBSID01" }; //, "DBSID01", "DBSID02"
         var request = new InputRequest
         {
-            MatchId = 83541408,
+            MatchId = 83541410,
             Action = "Cal",
             ActionId = 81000
         };
