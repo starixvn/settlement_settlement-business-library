@@ -1,18 +1,4 @@
-stages:
-  - test
-  - post-test
-
-variables:
-  PROJECT_NAME: settlement-business-library
-  SONAR_PROJECT_NAME: "OLYMPUS / Settlement-Business-Library"
-  SRC_PATH: ./src
-  TEST_PATH: ./src
-
 include:
-
-  - project: "ci/common-ci"
-    ref: rocketor
-    file: "unit-test/dotnet-unit-test.gitlab-ci.yml"
-  - project: "ci/common-ci"
-    ref: rocketor
-    file: "sonarqube/sonarqube-dotnet-unittest.gitlab-ci.yml"
+  - project: ci/core-cicd
+    ref: main
+    file: nexcel.gitlab-ci.yml
