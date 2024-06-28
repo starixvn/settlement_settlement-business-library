@@ -35,7 +35,7 @@ public class WinLostByModdsServiceImp : WinLostByModdsService
             };
         }
 
-        return new Winlost() { WinLost = winlost };
+        return new Winlost { WinLost = winlost };
     }
 
     public Winlost WinLostGreaterThanQuarter(Ticket ticket, PrepareTicket infos)

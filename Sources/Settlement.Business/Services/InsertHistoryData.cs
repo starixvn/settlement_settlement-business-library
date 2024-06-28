@@ -22,7 +22,7 @@ public class InsertHistoryDataImp(
         {
             var xml = xmlConvertService.Serialize(infos);
 
-            var criteria = new InsertHistoryDataCriteria()
+            var criteria = new InsertHistoryDataCriteria
             {
                 XmlData = xml
             };
@@ -33,7 +33,7 @@ public class InsertHistoryDataImp(
 
     private static Root<MaxPayout> CreateXmlObject(IEnumerable<Ticket> tickets, int adminId)
     {
-        return new Root<MaxPayout>()
+        return new Root<MaxPayout>
         {
             Rows = tickets.Where(t => t.IsApplyMaxPayout).Select(t => new MaxPayout
             {

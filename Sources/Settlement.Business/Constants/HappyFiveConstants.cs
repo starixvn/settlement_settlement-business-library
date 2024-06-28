@@ -28,9 +28,14 @@ public static class HappyFiveConstants
         { (8103, BetTeam.WI), value => value is >= 72 and <= 90 },
         { (8104, BetTeam.MO), value => value > 0 },
         { (8104, BetTeam.ME), value => value < 0 },
-        { (8105, BetTeam.BO), value => value >= 53 && value % 2 == 1 },
+        { (8105, BetTeam.BO), value => value >= 53 && IsOdd(value) },
         { (8105, BetTeam.BE), value => value >= 53 && value % 2 == 0 },
-        { (8105, BetTeam.SO), value => value < 53 && value % 2 == 1 },
+        { (8105, BetTeam.SO), value => value < 53 && IsOdd(value) },
         { (8105, BetTeam.SE), value => value < 53 && value % 2 == 0 }
     };
+
+    private static bool IsOdd(int x)
+    {
+        return x % 2 != 0;
+    }
 }

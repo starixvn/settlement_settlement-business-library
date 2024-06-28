@@ -31,7 +31,7 @@ public class PrepareTicketServiceImp(
         {
             CommWinRate = commWinRate,
             CommLostRate = commLostRate,
-            CommHalfWLRate = 0.5m, // Need to check: CASE WHEN sr.isCN88 = 1 AND sr.isMajorGroup = 1 THEN 1 ELSE 0.5
+            CommHalfWLRate = 0.5m,
             Odds = Odds(ticket),
             StatusId = statusId,
             Status = statusName,
@@ -49,7 +49,7 @@ public class PrepareTicketServiceImp(
     {
         if (ticket.WinLost != newWinLost || ticket.StatusId != newStatusId)
         {
-            return Convert.ToDateTime(DateTime.Now.ToDateTimeString());
+            return Convert.ToDateTime(DateTimeOffset.Now.ToDateTimeString());
         }
 
         return ticket.SettlementTime;
@@ -116,14 +116,15 @@ public class PrepareTicketServiceImp(
         return mOdds > 0 ? StatusWinlost.Win : StatusWinlost.Lost;
     }
 
-    private static string ExtraInfo(bool isApplyMaxPayout, string extraInfo, decimal? actualPayout)
+    private static string ExtraInfo(bool isApplyMaxPayout, string extraValue, decimal? actualPayout)
     {
         if (isApplyMaxPayout && actualPayout != null)
         {
-            return string.IsNullOrWhiteSpace(extraInfo) ? $"<l255 apo=\"{Math.Round((decimal)actualPayout, 2)}\" />" : $"{extraInfo}<l255 apo=\"{Math.Round((decimal)actualPayout, 2)}\" />";
+            var newExtraInfo = $"<l255 apo=\"{Math.Round((decimal)actualPayout, 2)}\" />";
+            return string.IsNullOrWhiteSpace(extraValue) ? newExtraInfo : $"{extraValue}{newExtraInfo}";
         }
 
-        return extraInfo;
+        return extraValue;
     }
 
     public Commission CreateCommission(Ticket ticket, PrepareTicket infos)

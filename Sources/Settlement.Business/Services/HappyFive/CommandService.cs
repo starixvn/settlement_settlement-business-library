@@ -51,8 +51,8 @@ public class CommandServiceImp(
             item.StatusWinLost = StatusWinlost.Refund;
             item.StatusId = StatusId.Refund;
             item.Status = StatusName.Refund;
-            item.SettlementTime = Convert.ToDateTime(DateTime.Now.ToDateTimeString());
-            item.FcUpdateTime = Convert.ToDateTime(DateTime.Now.ToDateTime2String());
+            item.SettlementTime = Convert.ToDateTime(DateTimeOffset.Now.ToDateTimeString());
+            item.FcUpdateTime = Convert.ToDateTime(DateTimeOffset.Now.ToDateTime2String());
         });
 
         return tickets;
@@ -70,14 +70,14 @@ public class CommandServiceImp(
         };
     }
 
-    private static decimal Odds(decimal odds, short oddsType)
+    private static decimal Odds(decimal value, short oddsType)
     {
-        if (odds < 0)
+        if (value < 0)
         {
             return 1;
         }
 
-        return oddsType == 1 ? odds - 1 : odds;
+        return oddsType == 1 ? value - 1 : value;
     }
 
     private void SetValue(Ticket ticket, List<WinLimit> maxWinLimit)

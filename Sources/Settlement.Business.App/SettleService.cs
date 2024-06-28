@@ -14,13 +14,13 @@ public class SettleService(
 
     private async Task Testing()
     {
-        //var request =
-        string[] siteDbServer = { "DBTXN", "DBSID01" }; //, "DBSID01", "DBSID02"
+        const int matchId = 83419755;
+        string[] siteDbServer = { "DBTXN", "DBSID03" }; //, "DBSID01", "DBSID02"
         var request = new InputRequest
         {
-            MatchId = 83541410,
-            Action = "Cal",
-            ActionId = 81000
+            MatchId = matchId,
+            Action = "Refund",
+            ActionId = 81001
         };
 
         var (resources, _) = await matchService.GetResourceHappy5(request.MatchId, request.Action);
