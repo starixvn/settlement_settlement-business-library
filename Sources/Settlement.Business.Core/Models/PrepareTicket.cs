@@ -26,5 +26,5 @@ public class PrepareTicket
 
     public string ExtraInfo { get; set; }
 
-    public DateTime? SettlementTime { get; set; }
+    public bool IsUpdateSettlementTime { get; set; }
 }

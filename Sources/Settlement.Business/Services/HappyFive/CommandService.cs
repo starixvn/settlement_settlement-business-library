@@ -1,5 +1,4 @@
 ﻿using Settlement.Business.Core.Constants;
-using Settlement.Business.Core.Extensions;
 using Settlement.Business.Core.Models;
 using static Settlement.Business.Core.Constants.Status;
 
@@ -51,8 +50,6 @@ public class CommandServiceImp(
             item.StatusWinLost = StatusWinlost.Refund;
             item.StatusId = StatusId.Refund;
             item.Status = StatusName.Refund;
-            item.SettlementTime = Convert.ToDateTime(DateTimeOffset.Now.ToDateTimeString());
-            item.FcUpdateTime = Convert.ToDateTime(DateTimeOffset.Now.ToDateTime2String());
         });
 
         return tickets;
@@ -103,7 +100,7 @@ public class CommandServiceImp(
             ticket.SComm = commission.SComm;
 
             ticket.Ruben = DefaultRuben;
-            ticket.SettlementTime = prepareTicket.SettlementTime;
+            ticket.IsUpdateSettlementTime = prepareTicket.IsUpdateSettlementTime;
             ticket.StatusId = prepareTicket.StatusId;
             ticket.Status = prepareTicket.Status;
         }

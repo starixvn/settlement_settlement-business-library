@@ -21,12 +21,12 @@ public class ProcessServiceImp(MatchService matchService,
         try
         {
             var result = await matchService.LockMatch(request.MatchId, 0, site);
-            if (result.IsSuccessful)
-            {
-                var batchTicketRequest = CreateBatchTicketRequest(request, site, resources);
-                result = await batchTicketsService.Settle(batchTicketRequest);
-                await matchService.LockMatch(request.MatchId, 0, site);
-            }
+            //if (result.IsSuccessful)
+            //{
+            //    var batchTicketRequest = CreateBatchTicketRequest(request, site, resources);
+            //    result = await batchTicketsService.Settle(batchTicketRequest);
+            //    await matchService.LockMatch(request.MatchId, 0, site);
+            //}
 
             return result;
         }

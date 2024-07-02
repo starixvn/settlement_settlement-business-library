@@ -207,38 +207,37 @@ public class PrepareTicketServiceTests
     }
 
     [Fact]
-    public void CreateValueGetSettlementTime_ChangeStatusId_ReturnsChangeSettleTime()
+    public void CreateValueIsUpdateSettlementTime_ChangeStatusId_ReturnsTrue()
     {
         var ticket = new Ticket
         {
             Modds = 0.1m,
             StatusId = StatusId.Running,
-            SettlementTime = Convert.ToDateTime("2024-06-21 10:29:53.763")
+            IsUpdateSettlementTime = false
         };
 
         var winLimit = new List<WinLimit>();
 
         var actual = service.CreateValue(ticket, winLimit);
 
-        Assert.True(actual.SettlementTime != ticket.SettlementTime);
+        Assert.True(actual.IsUpdateSettlementTime);
     }
 
     [Fact]
-    public void CreateValueGetSettlementTime_NotChangeStatusId_ReturnsSettleTime()
+    public void CreateValueIsUpdateSettlementTime_NotChangeStatusId_ReturnsFalse()
     {
         var ticket = new Ticket
         {
             Modds = 0.1m,
             WinLost = 0,
-            StatusId = StatusId.Won,
-            SettlementTime = Convert.ToDateTime("2024-06-21 10:29:53.763")
+            StatusId = StatusId.Won
         };
 
         var winLimit = new List<WinLimit>();
 
         var actual = service.CreateValue(ticket, winLimit);
 
-        Assert.True(actual.SettlementTime == ticket.SettlementTime);
+        Assert.False(actual.IsUpdateSettlementTime);
     }
 
     [Fact]

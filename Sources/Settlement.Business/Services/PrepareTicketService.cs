@@ -1,5 +1,4 @@
 ﻿using Settlement.Business.Core.Constants;
-using Settlement.Business.Core.Extensions;
 using Settlement.Business.Core.Models;
 using static Settlement.Business.Core.Constants.Status;
 
@@ -41,18 +40,13 @@ public class PrepareTicketServiceImp(
             MaxWinLost = maxWinLost,
             WinLost = winLost,
             ExtraInfo = ExtraInfo(isApplyMaxPayout, ticket.ExtraInfo, ticket.ActualPayout),
-            SettlementTime = GetSettlementTime(ticket, winLost, statusId)
+            IsUpdateSettlementTime = IsUpdateSettlementTime(ticket, winLost, statusId)
         };
     }
 
-    private static DateTime? GetSettlementTime(Ticket ticket, decimal? newWinLost, byte newStatusId)
+    private static bool IsUpdateSettlementTime(Ticket ticket, decimal? newWinLost, byte newStatusId)
     {
-        if (ticket.WinLost != newWinLost || ticket.StatusId != newStatusId)
-        {
-            return Convert.ToDateTime(DateTimeOffset.Now.ToDateTimeString());
-        }
-
-        return ticket.SettlementTime;
+        return ticket.WinLost != newWinLost || ticket.StatusId != newStatusId;
     }
 
     private static decimal Odds(Ticket ticket)

@@ -33,7 +33,7 @@ public class Ticket
     public decimal? PlayerComm { get; set; }
 
     [JsonPropertyName("tm")]
-    public DateTime? SettlementTime { get; set; }
+    public bool IsUpdateSettlementTime { get; set; }
 
     [JsonPropertyName("st")]
     public decimal Stake { get; set; }
@@ -58,9 +58,6 @@ public class Ticket
 
     [JsonPropertyName("stn")]
     public string Status { get; set; }
-
-    [JsonPropertyName("ut")]
-    public DateTime? FcUpdateTime { get; set; }
 
     [JsonIgnore]
     public byte Currency { get; set; }
