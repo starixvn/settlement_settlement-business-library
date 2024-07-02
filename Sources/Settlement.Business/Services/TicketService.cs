@@ -71,11 +71,7 @@ public class TicketServiceImp(
             MaxCustId_MinTransId = request.MaxCustId_MinTransId,
             MaxCustId_MaxTransId = request.MaxCustId_MaxTransId
         };
-        var watch = System.Diagnostics.Stopwatch.StartNew();
         var result = (await repository.FetchAsync<Ticket>(criteria)).ToList();
-        watch.Stop();
-        var log = $"Get Tickets: {watch.ElapsedMilliseconds}\r\n";
-        Console.WriteLine(log);
 
         return result;
     }
@@ -91,16 +87,12 @@ public class TicketServiceImp(
             EventTable = 1,
             Is3rd = true,
             IsCalculateBalance = true,
-            BalanceType = 81,
-            CWLBettype = 4,
+            BalanceType = 4,
+            CWLBettype = 81,
             SettleByApp = true,
             DbServer = request.DbServer
         };
-        var watch = System.Diagnostics.Stopwatch.StartNew();
         await repository.ExecuteAsync(criteria);
-        watch.Stop();
-        var log = $"Update Tickets: {watch.ElapsedMilliseconds}\r\n";
-        Console.WriteLine(log);
 
         return new Result
         {

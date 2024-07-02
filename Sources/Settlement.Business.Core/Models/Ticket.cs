@@ -63,12 +63,6 @@ public class Ticket
     public byte Currency { get; set; }
 
     [JsonIgnore]
-    public byte WalletType { get; set; }
-
-    [JsonIgnore]
-    public DateTime WinLostDate { get; set; }
-
-    [JsonIgnore]
     public decimal ActualStake { get; set; }
 
     [JsonIgnore]
@@ -84,9 +78,6 @@ public class Ticket
     public decimal MPositionTaking { get; set; }
 
     [JsonIgnore]
-    public decimal OddsSpread { get; set; }
-
-    [JsonIgnore]
     public decimal PlayerDiscount { get; set; }
 
     [JsonIgnore]
@@ -94,21 +85,6 @@ public class Ticket
 
     [JsonIgnore]
     public decimal SPositionTaking { get; set; }
-
-    [JsonIgnore]
-    public decimal TPositionTaking { get; set; }
-
-    [JsonIgnore]
-    public int SRecommend { get; set; }
-
-    [JsonIgnore]
-    public int BonusId { get; set; }
-
-    [JsonIgnore]
-    public long RefNo { get; set; }
-
-    [JsonIgnore]
-    public long BetId { get; set; }
 
     [JsonIgnore]
     public short BetType { get; set; }
