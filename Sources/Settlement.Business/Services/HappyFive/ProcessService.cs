@@ -37,22 +37,24 @@ public class ProcessServiceImp(
 
     private async Task<Result> Calc(TicketRequest request, List<Resources> resources)
     {
-        return await TryCatch(request, async () =>
+        var tickets = new List<Ticket>();
+
+        var result = await TryCatch(request, async () =>
         {
-            var tickets = await ticketService.GetTickets(request);
+            tickets = await ticketService.GetTickets(request);
             var ticketsAfterCalculate = await generateTicketService.Calc(tickets, resources);
 
             var ticketsJson = JsonSerializer.Serialize(ticketsAfterCalculate);
             var updateRequest = CreateUpdateRequest(request, ticketsJson);
-            var result = await ticketService.UpdateTicket(updateRequest);
-
-            if (result.IsSuccessful)
-            {
-                await insertHistoryData.InsertHappy5(tickets, request.AdminId);
-            }
-
-            return result;
+            return await ticketService.UpdateTicket(updateRequest);
         });
+
+        if (tickets.Count > 0 && result.IsSuccessful)
+        {
+            return await insertHistoryData.InsertHappy5(request, tickets);
+        }
+
+        return result;
     }
 
     private async Task<Result> Refund(TicketRequest request, List<Resources> resources)

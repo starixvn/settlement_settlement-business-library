@@ -3,6 +3,7 @@ using Fanex.Settlement.Converter.Services;
 using NSubstitute;
 using Settlement.Business.Core.Models;
 using Settlement.Business.Criteria;
+using Settlement.Business.Requests;
 using Settlement.Business.Services;
 
 namespace Settlement.Business.Tests.Services;
@@ -33,8 +34,13 @@ public class InsertHistoryDataTests
                 IsApplyMaxPayout = true
             }
         };
+        var request = new TicketRequest
+        {
+            AdminId = 1
+        };
+
         xmlConvertService.Serialize(Arg.Any<Root<MaxPayout>>()).Returns("XML");
-        await service.InsertHappy5(tickets, 1);
+        await service.InsertHappy5(request, tickets);
         await repository.Received(1).ExecuteAsync(Arg.Any<InsertHistoryDataCriteria>());
     }
 
@@ -49,8 +55,13 @@ public class InsertHistoryDataTests
                 IsApplyMaxPayout = false
             }
         };
+        var request = new TicketRequest
+        {
+            AdminId = 1
+        };
+
         xmlConvertService.Serialize(Arg.Any<Root<MaxPayout>>()).Returns("XML");
-        await service.InsertHappy5(tickets, 1);
+        await service.InsertHappy5(request, tickets);
         await repository.DidNotReceive().ExecuteAsync(Arg.Any<InsertHistoryDataCriteria>());
     }
 }

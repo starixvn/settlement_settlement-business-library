@@ -2,21 +2,22 @@
 using Settlement.Business.Core.Constants;
 using Settlement.Business.Core.Models;
 using Settlement.Business.Criteria;
+using Settlement.Business.Requests;
 
 namespace Settlement.Business.Services;
 
 public interface InsertHistoryData
 {
-    Task InsertHappy5(IEnumerable<Ticket> tickets, int adminId);
+    Task<Result> InsertHappy5(TicketRequest request, IEnumerable<Ticket> tickets);
 }
 
 public class InsertHistoryDataImp(
     XmlConvertService xmlConvertService,
     IDynamicRepository repository) : InsertHistoryData
 {
-    public async Task InsertHappy5(IEnumerable<Ticket> tickets, int adminId)
+    public async Task<Result> InsertHappy5(TicketRequest request, IEnumerable<Ticket> tickets)
     {
-        var infos = CreateXmlObject(tickets, adminId);
+        var infos = CreateXmlObject(tickets, request.AdminId);
 
         if (infos.Rows.Count != 0)
         {
@@ -26,9 +27,21 @@ public class InsertHistoryDataImp(
             {
                 XmlData = xml
             };
-
-            await repository.ExecuteAsync(criteria);
+            try
+            {
+                await repository.ExecuteAsync(criteria);
+            }
+            catch (Exception exception)
+            {
+                return new Result
+                {
+                    ErrCode = 1,
+                    ErrMessage = $"Match Id: {request.MatchId} - SiteDb: {request.DbServer} - Message: {exception.Message}"
+                };
+            }
         }
+
+        return new Result();
     }
 
     private static Root<MaxPayout> CreateXmlObject(IEnumerable<Ticket> tickets, int adminId)
