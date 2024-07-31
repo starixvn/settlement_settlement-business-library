@@ -5,11 +5,11 @@ namespace Settlement.Business.Services;
 
 public interface WinLostByModdsService
 {
-    Winlost WinLostMaxPayout(Ticket ticket, PrepareTicket infos);
+    Winlost WinLostMaxPayout(Ticket ticket, decimal maxWinLost);
 
-    Winlost WinLostGreaterThanQuarter(Ticket ticket, PrepareTicket infos);
+    Winlost WinLostGreaterThanQuarter(Ticket ticket, decimal odds);
 
-    Winlost WinLostEqualQuarter(Ticket ticket, PrepareTicket infos);
+    Winlost WinLostEqualQuarter(Ticket ticket, decimal odds);
 
     Winlost WinLostEqualNegativeQuarter(Ticket ticket);
 
@@ -20,44 +20,42 @@ public class WinLostByModdsServiceImp : WinLostByModdsService
 {
     private const decimal halfValue = 0.5m;
 
-    public Winlost WinLostMaxPayout(Ticket ticket, PrepareTicket infos)
+    public Winlost WinLostMaxPayout(Ticket ticket, decimal maxWinLost)
     {
-        var winlost = (decimal)infos.WinLost!;
-
         if (ticket.Modds >= Modds.ModdsQuarter)
         {
             return new Winlost
             {
-                WinLost = winlost,
-                AWinLost = (winlost - ticket.ActualStake) * -ticket.APositionTaking,
-                MWinLost = (winlost - ticket.ActualStake) * -ticket.MPositionTaking,
-                SWinLost = (winlost - ticket.ActualStake) * -ticket.SPositionTaking,
+                WinLost = maxWinLost,
+                AWinLost = (maxWinLost - ticket.ActualStake) * -ticket.APositionTaking,
+                MWinLost = (maxWinLost - ticket.ActualStake) * -ticket.MPositionTaking,
+                SWinLost = (maxWinLost - ticket.ActualStake) * -ticket.SPositionTaking,
             };
         }
 
-        return new Winlost { WinLost = winlost };
+        return new Winlost { WinLost = maxWinLost };
     }
 
-    public Winlost WinLostGreaterThanQuarter(Ticket ticket, PrepareTicket infos)
+    public Winlost WinLostGreaterThanQuarter(Ticket ticket, decimal odds)
     {
         var deadHeat = ticket.DeadHeat ?? 1;
         return new Winlost
         {
-            WinLost = (decimal)((ticket.DeadHeat ?? 0) > 0 ? ((infos.Odds / ticket.DeadHeat! + 1) * ticket.Stake)! : (ticket.ActualStake + ticket.Stake * infos.Odds)),
-            AWinLost = ticket.Stake * infos.Odds * -ticket.APositionTaking / deadHeat,
-            MWinLost = ticket.Stake * infos.Odds * -ticket.MPositionTaking / deadHeat,
-            SWinLost = ticket.Stake * infos.Odds * -ticket.SPositionTaking / deadHeat,
+            WinLost = (decimal)((ticket.DeadHeat ?? 0) > 0 ? ((odds / ticket.DeadHeat! + 1) * ticket.Stake)! : (ticket.ActualStake + ticket.Stake * odds)),
+            AWinLost = ticket.Stake * odds * -ticket.APositionTaking / deadHeat,
+            MWinLost = ticket.Stake * odds * -ticket.MPositionTaking / deadHeat,
+            SWinLost = ticket.Stake * odds * -ticket.SPositionTaking / deadHeat,
         };
     }
 
-    public Winlost WinLostEqualQuarter(Ticket ticket, PrepareTicket infos)
+    public Winlost WinLostEqualQuarter(Ticket ticket, decimal odds)
     {
         return new Winlost
         {
-            WinLost = ticket.ActualStake + ticket.Stake * infos.Odds * halfValue,
-            AWinLost = ticket.Stake * infos.Odds * -ticket.APositionTaking * halfValue,
-            MWinLost = ticket.Stake * infos.Odds * -ticket.MPositionTaking * halfValue,
-            SWinLost = ticket.Stake * infos.Odds * -ticket.SPositionTaking * halfValue,
+            WinLost = ticket.ActualStake + ticket.Stake * odds * halfValue,
+            AWinLost = ticket.Stake * odds * -ticket.APositionTaking * halfValue,
+            MWinLost = ticket.Stake * odds * -ticket.MPositionTaking * halfValue,
+            SWinLost = ticket.Stake * odds * -ticket.SPositionTaking * halfValue,
         };
     }
 

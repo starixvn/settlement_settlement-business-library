@@ -207,40 +207,6 @@ public class PrepareTicketServiceTests
     }
 
     [Fact]
-    public void CreateValueIsUpdateSettlementTime_ChangeStatusId_ReturnsTrue()
-    {
-        var ticket = new Ticket
-        {
-            Modds = 0.1m,
-            StatusId = StatusId.Running,
-            IsUpdateSettlementTime = false
-        };
-
-        var winLimit = new List<WinLimit>();
-
-        var actual = service.CreateValue(ticket, winLimit);
-
-        Assert.True(actual.IsUpdateSettlementTime);
-    }
-
-    [Fact]
-    public void CreateValueIsUpdateSettlementTime_NotChangeStatusId_ReturnsFalse()
-    {
-        var ticket = new Ticket
-        {
-            Modds = 0.1m,
-            WinLost = 0,
-            StatusId = StatusId.Won
-        };
-
-        var winLimit = new List<WinLimit>();
-
-        var actual = service.CreateValue(ticket, winLimit);
-
-        Assert.False(actual.IsUpdateSettlementTime);
-    }
-
-    [Fact]
     public void CreateCommission_ModdsLessThanNegativeQuarter_ReturnsExpectedWinLost()
     {
         var ticket = new Ticket
@@ -350,7 +316,7 @@ public class PrepareTicketServiceTests
 
         var prepareTicket = new PrepareTicket
         {
-            WinLost = 1000,
+            MaxWinLost = 1000,
             IsApplyMaxPayout = true
         };
         var expectedWinlost = new Winlost
@@ -361,7 +327,7 @@ public class PrepareTicketServiceTests
             SWinLost = -399.96m
         };
 
-        winLostByModdsService.WinLostMaxPayout(Arg.Any<Ticket>(), Arg.Any<PrepareTicket>()).Returns(expectedWinlost);
+        winLostByModdsService.WinLostMaxPayout(Arg.Any<Ticket>(), Arg.Any<decimal>()).Returns(expectedWinlost);
         var actual = service.CreateWinLost(ticket, prepareTicket);
 
         AssertExtension.AreEqual(expectedWinlost, actual);
@@ -377,7 +343,6 @@ public class PrepareTicketServiceTests
 
         var prepareTicket = new PrepareTicket
         {
-            WinLost = 1000,
             IsApplyMaxPayout = false
         };
         var expectedWinlost = new Winlost
@@ -404,7 +369,6 @@ public class PrepareTicketServiceTests
 
         var prepareTicket = new PrepareTicket
         {
-            WinLost = 1000,
             IsApplyMaxPayout = false
         };
         var expectedWinlost = new Winlost
@@ -431,7 +395,6 @@ public class PrepareTicketServiceTests
 
         var prepareTicket = new PrepareTicket
         {
-            WinLost = 1000,
             IsApplyMaxPayout = false
         };
         var expectedWinlost = new Winlost
@@ -442,7 +405,7 @@ public class PrepareTicketServiceTests
             SWinLost = -2.000m
         };
 
-        winLostByModdsService.WinLostEqualQuarter(Arg.Any<Ticket>(), Arg.Any<PrepareTicket>()).Returns(expectedWinlost);
+        winLostByModdsService.WinLostEqualQuarter(Arg.Any<Ticket>(), Arg.Any<decimal>()).Returns(expectedWinlost);
         var actual = service.CreateWinLost(ticket, prepareTicket);
 
         AssertExtension.AreEqual(expectedWinlost, actual);
@@ -458,7 +421,6 @@ public class PrepareTicketServiceTests
 
         var prepareTicket = new PrepareTicket
         {
-            WinLost = 1000,
             IsApplyMaxPayout = false
         };
         var expectedWinlost = new Winlost
@@ -469,7 +431,7 @@ public class PrepareTicketServiceTests
             SWinLost = -4.00m
         };
 
-        winLostByModdsService.WinLostGreaterThanQuarter(Arg.Any<Ticket>(), Arg.Any<PrepareTicket>()).Returns(expectedWinlost);
+        winLostByModdsService.WinLostGreaterThanQuarter(Arg.Any<Ticket>(), Arg.Any<decimal>()).Returns(expectedWinlost);
         var actual = service.CreateWinLost(ticket, prepareTicket);
 
         AssertExtension.AreEqual(expectedWinlost, actual);
@@ -486,7 +448,6 @@ public class PrepareTicketServiceTests
 
         var prepareTicket = new PrepareTicket
         {
-            WinLost = 1000,
             IsApplyMaxPayout = false
         };
         var expectedWinlost = new Winlost

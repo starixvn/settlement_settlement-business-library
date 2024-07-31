@@ -22,9 +22,5 @@ public class PrepareTicket
 
     public decimal? MaxWinLost { get; set; }
 
-    public decimal? WinLost { get; set; }
-
     public string ExtraInfo { get; set; }
-
-    public bool IsUpdateSettlementTime { get; set; }
 }

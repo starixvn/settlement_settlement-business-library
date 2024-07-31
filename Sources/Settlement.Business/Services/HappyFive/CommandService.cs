@@ -79,6 +79,8 @@ public class CommandServiceImp(
 
     private void SetValue(Ticket ticket, List<WinLimit> maxWinLimit)
     {
+        var oldWinLost = ticket.WinLost;
+        var oldStatusId = ticket.StatusId;
         var prepareTicket = prepareTicketService.CreateValue(ticket, maxWinLimit);
         ticket.IsApplyMaxPayout = prepareTicket.IsApplyMaxPayout;
         ticket.MaxWinLimit = prepareTicket.MaxWinLost;
@@ -87,6 +89,7 @@ public class CommandServiceImp(
 
         if (prepareTicket.IsUpdated)
         {
+            var newStatusId = prepareTicket.StatusId;
             var winlost = prepareTicketService.CreateWinLost(ticket, prepareTicket);
             ticket.AWinLost = winlost.AWinLost;
             ticket.MWinLost = winlost.MWinLost;
@@ -100,9 +103,14 @@ public class CommandServiceImp(
             ticket.SComm = commission.SComm;
 
             ticket.Ruben = DefaultRuben;
-            ticket.IsUpdateSettlementTime = prepareTicket.IsUpdateSettlementTime;
-            ticket.StatusId = prepareTicket.StatusId;
+            ticket.IsUpdateSettlementTime = IsUpdateSettlementTime(oldWinLost, winlost.WinLost, oldStatusId, newStatusId);
+            ticket.StatusId = newStatusId;
             ticket.Status = prepareTicket.Status;
         }
+    }
+
+    private static bool IsUpdateSettlementTime(decimal? oldWinLost, decimal? newWinLost, byte oldStatusId, byte newStatusId)
+    {
+        return oldWinLost != newWinLost || oldStatusId != newStatusId;
     }
 }

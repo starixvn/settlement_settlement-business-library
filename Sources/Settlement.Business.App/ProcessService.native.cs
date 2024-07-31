@@ -3,7 +3,6 @@ using Settlement.Business.Core.Models;
 using Settlement.Business.Requests;
 using Settlement.Business.Services;
 using Settlement.Business.Services.HappyFive;
-using BusinessConstants = Settlement.Business.Core.Constants;
 
 namespace Settlement.Business.App;
 
@@ -56,7 +55,7 @@ public class ProcessServiceImp(MatchService matchService,
             DbServer = site,
             LastCustId = 0,
             LastTransId = 0,
-            BatchSize = BusinessConstants.Settings.MaxBatchSize,
+            BatchSize = Convert.ToInt32(configuration.GetSection("MaxBatchSize").Value),
             BatchTotal = Convert.ToInt32(configuration.GetSection("MaxWorker").Value)
         };
     }

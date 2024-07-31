@@ -14,12 +14,12 @@ public class SettleService(
 
     private async Task Testing()
     {
-        const int matchId = 83419755;
-        string[] siteDbServer = { "DBTXN", "DBSID03" }; //, "DBSID01", "DBSID02"
+        const int matchId = 83553446;
+        string[] siteDbServer = { "DBSID02" }; //, "DBSID01", "DBSID02"
         var request = new InputRequest
         {
             MatchId = matchId,
-            Action = "Refund",
+            Action = "Cal",
             ActionId = 81001
         };
 

@@ -24,8 +24,6 @@ public class PrepareTicketServiceImp(
         var (isApplyMaxPayout, maxWinLost) = winLostService.GetWinLost(ticket, maxWinLimit);
         var (commWinRate, commLostRate) = CommRate(ticket.ComStatus);
 
-        var winLost = WinLost(ticket, isApplyMaxPayout, maxWinLost);
-
         return new PrepareTicket
         {
             CommWinRate = commWinRate,
@@ -38,15 +36,8 @@ public class PrepareTicketServiceImp(
             IsUpdated = ticket.StatusId != StatusId.Void && !ticket.IsMarked,
             IsApplyMaxPayout = isApplyMaxPayout,
             MaxWinLost = maxWinLost,
-            WinLost = winLost,
-            ExtraInfo = ExtraInfo(isApplyMaxPayout, ticket.ExtraInfo, ticket.ActualPayout),
-            IsUpdateSettlementTime = IsUpdateSettlementTime(ticket, winLost, statusId)
+            ExtraInfo = ExtraInfo(isApplyMaxPayout, ticket.ExtraInfo, ticket.ActualPayout)
         };
-    }
-
-    private static bool IsUpdateSettlementTime(Ticket ticket, decimal? newWinLost, byte newStatusId)
-    {
-        return ticket.WinLost != newWinLost || ticket.StatusId != newStatusId;
     }
 
     private static decimal Odds(Ticket ticket)
@@ -90,21 +81,6 @@ public class PrepareTicketServiceImp(
         };
     }
 
-    private static decimal? WinLost(Ticket ticket, bool isApplyMaxPayout, decimal? maxWinLost)
-    {
-        if (ticket.WinLost is not null && isApplyMaxPayout)
-        {
-            return maxWinLost;
-        }
-
-        if (ticket.Modds > Modds.ModdsQuarter)
-        {
-            return ticket.DeadHeat > 0 ? (ticket.Odds / ticket.DeadHeat + 1) * ticket.Stake : ticket.ActualStake + ticket.Stake * ticket.Modds;
-        }
-
-        return 0;
-    }
-
     private static byte StatusWinLost(decimal mOdds)
     {
         return mOdds > 0 ? StatusWinlost.Win : StatusWinlost.Lost;
@@ -135,17 +111,17 @@ public class PrepareTicketServiceImp(
 
     public Winlost CreateWinLost(Ticket ticket, PrepareTicket infos)
     {
-        if (infos is { WinLost: not null, IsApplyMaxPayout: true })
+        if (infos is { MaxWinLost: not null, IsApplyMaxPayout: true })
         {
-            return winLostByModdsService.WinLostMaxPayout(ticket, infos);
+            return winLostByModdsService.WinLostMaxPayout(ticket, (decimal)infos.MaxWinLost);
         }
 
         return ticket.Modds switch
         {
             < Modds.NegativeModdsQuarter => winLostByModdsService.WinLostLowerThanNegativeQuarter(ticket),
             Modds.NegativeModdsQuarter => winLostByModdsService.WinLostEqualNegativeQuarter(ticket),
-            Modds.ModdsQuarter => winLostByModdsService.WinLostEqualQuarter(ticket, infos),
-            > Modds.ModdsQuarter => winLostByModdsService.WinLostGreaterThanQuarter(ticket, infos),
+            Modds.ModdsQuarter => winLostByModdsService.WinLostEqualQuarter(ticket, infos.Odds),
+            > Modds.ModdsQuarter => winLostByModdsService.WinLostGreaterThanQuarter(ticket, infos.Odds),
             _ => new Winlost { WinLost = ticket.ActualStake }
         };
     }

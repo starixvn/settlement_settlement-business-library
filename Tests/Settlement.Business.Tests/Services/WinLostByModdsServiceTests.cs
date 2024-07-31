@@ -15,12 +15,9 @@ public class WinLostByModdsServiceTests
             Modds = 0.1m,
         };
 
-        var prepareTicket = new PrepareTicket
-        {
-            WinLost = 5000
-        };
+        const int maxWinLost = 5000;
 
-        var actual = service.WinLostMaxPayout(ticket, prepareTicket);
+        var actual = service.WinLostMaxPayout(ticket, maxWinLost);
 
         const int expectedWinlost = 5000;
 
@@ -39,12 +36,9 @@ public class WinLostByModdsServiceTests
             SPositionTaking = 0.4m
         };
 
-        var prepareTicket = new PrepareTicket
-        {
-            WinLost = 1000
-        };
+        const int maxWinLost = 1000;
 
-        var actual = service.WinLostMaxPayout(ticket, prepareTicket);
+        var actual = service.WinLostMaxPayout(ticket, maxWinLost);
 
         var expectedWinlost = new Winlost
         {
@@ -70,12 +64,9 @@ public class WinLostByModdsServiceTests
             SPositionTaking = 0.4m
         };
 
-        var prepareTicket = new PrepareTicket
-        {
-            Odds = 0.1m
-        };
+        const decimal odds = 0.1m;
 
-        var actual = service.WinLostGreaterThanQuarter(ticket, prepareTicket);
+        var actual = service.WinLostGreaterThanQuarter(ticket, odds);
 
         var expectedWinlost = new Winlost
         {
@@ -101,12 +92,9 @@ public class WinLostByModdsServiceTests
             SPositionTaking = 0.4m
         };
 
-        var prepareTicket = new PrepareTicket
-        {
-            Odds = 0.1m
-        };
+        const decimal odds = 0.1m;
 
-        var actual = service.WinLostGreaterThanQuarter(ticket, prepareTicket);
+        var actual = service.WinLostGreaterThanQuarter(ticket, odds);
 
         var expectedWinlost = new Winlost
         {
@@ -132,12 +120,9 @@ public class WinLostByModdsServiceTests
             SPositionTaking = 0.4m
         };
 
-        var prepareTicket = new PrepareTicket
-        {
-            Odds = 0.1m
-        };
+        const decimal odds = 0.1m;
 
-        var actual = service.WinLostEqualQuarter(ticket, prepareTicket);
+        var actual = service.WinLostEqualQuarter(ticket, odds);
 
         var expectedWinlost = new Winlost
         {
