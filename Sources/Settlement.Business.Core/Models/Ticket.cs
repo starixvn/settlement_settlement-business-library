@@ -118,4 +118,7 @@ public class Ticket
 
     [JsonIgnore]
     public DateTime TransDate { get; set; }
+
+    [JsonIgnore]
+    public short SiteDBGroupId { get; set; }
 }

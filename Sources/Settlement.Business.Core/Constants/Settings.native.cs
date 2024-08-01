@@ -19,7 +19,7 @@ public static class Retry
     public const byte Time = 2;
 }
 
-public static class DBNameAlias
+public static class SiteGroup
 {
-    public const string Central = "DBTXN";
+    public const int SiteDb3 = 3;
 }
