@@ -1,0 +1,20 @@
+<Project>
+  <PropertyGroup>
+    <Authors>Settlement Team</Authors>
+    <Company>Nexcel Solutions</Company>
+    <Copyright>2024 Nexdev</Copyright>
+    <RepositoryUrl>https://gitlab.nexdev.net/settlement/settlement-business-library</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <Title>Settlement Business</Title>
+    <Description>Settlement business logic package</Description>
+    <Language>en-US</Language>
+    <LangVersion>latest</LangVersion>
+    <IncludeSymbols>false</IncludeSymbols>
+    <Version>0.0.1-beta2</Version>
+  </PropertyGroup>
+  <PropertyGroup>
+    <NoWarn>AD0001,S2436,S3240,S126,S131,S3908,S4049,S1200,S4457,S4136</NoWarn>
+    <Features>IOperation</Features>
+  </PropertyGroup>
+       
+</Project>
