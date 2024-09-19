@@ -3,6 +3,7 @@ using Settlement.Business.Core.Constants;
 using Settlement.Business.Core.Models;
 using Settlement.Business.Criteria;
 using Settlement.Business.Criteria.HappyFive;
+using Settlement.Business.Criteria.Racing;
 
 namespace Settlement.Business.Services;
 
@@ -10,7 +11,9 @@ public interface MatchService
 {
     Task<(IEnumerable<Resources>, IEnumerable<Ball>)> GetResourceHappy5(int matchId, string action);
 
-    Task<Result> LockMatch(int matchId, byte isLock, string site);
+    Task<(RaceInfo, IEnumerable<Outright>, IEnumerable<Resources>)> GetRacingInfo(int eventId);
+
+    Task<Result> LockMatch(int matchId, byte isLock, string site, int type);
 }
 
 public class MatchServiceImp(IDynamicRepository repository) : MatchService
@@ -21,7 +24,16 @@ public class MatchServiceImp(IDynamicRepository repository) : MatchService
         return await repository.FetchMultipleAsync<Resources, Ball>(criteria);
     }
 
-    public async Task<Result> LockMatch(int matchId, byte isLock, string site)
+    public async Task<(RaceInfo, IEnumerable<Outright>, IEnumerable<Resources>)> GetRacingInfo(int eventId)
+    {
+        var criteria = new GetRacingResultCriteria { EventId = eventId };
+        var (firstResult, secondResult, thirdResult) = await repository.FetchMultipleAsync<RaceInfo, Outright, Resources>(criteria);
+        var eventInfo = firstResult.FirstOrDefault();
+
+        return (eventInfo, secondResult, thirdResult);
+    }
+
+    public async Task<Result> LockMatch(int matchId, byte isLock, string site, int type)
     {
         var result = new Result();
         await Policy
@@ -31,7 +43,7 @@ public class MatchServiceImp(IDynamicRepository repository) : MatchService
             .ExecuteAsync(async () =>
             {
                 result = await repository.GetAsync<Result>(new LockMatchCriteria
-                { MatchId = matchId, Lock = isLock, DbServer = site });
+                { MatchId = matchId, Lock = isLock, DbServer = site, Type = type });
                 return result.IsSuccessful;
             });
 

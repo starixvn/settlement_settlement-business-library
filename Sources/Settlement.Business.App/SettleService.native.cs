@@ -14,16 +14,19 @@ public class SettleService(
 
     private async Task Testing()
     {
-        const int matchId = 83553810;
+        const int matchId = 10155241;
         string[] siteDbServer = { "DBTXN" }; //, "DBSID01", "DBSID02"
         var request = new InputRequest
         {
-            MatchId = matchId,
+            EventId = matchId,
             Action = "Cal",
-            ActionId = 81000
+            ActionId = 187,
         };
 
-        var (resources, _) = await matchService.GetResourceHappy5(request.MatchId, request.Action);
+        var (raceInfo, outrights, resources) = await matchService.GetRacingInfo(request.EventId);
+
+        request.SportType = raceInfo.SportType;
+        request.Racers = raceInfo.Racers;
         var watch = System.Diagnostics.Stopwatch.StartNew();
         var tasks = siteDbServer
             .Select(site => processService.Settle(request, site, resources.ToList())).ToList();

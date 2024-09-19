@@ -1,4 +1,5 @@
 ﻿using Fanex.Data;
+using Settlement.Business.Core.Constants;
 
 namespace Settlement.Business.Criteria;
 
@@ -7,6 +8,8 @@ public class LockMatchCriteria : CriteriaBase
     public int MatchId { get; set; }
 
     public byte Lock { get; set; }
+
+    public int Type { get; set; } = LockMatchType.Match;
 
     [SpParam(Ignored = true)]
     public string DbServer { get; set; }

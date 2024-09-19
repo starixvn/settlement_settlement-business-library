@@ -1,6 +1,6 @@
 ﻿namespace Settlement.Business.Core.Constants;
 
-public class BetTypes
+public static class BetTypes
 {
     public const int FirstHalfHomeTeamOddEven = 136;
 

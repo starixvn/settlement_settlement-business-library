@@ -23,3 +23,10 @@ public static class SiteGroup
 {
     public const int SiteDb3 = 3;
 }
+
+public static class LockMatchType
+{
+    public const int Match = 1;
+
+    public const int VirtualRacing = 4;
+}

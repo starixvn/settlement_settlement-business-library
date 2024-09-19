@@ -22,6 +22,8 @@ public class UpdateOtherSportsCriteria : NonQueryCommand
 
     public bool SettleByApp { get; set; }
 
+    public bool HasNoBalanceNegative { get; set; }
+
     public string TransJson { get; set; }
 
     public string BroadcastSessionId { get; set; }

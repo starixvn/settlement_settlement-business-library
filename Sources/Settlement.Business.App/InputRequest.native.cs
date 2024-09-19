@@ -2,7 +2,9 @@
 
 public class InputRequest
 {
-    public int MatchId { get; set; }
+    public int EventId { get; set; }
+
+    public byte Racers { get; set; }
 
     public int AdminId { get; set; }
 

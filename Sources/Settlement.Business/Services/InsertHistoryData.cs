@@ -9,6 +9,8 @@ namespace Settlement.Business.Services;
 public interface InsertHistoryData
 {
     Task<Result> InsertHappy5(TicketRequest request, IEnumerable<Ticket> tickets);
+
+    Task<Result> InsertVirtualRacing(TicketRequest request, IEnumerable<Ticket> tickets);
 }
 
 public class InsertHistoryDataImp(
@@ -41,6 +43,11 @@ public class InsertHistoryDataImp(
             }
         }
 
+        return new Result();
+    }
+
+    public async Task<Result> InsertVirtualRacing(TicketRequest request, IEnumerable<Ticket> tickets)
+    {
         return new Result();
     }
 

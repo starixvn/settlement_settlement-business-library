@@ -1,8 +1,9 @@
 ﻿using Microsoft.Extensions.Configuration;
+using Settlement.Business.Core.Constants;
 using Settlement.Business.Core.Models;
 using Settlement.Business.Requests;
 using Settlement.Business.Services;
-using Settlement.Business.Services.HappyFive;
+using Settlement.Business.Services.Racing;
 
 namespace Settlement.Business.App;
 
@@ -19,20 +20,20 @@ public class ProcessServiceImp(MatchService matchService,
     {
         try
         {
-            var result = await matchService.LockMatch(request.MatchId, 1, site);
+            var result = await matchService.LockMatch(request.EventId, 1, site, LockMatchType.VirtualRacing);
             if (result.IsSuccessful)
             {
                 var batchTicketRequest = CreateBatchTicketRequest(request, site, resources);
                 result = await batchTicketsService.Settle(batchTicketRequest);
-                await matchService.LockMatch(request.MatchId, 0, site);
+                await matchService.LockMatch(request.EventId, 0, site, LockMatchType.VirtualRacing);
             }
 
             return result;
         }
         catch (Exception exception)
         {
-            var errorMessage = $"Match Id = {request.MatchId} - SiteDb = {site} - {exception.Message}";
-            await matchService.LockMatch(request.MatchId, 0, site);
+            var errorMessage = $"Match Id = {request.EventId} - SiteDb = {site} - {exception.Message}";
+            await matchService.LockMatch(request.EventId, 0, site, LockMatchType.VirtualRacing);
 
             return new Result
             {
@@ -46,7 +47,7 @@ public class ProcessServiceImp(MatchService matchService,
     {
         return new BatchTicketRequest
         {
-            MatchId = request.MatchId,
+            MatchId = request.EventId,
             AdminId = request.AdminId,
             SportType = request.SportType,
             Action = request.Action,
