@@ -3,7 +3,7 @@ using Settlement.Business.Services;
 
 namespace Settlement.Business.App;
 
-public class SettleService(
+public class TestService(
     MatchService matchService,
     ProcessService processService) : BackgroundService
 {
@@ -23,13 +23,13 @@ public class SettleService(
             ActionId = 187,
         };
 
-        var (raceInfo, outrights, resources) = await matchService.GetRacingInfo(request.EventId);
+        var (raceInfo, outright, resources) = await matchService.GetRacingInfo(request.EventId);
 
         request.SportType = raceInfo.SportType;
         request.Racers = raceInfo.Racers;
         var watch = System.Diagnostics.Stopwatch.StartNew();
         var tasks = siteDbServer
-            .Select(site => processService.Settle(request, site, resources.ToList())).ToList();
+            .Select(site => processService.Settle(request, site, outright.ToList(), resources.ToList())).ToList();
 
         var results = await Task.WhenAll(tasks.ToArray());
         var resultFailed = results.Where(r => r.ErrCode > 0).ToList();

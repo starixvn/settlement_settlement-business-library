@@ -2,7 +2,6 @@
 using Settlement.Business.Core.Constants;
 using Settlement.Business.Core.Models;
 using Settlement.Business.Requests;
-using System.Text.Json;
 
 namespace Settlement.Business.Services.HappyFive;
 
@@ -13,8 +12,8 @@ public interface ProcessService
 
 public class ProcessServiceImp(
     TicketService ticketService,
-    CommandService generateTicketService,
-    InsertHistoryData insertHistoryData) : ProcessService
+    SettleService settleService,
+    HistoryData historyData) : ProcessService
 {
     public async Task<Result> ProcessAsync(TicketRequest request, List<Resources> resources)
     {
@@ -28,7 +27,7 @@ public class ProcessServiceImp(
             {
                 result = string.Equals(request.Action, ActionName.Calculate, StringComparison.OrdinalIgnoreCase)
                     ? await Calc(request, resources)
-                    : await Refund(request, resources);
+                    : await Refund(request);
                 return result.IsSuccessful;
             });
 
@@ -42,31 +41,27 @@ public class ProcessServiceImp(
         var result = await TryCatch(request, async () =>
         {
             tickets = await ticketService.GetTickets(request);
-            var ticketsAfterCalculate = await generateTicketService.Calc(tickets, resources);
+            var ticketsAfterCalculate = await settleService.Calc(tickets, resources);
 
-            var ticketsJson = JsonSerializer.Serialize(ticketsAfterCalculate);
-            var updateRequest = CreateUpdateRequest(request, ticketsJson);
-            return await ticketService.UpdateTicket(updateRequest);
+            return await ticketService.UpdateTicket(request, ticketsAfterCalculate);
         });
 
         if (tickets.Count > 0 && result.IsSuccessful)
         {
-            return await insertHistoryData.InsertHappy5(request, tickets);
+            return await historyData.Insert(request, tickets);
         }
 
         return result;
     }
 
-    private async Task<Result> Refund(TicketRequest request, List<Resources> resources)
+    private async Task<Result> Refund(TicketRequest request)
     {
         return await TryCatch(request, async () =>
         {
             var tickets = await ticketService.GetTickets(request);
-            var ticketsAfterRefund = generateTicketService.Refund(tickets, resources);
-            var ticketsJson = JsonSerializer.Serialize(ticketsAfterRefund);
-            var updateRequest = CreateUpdateRequest(request, ticketsJson);
+            var ticketsAfterRefund = settleService.Refund(tickets);
 
-            return await ticketService.UpdateTicket(updateRequest);
+            return await ticketService.UpdateTicket(request, ticketsAfterRefund);
         });
     }
 
@@ -86,17 +81,5 @@ public class ProcessServiceImp(
                 ErrMessage = $"Match Id: {request.MatchId} - SiteDb: {request.DbServer} - {tickets} - Message: {exception.Message}"
             };
         }
-    }
-
-    private static UpdateTicketRequest CreateUpdateRequest(TicketRequest request, string ticketsJson)
-    {
-        return new UpdateTicketRequest
-        {
-            MatchId = request.MatchId,
-            TransJson = ticketsJson,
-            Action = request.Action,
-            ActionId = request.ActionId,
-            DbServer = request.DbServer
-        };
     }
 }

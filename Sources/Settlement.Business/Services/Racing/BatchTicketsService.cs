@@ -1,21 +1,22 @@
-﻿using Settlement.Business.Core.Models;
+﻿using Settlement.Business.Core.Constants;
+using Settlement.Business.Core.Models;
 using Settlement.Business.Requests;
 
 namespace Settlement.Business.Services.Racing;
 
 public interface BatchTicketsService
 {
-    Task<Result> Settle(BatchTicketRequest request);
+    Task<Result> Settle(BatchTicketRequest request, List<Outright> outright);
 }
 
 public class BatchTicketsServiceImp(
     TicketService ticketService,
     ProcessService processService) : BatchTicketsService
 {
-    public async Task<Result> Settle(BatchTicketRequest request)
+    public async Task<Result> Settle(BatchTicketRequest request, List<Outright> outright)
     {
         var listResult = new List<Result>();
-
+        var outrightResult = CorrectOutrightResult(request, outright);
         var flag = true;
         while (flag)
         {
@@ -23,7 +24,7 @@ public class BatchTicketsServiceImp(
 
             if (batches.Count > 0)
             {
-                var result = await ExecuteBatches(request, batches);
+                var result = await ExecuteBatches(request, batches, outrightResult);
                 if (result.ErrCode > 0)
                 {
                     listResult.Add(result);
@@ -40,14 +41,23 @@ public class BatchTicketsServiceImp(
         };
     }
 
-    private async Task<Result> ExecuteBatches(BatchTicketRequest batchTicketRequest, List<TicketBatch> batches)
+    private static List<Outright> CorrectOutrightResult(BatchTicketRequest request, IEnumerable<Outright> outright)
+    {
+        int[] validPlacings = request.SportType == SportType.VirtualDogs && request.Racers == 6
+            ? [1, 2]
+            : [1, 2, 3];
+
+        return outright.Where(x => validPlacings.Contains(x.Placing)).ToList();
+    }
+
+    private async Task<Result> ExecuteBatches(BatchTicketRequest batchTicketRequest, List<TicketBatch> batches, List<Outright> outright)
     {
         var tasks = new List<Task<Result>>();
         foreach (var batch in batches)
         {
-            var request = CreateTicketRequest(batchTicketRequest, batch);
+            var request = ticketService.CreateTicketRequest(batchTicketRequest, batch);
 
-            var task = processService.ProcessAsync(request, batchTicketRequest.Resources);
+            var task = processService.ProcessAsync(request, outright, batchTicketRequest.Resources);
             tasks.Add(task);
         }
 
@@ -59,30 +69,6 @@ public class BatchTicketsServiceImp(
         {
             ErrCode = resultFailed.Count,
             ErrMessage = string.Join(" | ", resultFailed.Select(r => r.ErrMessage).ToArray())
-        };
-    }
-
-    private static TicketRequest CreateTicketRequest(BatchTicketRequest batchTicketRequest, TicketBatch batch)
-    {
-        var resourceIds = string.Join(',', batchTicketRequest.Resources.Select(x => x.ResourceId).Distinct().ToArray());
-
-        return new TicketRequest
-        {
-            MatchId = batchTicketRequest.MatchId,
-            AdminId = batchTicketRequest.AdminId,
-            SportType = batchTicketRequest.SportType,
-            Resources = resourceIds,
-            Action = batchTicketRequest.Action,
-            ActionId = batchTicketRequest.ActionId,
-            DbServer = batchTicketRequest.DbServer,
-
-            MinCustId = batch.MinCustId,
-            MinCustId_MinTransId = batch.MinCustId_MinTransId,
-            MinCustId_MaxTransId = batch.MinCustId_MaxTransId,
-
-            MaxCustId = batch.MaxCustId,
-            MaxCustId_MinTransId = batch.MaxCustId_MinTransId,
-            MaxCustId_MaxTransId = batch.MaxCustId_MaxTransId,
         };
     }
 }

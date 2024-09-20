@@ -2,6 +2,10 @@
 
 public static class BetTypes
 {
+    public const int RacingWin = 2770;
+
+    public const int RacingPlace = 2771;
+
     public const int FirstHalfHomeTeamOddEven = 136;
 
     public const int OneXTwoBackLay = 9538;

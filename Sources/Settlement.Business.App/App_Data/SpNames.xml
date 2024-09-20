@@ -35,17 +35,17 @@
 		</Function>
 
 		<Function Name="NAP_Admin_Settlement_Ticket_Sel">
-			<Setting Key="NAP_Admin_Settlement_Ticket_Sel_DBTXN" SpName="NAP_Admin_Settlement_Ticket_Sel" DbName="DBTXN.bodb02.wsv_nap" />
-			<Setting Key="NAP_Admin_Settlement_Ticket_Sel_DBSID01" SpName="NAP_Admin_Settlement_Ticket_Sel" DbName="DBSID01.bodb02.wsv_nap" />
-			<Setting Key="NAP_Admin_Settlement_Ticket_Sel_DBSID02" SpName="NAP_Admin_Settlement_Ticket_Sel" DbName="DBSID02.bodb02.wsv_nap" />
-			<Setting Key="NAP_Admin_Settlement_Ticket_Sel_DBSID03" SpName="NAP_Admin_Settlement_Ticket_Sel" DbName="DBSID03.bodb02.wsv_nap" />
+			<Setting Key="NAP_Admin_Settlement_Ticket_Sel_DBTXN" SpName="NAP_Admin_Settlement_Ticket_Sel_xtest" DbName="DBTXN.bodb02.wsv_nap" />
+			<Setting Key="NAP_Admin_Settlement_Ticket_Sel_DBSID01" SpName="NAP_Admin_Settlement_Ticket_Sel_xtest" DbName="DBSID01.bodb02.wsv_nap" />
+			<Setting Key="NAP_Admin_Settlement_Ticket_Sel_DBSID02" SpName="NAP_Admin_Settlement_Ticket_Sel_xtest" DbName="DBSID02.bodb02.wsv_nap" />
+			<Setting Key="NAP_Admin_Settlement_Ticket_Sel_DBSID03" SpName="NAP_Admin_Settlement_Ticket_Sel_xtest" DbName="DBSID03.bodb02.wsv_nap" />
 		</Function>
 
 		<Function Name="NAP_Admin_Calculate_OtherSports">
-			<Setting Key="NAP_Admin_Calculate_OtherSports_DBTXN" SpName="NAP_Admin_Calculate_OtherSports" DbName="DBTXN.bodb02.wsv_nap" />
-			<Setting Key="NAP_Admin_Calculate_OtherSports_DBSID01" SpName="NAP_Admin_Calculate_OtherSports" DbName="DBSID01.bodb02.wsv_nap" />
-			<Setting Key="NAP_Admin_Calculate_OtherSports_DBSID02" SpName="NAP_Admin_Calculate_OtherSports" DbName="DBSID02.bodb02.wsv_nap" />
-			<Setting Key="NAP_Admin_Calculate_OtherSports_DBSID03" SpName="NAP_Admin_Calculate_OtherSports" DbName="DBSID03.bodb02.wsv_nap" />
+			<Setting Key="NAP_Admin_Calculate_OtherSports_DBTXN" SpName="NAP_Admin_Calculate_OtherSports_xtest" DbName="DBTXN.bodb02.wsv_nap" />
+			<Setting Key="NAP_Admin_Calculate_OtherSports_DBSID01" SpName="NAP_Admin_Calculate_OtherSports_xtest" DbName="DBSID01.bodb02.wsv_nap" />
+			<Setting Key="NAP_Admin_Calculate_OtherSports_DBSID02" SpName="NAP_Admin_Calculate_OtherSports_xtest" DbName="DBSID02.bodb02.wsv_nap" />
+			<Setting Key="NAP_Admin_Calculate_OtherSports_DBSID03" SpName="NAP_Admin_Calculate_OtherSports_xtest" DbName="DBSID03.bodb02.wsv_nap" />
 		</Function>
 
 		<Function Name="NAP_Admin_Settlement_Match_Locking">

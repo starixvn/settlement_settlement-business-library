@@ -45,7 +45,7 @@ public class BatchTicketsServiceImp(
         var tasks = new List<Task<Result>>();
         foreach (var batch in batches)
         {
-            var request = CreateTicketRequest(batchTicketRequest, batch);
+            var request = ticketService.CreateTicketRequest(batchTicketRequest, batch);
 
             var task = processService.ProcessAsync(request, batchTicketRequest.Resources);
             tasks.Add(task);
@@ -59,30 +59,6 @@ public class BatchTicketsServiceImp(
         {
             ErrCode = resultFailed.Count,
             ErrMessage = string.Join(" | ", resultFailed.Select(r => r.ErrMessage).ToArray())
-        };
-    }
-
-    private static TicketRequest CreateTicketRequest(BatchTicketRequest batchTicketRequest, TicketBatch batch)
-    {
-        var resourceIds = string.Join(',', batchTicketRequest.Resources.Select(x => x.ResourceId).Distinct().ToArray());
-
-        return new TicketRequest
-        {
-            MatchId = batchTicketRequest.MatchId,
-            AdminId = batchTicketRequest.AdminId,
-            SportType = batchTicketRequest.SportType,
-            Resources = resourceIds,
-            Action = batchTicketRequest.Action,
-            ActionId = batchTicketRequest.ActionId,
-            DbServer = batchTicketRequest.DbServer,
-
-            MinCustId = batch.MinCustId,
-            MinCustId_MinTransId = batch.MinCustId_MinTransId,
-            MinCustId_MaxTransId = batch.MinCustId_MaxTransId,
-
-            MaxCustId = batch.MaxCustId,
-            MaxCustId_MinTransId = batch.MaxCustId_MinTransId,
-            MaxCustId_MaxTransId = batch.MaxCustId_MaxTransId,
         };
     }
 }

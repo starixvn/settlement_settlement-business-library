@@ -10,7 +10,7 @@ builder.Services.AddFanexSql(builder.Configuration);
 
 builder.Services.InitializeServices();
 
-builder.Services.AddHostedService<SettleService>();
+builder.Services.AddHostedService<TestService>();
 
 var app = builder.Build();
 

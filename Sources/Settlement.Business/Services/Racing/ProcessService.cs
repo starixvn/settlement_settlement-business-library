@@ -2,21 +2,20 @@
 using Settlement.Business.Core.Constants;
 using Settlement.Business.Core.Models;
 using Settlement.Business.Requests;
-using System.Text.Json;
 
 namespace Settlement.Business.Services.Racing;
 
 public interface ProcessService
 {
-    Task<Result> ProcessAsync(TicketRequest request, List<Resources> resources);
+    Task<Result> ProcessAsync(TicketRequest request, List<Outright> outright, List<Resources> resources);
 }
 
 public class ProcessServiceImp(
     TicketService ticketService,
-    CommandService generateTicketService,
-    InsertHistoryData insertHistoryData) : ProcessService
+    SettleService settleService,
+    HistoryData historyData) : ProcessService
 {
-    public async Task<Result> ProcessAsync(TicketRequest request, List<Resources> resources)
+    public async Task<Result> ProcessAsync(TicketRequest request, List<Outright> outright, List<Resources> resources)
     {
         var result = new Result();
 
@@ -27,46 +26,42 @@ public class ProcessServiceImp(
             .ExecuteAsync(async () =>
             {
                 result = string.Equals(request.Action, ActionName.Calculate, StringComparison.OrdinalIgnoreCase)
-                    ? await Calc(request, resources)
-                    : await Refund(request, resources);
+                    ? await Calc(request, outright, resources)
+                    : await Refund(request);
                 return result.IsSuccessful;
             });
 
         return result;
     }
 
-    private async Task<Result> Calc(TicketRequest request, List<Resources> resources)
+    private async Task<Result> Calc(TicketRequest request, List<Outright> outright, List<Resources> resources)
     {
         var tickets = new List<Ticket>();
 
         var result = await TryCatch(request, async () =>
         {
             tickets = await ticketService.GetTickets(request);
-            var ticketsAfterCalculate = await generateTicketService.Calc(tickets, resources);
+            var ticketsAfterCalculate = await settleService.Calc(tickets, outright, resources);
 
-            var ticketsJson = JsonSerializer.Serialize(ticketsAfterCalculate);
-            var updateRequest = CreateUpdateRequest(request, ticketsJson);
-            return await ticketService.UpdateTicket(updateRequest);
+            return await ticketService.UpdateTicket(request, ticketsAfterCalculate);
         });
 
         if (tickets.Count > 0 && result.IsSuccessful)
         {
-            return await insertHistoryData.InsertVirtualRacing(request, tickets);
+            return await historyData.Insert(request, tickets);
         }
 
         return result;
     }
 
-    private async Task<Result> Refund(TicketRequest request, List<Resources> resources)
+    private async Task<Result> Refund(TicketRequest request)
     {
         return await TryCatch(request, async () =>
         {
             var tickets = await ticketService.GetTickets(request);
-            var ticketsAfterRefund = generateTicketService.Refund(tickets, resources);
-            var ticketsJson = JsonSerializer.Serialize(ticketsAfterRefund);
-            var updateRequest = CreateUpdateRequest(request, ticketsJson);
+            var ticketsAfterRefund = settleService.Refund(tickets);
 
-            return await ticketService.UpdateTicket(updateRequest);
+            return await ticketService.UpdateTicket(request, ticketsAfterRefund);
         });
     }
 
@@ -78,24 +73,15 @@ public class ProcessServiceImp(
         }
         catch (Exception exception)
         {
-            var tickets = $"MinCustId: {request.MinCustId}, MaxCustId: {request.MaxCustId}, MinCustId_MinTransId: {request.MinCustId_MinTransId}, "
-                              + $"MinCustId_MaxTransId: {request.MinCustId_MaxTransId}, MaxCustId_MinTransId: {request.MaxCustId_MinTransId}, MaxCustId_MaxTransId: {request.MaxCustId_MaxTransId}";
+            var tickets =
+                $"MinCustId: {request.MinCustId}, MaxCustId: {request.MaxCustId}, MinCustId_MinTransId: {request.MinCustId_MinTransId}, "
+                + $"MinCustId_MaxTransId: {request.MinCustId_MaxTransId}, MaxCustId_MinTransId: {request.MaxCustId_MinTransId}, MaxCustId_MaxTransId: {request.MaxCustId_MaxTransId}";
             return new Result
             {
                 ErrCode = 1,
-                ErrMessage = $"Match Id: {request.MatchId} - SiteDb: {request.DbServer} - {tickets} - Message: {exception.Message}"
+                ErrMessage =
+                    $"Match Id: {request.MatchId} - SiteDb: {request.DbServer} - {tickets} - Message: {exception.Message}"
             };
         }
     }
-
-    private static UpdateTicketRequest CreateUpdateRequest(TicketRequest request, string ticketsJson)
-    {
-        return new UpdateTicketRequest
-        {
-            MatchId = request.MatchId,
-            TransJson = ticketsJson,
-            Action = request.Action,
-            ActionId = request.ActionId,
-            DbServer = request.DbServer
-        };
-    }
+}

@@ -12,6 +12,6 @@ public class BatchTicketsServiceTests
     //{
     //    repository = Substitute.For<IDynamicRepository>();
     //    xmlConvertService = Substitute.For<XmlConvertService>();
-    //    service = new InsertHistoryDataImp(xmlConvertService, repository);
+    //    service = new HistoryDataImp(xmlConvertService, repository);
     //}
 }

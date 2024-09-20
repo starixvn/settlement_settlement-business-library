@@ -8,6 +8,10 @@ public class UpdateTicketRequest
 
     public int ActionId { get; set; }
 
+    public byte EventTable { get; set; }
+
+    public bool HasNoBalanceNegative { get; set; }
+
     public string TransJson { get; set; }
 
     public string DbServer { get; set; }

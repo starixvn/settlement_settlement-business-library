@@ -9,22 +9,22 @@ namespace Settlement.Business.App;
 
 public interface ProcessService
 {
-    Task<Result> Settle(InputRequest request, string site, List<Resources> resources);
+    Task<Result> Settle(InputRequest request, string site, List<Outright> outright, List<Resources> resources);
 }
 
 public class ProcessServiceImp(MatchService matchService,
     BatchTicketsService batchTicketsService,
     IConfiguration configuration) : ProcessService
 {
-    public async Task<Result> Settle(InputRequest request, string site, List<Resources> resources)
+    public async Task<Result> Settle(InputRequest request, string site, List<Outright> outright, List<Resources> resources)
     {
         try
         {
-            var result = await matchService.LockMatch(request.EventId, 1, site, LockMatchType.VirtualRacing);
+            var result = await matchService.LockMatch(request.EventId, 0, site, LockMatchType.VirtualRacing);
             if (result.IsSuccessful)
             {
                 var batchTicketRequest = CreateBatchTicketRequest(request, site, resources);
-                result = await batchTicketsService.Settle(batchTicketRequest);
+                result = await batchTicketsService.Settle(batchTicketRequest, outright);
                 await matchService.LockMatch(request.EventId, 0, site, LockMatchType.VirtualRacing);
             }
 
@@ -50,6 +50,7 @@ public class ProcessServiceImp(MatchService matchService,
             MatchId = request.EventId,
             AdminId = request.AdminId,
             SportType = request.SportType,
+            Racers = request.Racers,
             Action = request.Action,
             ActionId = request.ActionId,
             Resources = resources,

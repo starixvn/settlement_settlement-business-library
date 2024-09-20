@@ -1,25 +1,22 @@
 ﻿using Fanex.Settlement.Converter.Services;
-using Settlement.Business.Core.Constants;
 using Settlement.Business.Core.Models;
 using Settlement.Business.Criteria;
 using Settlement.Business.Requests;
 
 namespace Settlement.Business.Services;
 
-public interface InsertHistoryData
+public interface HistoryData
 {
-    Task<Result> InsertHappy5(TicketRequest request, IEnumerable<Ticket> tickets);
-
-    Task<Result> InsertVirtualRacing(TicketRequest request, IEnumerable<Ticket> tickets);
+    Task<Result> Insert(TicketRequest request, IEnumerable<Ticket> tickets);
 }
 
-public class InsertHistoryDataImp(
+public class HistoryDataImp(
     XmlConvertService xmlConvertService,
-    IDynamicRepository repository) : InsertHistoryData
+    IDynamicRepository repository) : HistoryData
 {
-    public async Task<Result> InsertHappy5(TicketRequest request, IEnumerable<Ticket> tickets)
+    public async Task<Result> Insert(TicketRequest request, IEnumerable<Ticket> tickets)
     {
-        var infos = CreateXmlObject(tickets, request.AdminId);
+        var infos = CreateXmlObject(tickets, request);
 
         if (infos.Rows.Count != 0)
         {
@@ -46,26 +43,21 @@ public class InsertHistoryDataImp(
         return new Result();
     }
 
-    public async Task<Result> InsertVirtualRacing(TicketRequest request, IEnumerable<Ticket> tickets)
-    {
-        return new Result();
-    }
-
-    private static Root<MaxPayout> CreateXmlObject(IEnumerable<Ticket> tickets, int adminId)
+    private static Root<MaxPayout> CreateXmlObject(IEnumerable<Ticket> tickets, TicketRequest request)
     {
         return new Root<MaxPayout>
         {
             Rows = tickets.Where(t => t.IsApplyMaxPayout).Select(t => new MaxPayout
             {
                 CustId = t.CustId,
-                ProductId = Products.Happy5,
+                ProductId = request.SportType,
                 GroupId = 0,
                 LevelId = 255,
                 ActionId = 255,
                 BetType = t.BetType,
                 TransId = t.TransId,
                 WinLostDate = t.TransDate,
-                CreateBy = adminId,
+                CreateBy = request.ActionId,
                 WinLost = (decimal)t.MaxWinLimit!,
                 ActualPayout = (decimal)t.ActualPayout!
             }).ToList()

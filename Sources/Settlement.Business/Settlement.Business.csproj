@@ -9,6 +9,9 @@
 
   <ItemGroup>
     <Compile Remove="Services\CalculateFunction.cs" />
+    <Compile Remove="Services\CommandService.cs" />
+    <Compile Remove="Services\HappyFive\CommandService.cs" />
+    <Compile Remove="Services\Racing\CommandService.cs" />
   </ItemGroup>
 
   <ItemGroup>

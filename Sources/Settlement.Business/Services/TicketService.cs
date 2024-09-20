@@ -1,21 +1,48 @@
-﻿using Settlement.Business.Core.Models;
+﻿using Settlement.Business.Core.Constants;
+using Settlement.Business.Core.Models;
 using Settlement.Business.Criteria;
 using Settlement.Business.Requests;
+using System.Text.Json;
 
 namespace Settlement.Business.Services;
 
 public interface TicketService
 {
+    TicketRequest CreateTicketRequest(BatchTicketRequest batchTicketRequest, TicketBatch batch);
+
     Task<List<TicketBatch>> GetBatches(BatchTicketRequest request);
 
     Task<List<Ticket>> GetTickets(TicketRequest request);
 
-    Task<Result> UpdateTicket(UpdateTicketRequest request);
+    Task<Result> UpdateTicket(TicketRequest request, List<Ticket> tickets);
 }
 
-public class TicketServiceImp(
-    IDynamicRepository repository) : TicketService
+public class TicketServiceImp(IDynamicRepository repository) : TicketService
 {
+    public TicketRequest CreateTicketRequest(BatchTicketRequest batchTicketRequest, TicketBatch batch)
+    {
+        var resourceIds = string.Join(',', batchTicketRequest.Resources.Select(x => x.ResourceId).Distinct().ToArray());
+
+        return new TicketRequest
+        {
+            MatchId = batchTicketRequest.MatchId,
+            AdminId = batchTicketRequest.AdminId,
+            SportType = batchTicketRequest.SportType,
+            Resources = resourceIds,
+            Action = batchTicketRequest.Action,
+            ActionId = batchTicketRequest.ActionId,
+            DbServer = batchTicketRequest.DbServer,
+
+            MinCustId = batch.MinCustId,
+            MinCustId_MinTransId = batch.MinCustId_MinTransId,
+            MinCustId_MaxTransId = batch.MinCustId_MaxTransId,
+
+            MaxCustId = batch.MaxCustId,
+            MaxCustId_MinTransId = batch.MaxCustId_MinTransId,
+            MaxCustId_MaxTransId = batch.MaxCustId_MaxTransId,
+        };
+    }
+
     public async Task<List<TicketBatch>> GetBatches(BatchTicketRequest request)
     {
         var batches = await GetBatchTicket(request);
@@ -76,22 +103,27 @@ public class TicketServiceImp(
         return result;
     }
 
-    public async Task<Result> UpdateTicket(UpdateTicketRequest request)
+    public async Task<Result> UpdateTicket(TicketRequest request, List<Ticket> tickets)
     {
+        var ticketsJson = JsonSerializer.Serialize(tickets);
+        var (eventTable, hasNoBalanceNegative) = GetEventAndNegativeBalance(request.SportType);
+
         var criteria = new UpdateOtherSportsCriteria
         {
             MatchId = request.MatchId,
-            TransJson = request.TransJson,
             Action = request.Action,
             ActionId = request.ActionId,
-            EventTable = 1,
+            DbServer = request.DbServer,
+            TransJson = ticketsJson,
+            EventTable = eventTable,
+            HasNoBalanceNegative = hasNoBalanceNegative,
             Is3rd = true,
             IsCalculateBalance = true,
             BalanceType = 4,
             CWLBettype = 81,
-            SettleByApp = true,
-            DbServer = request.DbServer
+            SettleByApp = true
         };
+
         await repository.ExecuteAsync(criteria);
 
         return new Result
@@ -99,5 +131,12 @@ public class TicketServiceImp(
             ErrCode = criteria.ErrCode,
             ErrMessage = criteria.ErrMessage
         };
+    }
+
+    private static (byte, bool) GetEventAndNegativeBalance(int sportType)
+    {
+        return sportType is SportType.VirtualDogs or SportType.VirtualHorses
+            ? (EventTable.VirtualRacing, false)
+            : (EventTable.Match, true);
     }
 }
