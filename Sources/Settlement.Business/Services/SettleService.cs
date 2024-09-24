@@ -1,73 +1,90 @@
-﻿using Settlement.Business.Core.Constants;
-using Settlement.Business.Core.Models;
-using static Settlement.Business.Core.Constants.Status;
+﻿using Settlement.Business.Core.Models;
+using Settlement.Business.Requests;
 
 namespace Settlement.Business.Services;
 
 public interface SettleService
 {
-    Task<List<Ticket>> Calc(List<Ticket> tickets, List<Resources> resources);
+    Task<Result> Calc(TicketRequest request, List<Resources> resources);
 
-    Task<List<Ticket>> Calc(List<Ticket> tickets, List<Outright> outright, List<Resources> resources);
+    Task<Result> Calc(TicketRequest request, List<Outright> outright, List<Resources> resources);
 
-    List<Ticket> Refund(List<Ticket> tickets);
+    Task<Result> Refund(TicketRequest request);
 }
 
 public class SettleServiceImp(
-    ModdsService moddsService,
-    WinLimitService winLimitService,
-    TicketValueService ticketValueService) : SettleService
+    TicketService ticketService,
+    GenerateSettleTicketService generateSettleTicketService,
+    HistoryData historyData) : SettleService
 {
-    public async Task<List<Ticket>> Calc(List<Ticket> tickets, List<Resources> resources)
+    public async Task<Result> Calc(TicketRequest request, List<Resources> resources)
     {
-        tickets.ForEach(item =>
+        var tickets = new List<Ticket>();
+
+        var result = await TryCatch(request, async () =>
         {
-            var resource = resources.Find(r => r.ProfileId == item.ProfileId) ?? new Resources();
-            item.Modds = moddsService.Happy5(item.ProfileId, item.BetTeam, resource);
-            item.OddsType = resource.OddsType;
-            item.ActualPayout = ticketValueService.GetActualPayout(item.Modds, item.Odds, item.OddsType, item.ActualStake, item.Stake);
+            tickets = await ticketService.GetTickets(request);
+            var ticketsAfterCalculate = await generateSettleTicketService.Calc(tickets, resources);
+
+            return await ticketService.UpdateTicket(request, ticketsAfterCalculate);
         });
-        var maxWinLimit = (await winLimitService.GetMaxWinLimit(tickets)).ToList();
 
-        tickets.ForEach(item => ticketValueService.SetValue(item, maxWinLimit));
+        if (tickets.Count > 0 && result.IsSuccessful)
+        {
+            return await historyData.Insert(request, tickets);
+        }
 
-        return tickets;
+        return result;
     }
 
-    public async Task<List<Ticket>> Calc(List<Ticket> tickets, List<Outright> outright, List<Resources> resources)
+    public async Task<Result> Calc(TicketRequest request, List<Outright> outright, List<Resources> resources)
     {
-        tickets.ForEach(item =>
+        var tickets = new List<Ticket>();
+
+        var result = await TryCatch(request, async () =>
         {
-            var resource = resources.Find(r => r.ProfileId == item.ProfileId) ?? new Resources();
-            item.Modds = moddsService.VirtualRacing(item, outright);
-            item.OddsType = resource.OddsType;
-            item.ActualPayout = ticketValueService.GetActualPayout(item.Modds, item.Odds, item.OddsType, item.ActualStake, item.Stake);
+            tickets = await ticketService.GetTickets(request);
+            var ticketsAfterCalculate = await generateSettleTicketService.Calc(tickets, outright, resources);
+
+            return await ticketService.UpdateTicket(request, ticketsAfterCalculate);
         });
-        var maxWinLimit = (await winLimitService.GetMaxWinLimit(tickets)).ToList();
 
-        tickets.ForEach(item => ticketValueService.SetValue(item, maxWinLimit));
+        if (tickets.Count > 0 && result.IsSuccessful)
+        {
+            return await historyData.Insert(request, tickets);
+        }
 
-        return tickets;
+        return result;
     }
 
-    public List<Ticket> Refund(List<Ticket> tickets)
+    public async Task<Result> Refund(TicketRequest request)
     {
-        tickets.ForEach(item =>
+        return await TryCatch(request, async () =>
         {
-            item.WinLost = item.ActualStake;
-            item.AWinLost = 0;
-            item.MWinLost = 0;
-            item.SWinLost = 0;
-            item.PlayerComm = 0;
-            item.Comm = 0;
-            item.AComm = 0;
-            item.SComm = 0;
-            item.Ruben = Ruben.Default;
-            item.StatusWinLost = StatusWinlost.Refund;
-            item.StatusId = StatusId.Refund;
-            item.Status = StatusName.Refund;
-        });
+            var tickets = await ticketService.GetTickets(request);
+            var ticketsAfterRefund = generateSettleTicketService.Refund(tickets);
 
-        return tickets;
+            return await ticketService.UpdateTicket(request, ticketsAfterRefund);
+        });
+    }
+
+    private static async Task<Result> TryCatch(TicketRequest request, Func<Task<Result>> action)
+    {
+        try
+        {
+            return await action();
+        }
+        catch (Exception exception)
+        {
+            var tickets =
+                $"MinCustId: {request.MinCustId}, MaxCustId: {request.MaxCustId}, MinCustId_MinTransId: {request.MinCustId_MinTransId}, "
+                + $"MinCustId_MaxTransId: {request.MinCustId_MaxTransId}, MaxCustId_MinTransId: {request.MaxCustId_MinTransId}, MaxCustId_MaxTransId: {request.MaxCustId_MaxTransId}";
+            return new Result
+            {
+                ErrCode = 1,
+                ErrMessage =
+                    $"Match Id: {request.MatchId} - SiteDb: {request.DbServer} - {tickets} - Message: {exception.Message}"
+            };
+        }
     }
 }

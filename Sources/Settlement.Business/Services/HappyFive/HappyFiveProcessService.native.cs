@@ -1,16 +1,17 @@
-﻿using Settlement.Business.Core.Models;
+﻿using Settlement.Business.Core.Constants;
+using Settlement.Business.Core.Models;
 using Settlement.Business.Requests;
 
 namespace Settlement.Business.Services.HappyFive;
 
-public interface BatchTicketsService
+public interface HappyFiveProcessService
 {
     Task<Result> Settle(BatchTicketRequest request);
 }
 
-public class BatchTicketsServiceImp(
+public class HappyFiveProcessServiceImp(
     TicketService ticketService,
-    ProcessService processService) : BatchTicketsService
+    SettleService settleService) : HappyFiveProcessService
 {
     public async Task<Result> Settle(BatchTicketRequest request)
     {
@@ -47,7 +48,7 @@ public class BatchTicketsServiceImp(
         {
             var request = ticketService.CreateTicketRequest(batchTicketRequest, batch);
 
-            var task = processService.ProcessAsync(request, batchTicketRequest.Resources);
+            var task = ProcessAsync(request, batchTicketRequest.Resources);
             tasks.Add(task);
         }
 
@@ -60,5 +61,24 @@ public class BatchTicketsServiceImp(
             ErrCode = resultFailed.Count,
             ErrMessage = string.Join(" | ", resultFailed.Select(r => r.ErrMessage).ToArray())
         };
+    }
+
+    private async Task<Result> ProcessAsync(TicketRequest request, List<Resources> resources)
+    {
+        var result = new Result();
+
+        await Policy
+            .HandleResult<bool>(flag => !flag)
+            .WaitAndRetryAsync(Retry.Count,
+                _ => TimeSpan.FromSeconds(Retry.Time))
+            .ExecuteAsync(async () =>
+            {
+                result = string.Equals(request.Action, ActionName.Calculate, StringComparison.OrdinalIgnoreCase)
+                    ? await settleService.Calc(request, resources)
+                    : await settleService.Refund(request);
+                return result.IsSuccessful;
+            });
+
+        return result;
     }
 }

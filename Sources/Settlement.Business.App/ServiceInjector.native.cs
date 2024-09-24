@@ -30,12 +30,11 @@ public static class ServiceInjector
 
         services.AddSingleton<SettleService, SettleServiceImp>();
         services.AddSingleton<TicketValueService, TicketValueServiceImp>();
+        services.AddSingleton<GenerateSettleTicketService, GenerateSettleTicketServiceImp>();
 
-        services.AddSingleton<Services.HappyFive.BatchTicketsService, Services.HappyFive.BatchTicketsServiceImp>();
-        services.AddSingleton<Services.HappyFive.ProcessService, Services.HappyFive.ProcessServiceImp>();
+        services.AddSingleton<Services.HappyFive.HappyFiveProcessService, Services.HappyFive.HappyFiveProcessServiceImp>();
 
-        services.AddSingleton<Services.Racing.BatchTicketsService, Services.Racing.BatchTicketsServiceImp>();
-        services.AddSingleton<Services.Racing.ProcessService, Services.Racing.ProcessServiceImp>();
+        services.AddSingleton<Services.Racing.RacingProcessService, Services.Racing.RacingProcessServiceImp>();
 
         services.AddControllers()
             .AddJsonOptions(options =>

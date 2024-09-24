@@ -13,7 +13,7 @@ public interface ProcessService
 }
 
 public class ProcessServiceImp(MatchService matchService,
-    BatchTicketsService batchTicketsService,
+    RacingProcessService racingProcessService,
     IConfiguration configuration) : ProcessService
 {
     public async Task<Result> Settle(InputRequest request, string site, List<Outright> outright, List<Resources> resources)
@@ -24,7 +24,7 @@ public class ProcessServiceImp(MatchService matchService,
             if (result.IsSuccessful)
             {
                 var batchTicketRequest = CreateBatchTicketRequest(request, site, resources);
-                result = await batchTicketsService.Settle(batchTicketRequest, outright);
+                result = await racingProcessService.Settle(batchTicketRequest, outright);
                 await matchService.LockMatch(request.EventId, 0, site, LockMatchType.VirtualRacing);
             }
 

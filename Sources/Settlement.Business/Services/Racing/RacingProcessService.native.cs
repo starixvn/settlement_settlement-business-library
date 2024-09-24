@@ -4,14 +4,14 @@ using Settlement.Business.Requests;
 
 namespace Settlement.Business.Services.Racing;
 
-public interface BatchTicketsService
+public interface RacingProcessService
 {
     Task<Result> Settle(BatchTicketRequest request, List<Outright> outright);
 }
 
-public class BatchTicketsServiceImp(
+public class RacingProcessServiceImp(
     TicketService ticketService,
-    ProcessService processService) : BatchTicketsService
+    SettleService settleService) : RacingProcessService
 {
     public async Task<Result> Settle(BatchTicketRequest request, List<Outright> outright)
     {
@@ -57,7 +57,7 @@ public class BatchTicketsServiceImp(
         {
             var request = ticketService.CreateTicketRequest(batchTicketRequest, batch);
 
-            var task = processService.ProcessAsync(request, outright, batchTicketRequest.Resources);
+            var task = ProcessAsync(request, outright, batchTicketRequest.Resources);
             tasks.Add(task);
         }
 
@@ -70,5 +70,24 @@ public class BatchTicketsServiceImp(
             ErrCode = resultFailed.Count,
             ErrMessage = string.Join(" | ", resultFailed.Select(r => r.ErrMessage).ToArray())
         };
+    }
+
+    private async Task<Result> ProcessAsync(TicketRequest request, List<Outright> outright, List<Resources> resources)
+    {
+        var result = new Result();
+
+        await Policy
+            .HandleResult<bool>(flag => !flag)
+            .WaitAndRetryAsync(Retry.Count,
+                _ => TimeSpan.FromSeconds(Retry.Time))
+            .ExecuteAsync(async () =>
+            {
+                result = string.Equals(request.Action, ActionName.Calculate, StringComparison.OrdinalIgnoreCase)
+                    ? await settleService.Calc(request, outright, resources)
+                    : await settleService.Refund(request);
+                return result.IsSuccessful;
+            });
+
+        return result;
     }
 }
