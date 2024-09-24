@@ -3,20 +3,20 @@ using Settlement.Business.Core.Constants;
 using Settlement.Business.Core.Models;
 using Settlement.Business.Requests;
 using Settlement.Business.Services;
-using Settlement.Business.Services.Racing;
+using Settlement.Business.Services.Products;
 
 namespace Settlement.Business.App;
 
 public interface ProcessService
 {
-    Task<Result> Settle(InputRequest request, string site, List<Outright> outright, List<Resources> resources);
+    Task<Result> Settle(InputRequest request, string site, IEnumerable<Outright> outright, IEnumerable<Resources> resources);
 }
 
 public class ProcessServiceImp(MatchService matchService,
     RacingProcessService racingProcessService,
     IConfiguration configuration) : ProcessService
 {
-    public async Task<Result> Settle(InputRequest request, string site, List<Outright> outright, List<Resources> resources)
+    public async Task<Result> Settle(InputRequest request, string site, IEnumerable<Outright> outright, IEnumerable<Resources> resources)
     {
         try
         {
@@ -43,7 +43,7 @@ public class ProcessServiceImp(MatchService matchService,
         }
     }
 
-    private BatchTicketRequest CreateBatchTicketRequest(InputRequest request, string site, List<Resources> resources)
+    private BatchTicketRequest CreateBatchTicketRequest(InputRequest request, string site, IEnumerable<Resources> resources)
     {
         return new BatchTicketRequest
         {
@@ -53,7 +53,7 @@ public class ProcessServiceImp(MatchService matchService,
             Racers = request.Racers,
             Action = request.Action,
             ActionId = request.ActionId,
-            Resources = resources,
+            Resources = resources.ToList(),
             DbServer = site,
             LastCustId = 0,
             LastTransId = 0,

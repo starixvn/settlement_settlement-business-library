@@ -29,7 +29,7 @@ public class TestService(
         request.Racers = raceInfo.Racers;
         var watch = System.Diagnostics.Stopwatch.StartNew();
         var tasks = siteDbServer
-            .Select(site => processService.Settle(request, site, outright.ToList(), resources.ToList())).ToList();
+            .Select(site => processService.Settle(request, site, outright, resources)).ToList();
 
         var results = await Task.WhenAll(tasks.ToArray());
         var resultFailed = results.Where(r => r.ErrCode > 0).ToList();

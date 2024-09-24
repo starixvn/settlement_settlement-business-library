@@ -3,6 +3,7 @@ using Fanex.Settlement.Converter.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Settlement.Business.Services;
+using Settlement.Business.Services.Products;
 
 namespace Settlement.Business.App;
 
@@ -32,9 +33,9 @@ public static class ServiceInjector
         services.AddSingleton<TicketValueService, TicketValueServiceImp>();
         services.AddSingleton<GenerateSettleTicketService, GenerateSettleTicketServiceImp>();
 
-        services.AddSingleton<Services.HappyFive.HappyFiveProcessService, Services.HappyFive.HappyFiveProcessServiceImp>();
+        services.AddSingleton<HappyFiveProcessService, HappyFiveProcessServiceImp>();
 
-        services.AddSingleton<Services.Racing.RacingProcessService, Services.Racing.RacingProcessServiceImp>();
+        services.AddSingleton<RacingProcessService, RacingProcessServiceImp>();
 
         services.AddControllers()
             .AddJsonOptions(options =>

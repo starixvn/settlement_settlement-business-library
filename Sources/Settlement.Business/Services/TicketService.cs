@@ -106,7 +106,7 @@ public class TicketServiceImp(IDynamicRepository repository) : TicketService
     public async Task<Result> UpdateTicket(TicketRequest request, List<Ticket> tickets)
     {
         var ticketsJson = JsonSerializer.Serialize(tickets);
-        var (eventTable, hasNoBalanceNegative) = GetEventAndNegativeBalance(request.SportType);
+        var (eventTable, hasNoBalanceNegative, cwlBettype) = GetEventAndNegativeBalance(request.SportType);
 
         var criteria = new UpdateOtherSportsCriteria
         {
@@ -120,7 +120,7 @@ public class TicketServiceImp(IDynamicRepository repository) : TicketService
             Is3rd = true,
             IsCalculateBalance = true,
             BalanceType = 4,
-            CWLBettype = 81,
+            CWLBettype = cwlBettype,
             SettleByApp = true
         };
 
@@ -133,10 +133,10 @@ public class TicketServiceImp(IDynamicRepository repository) : TicketService
         };
     }
 
-    private static (byte, bool) GetEventAndNegativeBalance(int sportType)
+    private static (byte, bool, short) GetEventAndNegativeBalance(int sportType)
     {
         return sportType is SportType.VirtualDogs or SportType.VirtualHorses
-            ? (EventTable.VirtualRacing, false)
-            : (EventTable.Match, true);
+            ? (EventTable.VirtualRacing, false, (short)1201)
+            : (EventTable.Match, true, (short)81);
     }
 }

@@ -2,21 +2,21 @@
 using Settlement.Business.Core.Models;
 using Settlement.Business.Requests;
 
-namespace Settlement.Business.Services.Racing;
+namespace Settlement.Business.Services.Products;
 
-public interface RacingProcessService
+public interface HappyFiveProcessService
 {
-    Task<Result> Settle(BatchTicketRequest request, List<Outright> outright);
+    Task<Result> Settle(BatchTicketRequest request);
 }
 
-public class RacingProcessServiceImp(
+public class HappyFiveProcessServiceImp(
     TicketService ticketService,
-    SettleService settleService) : RacingProcessService
+    SettleService settleService) : HappyFiveProcessService
 {
-    public async Task<Result> Settle(BatchTicketRequest request, List<Outright> outright)
+    public async Task<Result> Settle(BatchTicketRequest request)
     {
         var listResult = new List<Result>();
-        var outrightResult = CorrectOutrightResult(request, outright);
+
         var flag = true;
         while (flag)
         {
@@ -24,7 +24,7 @@ public class RacingProcessServiceImp(
 
             if (batches.Count > 0)
             {
-                var result = await ExecuteBatches(request, batches, outrightResult);
+                var result = await ExecuteBatches(request, batches);
                 if (result.ErrCode > 0)
                 {
                     listResult.Add(result);
@@ -41,23 +41,14 @@ public class RacingProcessServiceImp(
         };
     }
 
-    private static List<Outright> CorrectOutrightResult(BatchTicketRequest request, IEnumerable<Outright> outright)
-    {
-        int[] validPlacings = request.SportType == SportType.VirtualDogs && request.Racers == 6
-            ? [1, 2]
-            : [1, 2, 3];
-
-        return outright.Where(x => validPlacings.Contains(x.Placing)).ToList();
-    }
-
-    private async Task<Result> ExecuteBatches(BatchTicketRequest batchTicketRequest, List<TicketBatch> batches, List<Outright> outright)
+    private async Task<Result> ExecuteBatches(BatchTicketRequest batchTicketRequest, List<TicketBatch> batches)
     {
         var tasks = new List<Task<Result>>();
         foreach (var batch in batches)
         {
             var request = ticketService.CreateTicketRequest(batchTicketRequest, batch);
 
-            var task = ProcessAsync(request, outright, batchTicketRequest.Resources);
+            var task = ProcessAsync(request, batchTicketRequest.Resources);
             tasks.Add(task);
         }
 
@@ -72,7 +63,7 @@ public class RacingProcessServiceImp(
         };
     }
 
-    private async Task<Result> ProcessAsync(TicketRequest request, List<Outright> outright, List<Resources> resources)
+    private async Task<Result> ProcessAsync(TicketRequest request, List<Resources> resources)
     {
         var result = new Result();
 
@@ -83,7 +74,7 @@ public class RacingProcessServiceImp(
             .ExecuteAsync(async () =>
             {
                 result = string.Equals(request.Action, ActionName.Calculate, StringComparison.OrdinalIgnoreCase)
-                    ? await settleService.Calc(request, outright, resources)
+                    ? await settleService.Calc(request, resources)
                     : await settleService.Refund(request);
                 return result.IsSuccessful;
             });
