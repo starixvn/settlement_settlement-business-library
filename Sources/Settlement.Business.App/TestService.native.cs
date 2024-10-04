@@ -14,7 +14,7 @@ public class TestService(
 
     private async Task Testing()
     {
-        const int matchId = 10155241;
+        const int matchId = 80;
         string[] siteDbServer = { "DBTXN" }; //, "DBSID01", "DBSID02"
         var request = new InputRequest
         {
