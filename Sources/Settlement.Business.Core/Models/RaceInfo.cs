@@ -15,4 +15,6 @@ public class RaceInfo
     public byte Racers { get; set; }
 
     public string VendorMatchId { get; set; }
+
+    public string Distance { get; set; }
 }

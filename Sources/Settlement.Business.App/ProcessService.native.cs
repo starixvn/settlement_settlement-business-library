@@ -20,7 +20,7 @@ public class ProcessServiceImp(MatchService matchService,
     {
         try
         {
-            var result = await matchService.LockMatch(request.EventId, 0, site, LockMatchType.VirtualRacing);
+            var result = await matchService.LockMatch(request.EventId, 1, site, LockMatchType.VirtualRacing);
             if (result.IsSuccessful)
             {
                 var batchTicketRequest = CreateBatchTicketRequest(request, site, resources);
