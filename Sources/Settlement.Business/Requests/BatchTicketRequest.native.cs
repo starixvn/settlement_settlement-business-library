@@ -10,6 +10,8 @@ public class BatchTicketRequest
 
     public int SportType { get; set; }
 
+    public byte Racers { get; set; }
+
     public List<Resources> Resources { get; set; }
 
     public string Action { get; set; }

@@ -1,61 +1,19 @@
 ﻿using Settlement.Business.Core.Constants;
 using Settlement.Business.Core.Models;
-using static Settlement.Business.Core.Constants.Status;
 
-namespace Settlement.Business.Services.HappyFive;
+namespace Settlement.Business.Services;
 
-public interface CommandService
+public interface TicketValueService
 {
-    Task<List<Ticket>> Calc(List<Ticket> tickets, List<Resources> resources);
+    decimal? GetActualPayout(decimal modds, decimal odds, short oddsType, decimal actualStake, decimal stake);
 
-    List<Ticket> Refund(List<Ticket> tickets, List<Resources> resources);
+    void SetValue(Ticket ticket, List<WinLimit> maxWinLimit);
 }
 
-public class CommandServiceImp(
-    ModdsService moddsService,
-    WinLimitService winLimitService,
-    PrepareTicketService prepareTicketService) : CommandService
+public class TicketValueServiceImp(
+    PrepareTicketService prepareTicketService) : TicketValueService
 {
-    private const byte DefaultRuben = 1;
-
-    public async Task<List<Ticket>> Calc(List<Ticket> tickets, List<Resources> resources)
-    {
-        tickets.ForEach(item =>
-        {
-            var resource = resources.Find(r => r.ProfileId == item.ProfileId) ?? new Resources();
-            item.Modds = moddsService.Happy5(item.ProfileId, item.BetTeam, resource);
-            item.OddsType = resource.OddsType;
-            item.ActualPayout = GetActualPayout(item.Modds, item.Odds, item.OddsType, item.ActualStake, item.Stake);
-        });
-        var maxWinLimit = (await winLimitService.GetMaxWinLimit(tickets)).ToList();
-
-        tickets.ForEach(item => SetValue(item, maxWinLimit));
-
-        return tickets;
-    }
-
-    public List<Ticket> Refund(List<Ticket> tickets, List<Resources> resources)
-    {
-        tickets.ForEach(item =>
-        {
-            item.WinLost = item.ActualStake;
-            item.AWinLost = 0;
-            item.MWinLost = 0;
-            item.SWinLost = 0;
-            item.PlayerComm = 0;
-            item.Comm = 0;
-            item.AComm = 0;
-            item.SComm = 0;
-            item.Ruben = DefaultRuben;
-            item.StatusWinLost = StatusWinlost.Refund;
-            item.StatusId = StatusId.Refund;
-            item.Status = StatusName.Refund;
-        });
-
-        return tickets;
-    }
-
-    private static decimal? GetActualPayout(decimal modds, decimal odds, short oddsType, decimal actualStake, decimal stake)
+    public decimal? GetActualPayout(decimal modds, decimal odds, short oddsType, decimal actualStake, decimal stake)
     {
         var newOdds = Odds(odds, oddsType);
 
@@ -77,7 +35,7 @@ public class CommandServiceImp(
         return oddsType == 1 ? value - 1 : value;
     }
 
-    private void SetValue(Ticket ticket, List<WinLimit> maxWinLimit)
+    public void SetValue(Ticket ticket, List<WinLimit> maxWinLimit)
     {
         var oldWinLost = ticket.WinLost;
         var oldStatusId = ticket.StatusId;
@@ -102,7 +60,7 @@ public class CommandServiceImp(
             ticket.AComm = commission.AComm;
             ticket.SComm = commission.SComm;
 
-            ticket.Ruben = DefaultRuben;
+            ticket.Ruben = Ruben.Default;
             ticket.IsUpdateSettlementTime = IsUpdateSettlementTime(oldWinLost, winlost.WinLost, oldStatusId, newStatusId);
             ticket.StatusId = newStatusId;
             ticket.Status = prepareTicket.Status;

@@ -14,17 +14,17 @@ public class InsertHistoryDataTests
 
     private readonly XmlConvertService xmlConvertService;
 
-    private readonly InsertHistoryData service;
+    private readonly HistoryDataImp service;
 
     public InsertHistoryDataTests()
     {
         repository = Substitute.For<IDynamicRepository>();
         xmlConvertService = Substitute.For<XmlConvertService>();
-        service = new InsertHistoryDataImp(xmlConvertService, repository);
+        service = new HistoryDataImp(xmlConvertService, repository);
     }
 
     [Fact]
-    public async Task InsertHappy5_ExistedMaxPayoutTicket_ReturnsInsertHistory()
+    public async Task Insert_ExistedMaxPayoutTicket_ReturnsInsertHistory()
     {
         var tickets = new List<Ticket>{
             new()
@@ -40,12 +40,12 @@ public class InsertHistoryDataTests
         };
 
         xmlConvertService.Serialize(Arg.Any<Root<MaxPayout>>()).Returns("XML");
-        await service.InsertHappy5(request, tickets);
+        await service.Insert(request, tickets);
         await repository.Received(1).ExecuteAsync(Arg.Any<InsertHistoryDataCriteria>());
     }
 
     [Fact]
-    public async Task InsertHappy5_NotExistedMaxPayoutTicket_ReturnsNotReceiveInsertHistory()
+    public async Task Insert_NotExistedMaxPayoutTicket_ReturnsNotReceiveInsertHistory()
     {
         var tickets = new List<Ticket>{
             new()
@@ -61,7 +61,7 @@ public class InsertHistoryDataTests
         };
 
         xmlConvertService.Serialize(Arg.Any<Root<MaxPayout>>()).Returns("XML");
-        await service.InsertHappy5(request, tickets);
+        await service.Insert(request, tickets);
         await repository.DidNotReceive().ExecuteAsync(Arg.Any<InsertHistoryDataCriteria>());
     }
 }

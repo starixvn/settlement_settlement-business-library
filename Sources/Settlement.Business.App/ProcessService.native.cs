@@ -1,38 +1,39 @@
 ﻿using Microsoft.Extensions.Configuration;
+using Settlement.Business.Core.Constants;
 using Settlement.Business.Core.Models;
 using Settlement.Business.Requests;
 using Settlement.Business.Services;
-using Settlement.Business.Services.HappyFive;
+using Settlement.Business.Services.Products;
 
 namespace Settlement.Business.App;
 
 public interface ProcessService
 {
-    Task<Result> Settle(InputRequest request, string site, List<Resources> resources);
+    Task<Result> Settle(InputRequest request, string site, IEnumerable<Outright> outright, IEnumerable<Resources> resources);
 }
 
 public class ProcessServiceImp(MatchService matchService,
-    BatchTicketsService batchTicketsService,
+    RacingProcessService racingProcessService,
     IConfiguration configuration) : ProcessService
 {
-    public async Task<Result> Settle(InputRequest request, string site, List<Resources> resources)
+    public async Task<Result> Settle(InputRequest request, string site, IEnumerable<Outright> outright, IEnumerable<Resources> resources)
     {
         try
         {
-            var result = await matchService.LockMatch(request.MatchId, 1, site);
+            var result = await matchService.LockMatch(request.EventId, 1, site, LockMatchType.VirtualRacing);
             if (result.IsSuccessful)
             {
                 var batchTicketRequest = CreateBatchTicketRequest(request, site, resources);
-                result = await batchTicketsService.Settle(batchTicketRequest);
-                await matchService.LockMatch(request.MatchId, 0, site);
+                result = await racingProcessService.Settle(batchTicketRequest, outright);
+                await matchService.LockMatch(request.EventId, 0, site, LockMatchType.VirtualRacing);
             }
 
             return result;
         }
         catch (Exception exception)
         {
-            var errorMessage = $"Match Id = {request.MatchId} - SiteDb = {site} - {exception.Message}";
-            await matchService.LockMatch(request.MatchId, 0, site);
+            var errorMessage = $"Match Id = {request.EventId} - SiteDb = {site} - {exception.Message}";
+            await matchService.LockMatch(request.EventId, 0, site, LockMatchType.VirtualRacing);
 
             return new Result
             {
@@ -42,16 +43,17 @@ public class ProcessServiceImp(MatchService matchService,
         }
     }
 
-    private BatchTicketRequest CreateBatchTicketRequest(InputRequest request, string site, List<Resources> resources)
+    private BatchTicketRequest CreateBatchTicketRequest(InputRequest request, string site, IEnumerable<Resources> resources)
     {
         return new BatchTicketRequest
         {
-            MatchId = request.MatchId,
+            MatchId = request.EventId,
             AdminId = request.AdminId,
             SportType = request.SportType,
+            Racers = request.Racers,
             Action = request.Action,
             ActionId = request.ActionId,
-            Resources = resources,
+            Resources = resources.ToList(),
             DbServer = site,
             LastCustId = 0,
             LastTransId = 0,

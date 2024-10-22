@@ -1,4 +1,5 @@
-﻿using Settlement.Business.Core.Models;
+﻿using Settlement.Business.Core.Constants;
+using Settlement.Business.Core.Models;
 using Settlement.Business.Services;
 
 namespace Settlement.Business.Tests.Services;
@@ -60,5 +61,54 @@ public class ModdsServiceTests
         }
 
         Assert.True(actual);
+    }
+
+    [Theory]
+    [InlineData(2, 2, 1, 1)]
+    [InlineData(3, 3, 2, -1)]
+    public void VirtualRacing_BetTypeEqual2770_ReturnsExpectedValue(int oddsId, int orid, byte placing, int expected)
+    {
+        var ticket = new Ticket
+        {
+            BetType = BetTypes.RacingWin,
+            OddsId = oddsId,
+        };
+
+        var outright = new List<Outright>()
+        {
+           new()
+           {
+               Orid = orid,
+               Placing = placing
+           }
+        };
+
+        var actual = service.VirtualRacing(ticket, outright);
+
+        Assert.Equal(expected, actual);
+    }
+
+    [Theory]
+    [InlineData(2, 2, 1)]
+    [InlineData(4, 3, -1)]
+    public void VirtualRacing_BetTypeNotEqual2770_ReturnsExpectedValue(int oddsId, int orid, int expected)
+    {
+        var ticket = new Ticket
+        {
+            BetType = BetTypes.RacingPlace,
+            OddsId = oddsId,
+        };
+
+        var outright = new List<Outright>()
+        {
+            new()
+            {
+                Orid = orid,
+            }
+        };
+
+        var actual = service.VirtualRacing(ticket, outright);
+
+        Assert.Equal(expected, actual);
     }
 }

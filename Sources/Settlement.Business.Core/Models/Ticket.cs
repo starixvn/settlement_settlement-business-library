@@ -121,4 +121,7 @@ public class Ticket
 
     [JsonIgnore]
     public short SiteDBGroupId { get; set; }
+
+    [JsonIgnore]
+    public int OddsId { get; set; }
 }

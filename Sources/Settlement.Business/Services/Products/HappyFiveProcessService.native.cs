@@ -1,16 +1,17 @@
-﻿using Settlement.Business.Core.Models;
+﻿using Settlement.Business.Core.Constants;
+using Settlement.Business.Core.Models;
 using Settlement.Business.Requests;
 
-namespace Settlement.Business.Services.HappyFive;
+namespace Settlement.Business.Services.Products;
 
-public interface BatchTicketsService
+public interface HappyFiveProcessService
 {
     Task<Result> Settle(BatchTicketRequest request);
 }
 
-public class BatchTicketsServiceImp(
+public class HappyFiveProcessServiceImp(
     TicketService ticketService,
-    ProcessService processService) : BatchTicketsService
+    SettleService settleService) : HappyFiveProcessService
 {
     public async Task<Result> Settle(BatchTicketRequest request)
     {
@@ -45,9 +46,9 @@ public class BatchTicketsServiceImp(
         var tasks = new List<Task<Result>>();
         foreach (var batch in batches)
         {
-            var request = CreateTicketRequest(batchTicketRequest, batch);
+            var request = ticketService.CreateTicketRequest(batchTicketRequest, batch);
 
-            var task = processService.ProcessAsync(request, batchTicketRequest.Resources);
+            var task = ProcessAsync(request, batchTicketRequest.Resources);
             tasks.Add(task);
         }
 
@@ -62,27 +63,22 @@ public class BatchTicketsServiceImp(
         };
     }
 
-    private static TicketRequest CreateTicketRequest(BatchTicketRequest batchTicketRequest, TicketBatch batch)
+    private async Task<Result> ProcessAsync(TicketRequest request, List<Resources> resources)
     {
-        var resourceIds = string.Join(',', batchTicketRequest.Resources.Select(x => x.ResourceId).Distinct().ToArray());
+        var result = new Result();
 
-        return new TicketRequest
-        {
-            MatchId = batchTicketRequest.MatchId,
-            AdminId = batchTicketRequest.AdminId,
-            SportType = batchTicketRequest.SportType,
-            Resources = resourceIds,
-            Action = batchTicketRequest.Action,
-            ActionId = batchTicketRequest.ActionId,
-            DbServer = batchTicketRequest.DbServer,
+        await Policy
+            .HandleResult<bool>(flag => !flag)
+            .WaitAndRetryAsync(Retry.Count,
+                _ => TimeSpan.FromSeconds(Retry.Time))
+            .ExecuteAsync(async () =>
+            {
+                result = string.Equals(request.Action, ActionName.Calculate, StringComparison.OrdinalIgnoreCase)
+                    ? await settleService.Calc(request, resources)
+                    : await settleService.Refund(request);
+                return result.IsSuccessful;
+            });
 
-            MinCustId = batch.MinCustId,
-            MinCustId_MinTransId = batch.MinCustId_MinTransId,
-            MinCustId_MaxTransId = batch.MinCustId_MaxTransId,
-
-            MaxCustId = batch.MaxCustId,
-            MaxCustId_MinTransId = batch.MaxCustId_MinTransId,
-            MaxCustId_MaxTransId = batch.MaxCustId_MaxTransId,
-        };
+        return result;
     }
 }
