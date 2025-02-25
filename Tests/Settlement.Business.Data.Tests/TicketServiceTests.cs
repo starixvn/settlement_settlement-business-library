@@ -2,11 +2,11 @@
 using NSubstitute;
 using Settlement.Business.Core.Constants;
 using Settlement.Business.Core.Models;
-using Settlement.Business.Criteria;
-using Settlement.Business.Requests;
-using Settlement.Business.Services;
+using Settlement.Business.Core.Requests;
+using Settlement.Business.Data.Criteria;
+using Settlement.Business.Data.Services;
 
-namespace Settlement.Business.Tests.Services;
+namespace Settlement.Business.Data.Tests;
 
 public class TicketServiceTests
 {

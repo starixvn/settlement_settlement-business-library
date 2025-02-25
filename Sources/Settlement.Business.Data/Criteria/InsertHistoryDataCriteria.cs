@@ -1,4 +1,4 @@
-﻿namespace Settlement.Business.Criteria;
+﻿namespace Settlement.Business.Data.Criteria;
 public class InsertHistoryDataCriteria : INonQueryCommand
 {
     public string XmlData { get; set; }

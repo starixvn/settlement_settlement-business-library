@@ -1,4 +1,4 @@
-﻿namespace Settlement.Business.Criteria.HappyFive;
+﻿namespace Settlement.Business.Data.Criteria.HappyFive;
 
 public class GetResultCriteria : CriteriaBase
 {

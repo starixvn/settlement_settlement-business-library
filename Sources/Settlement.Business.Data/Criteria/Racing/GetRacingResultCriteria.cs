@@ -1,4 +1,4 @@
-﻿namespace Settlement.Business.Criteria.Racing;
+﻿namespace Settlement.Business.Data.Criteria.Racing;
 
 public class GetRacingResultCriteria : CriteriaBase
 {

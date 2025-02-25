@@ -1,9 +1,9 @@
 ﻿using Fanex.Settlement.Converter.Services;
 using Settlement.Business.Core.Models;
-using Settlement.Business.Criteria;
-using Settlement.Business.Requests;
+using Settlement.Business.Core.Requests;
+using Settlement.Business.Data.Criteria;
 
-namespace Settlement.Business.Services;
+namespace Settlement.Business.Data.Services;
 
 public interface HistoryData
 {

@@ -1,8 +1,9 @@
 ﻿using Settlement.Business.Core.Constants;
 using Settlement.Business.Core.Models;
+using Settlement.Business.Services;
 using static Settlement.Business.Core.Constants.Status;
 
-namespace Settlement.Business.Services;
+namespace Settlement.Business.Data.Services;
 
 public interface GenerateSettleTicketService
 {

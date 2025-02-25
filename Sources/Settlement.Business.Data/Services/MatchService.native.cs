@@ -1,10 +1,10 @@
 ﻿using Settlement.Business.Core.Constants;
 using Settlement.Business.Core.Models;
-using Settlement.Business.Criteria;
-using Settlement.Business.Criteria.HappyFive;
-using Settlement.Business.Criteria.Racing;
+using Settlement.Business.Data.Criteria;
+using Settlement.Business.Data.Criteria.HappyFive;
+using Settlement.Business.Data.Criteria.Racing;
 
-namespace Settlement.Business.Services;
+namespace Settlement.Business.Data.Services;
 
 public interface MatchService
 {

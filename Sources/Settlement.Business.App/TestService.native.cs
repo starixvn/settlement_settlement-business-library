@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.Hosting;
-using Settlement.Business.Services;
+using Settlement.Business.Data.Services;
 
 namespace Settlement.Business.App;
 

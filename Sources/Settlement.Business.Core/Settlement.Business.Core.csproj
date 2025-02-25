@@ -1,23 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
   </PropertyGroup>
-
   <ItemGroup>
     <Compile Remove="Attributes\**" />
-    <Compile Remove="Requests\**" />
     <EmbeddedResource Remove="Attributes\**" />
-    <EmbeddedResource Remove="Requests\**" />
     <None Remove="Attributes\**" />
-    <None Remove="Requests\**" />
   </ItemGroup>
-
   <ItemGroup>
     <PackageReference Include="AspectInjector" Version="2.8.2" />
     <Compile Remove="Models\TransactionInfo.cs" />
   </ItemGroup>
-
 </Project>

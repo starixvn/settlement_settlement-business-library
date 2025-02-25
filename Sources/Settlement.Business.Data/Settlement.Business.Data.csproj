@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Fanex.Data" Version="4.3.3" />
+    <PackageReference Include="Fanex.Data.Repository" Version="4.3.3" />
+    <PackageReference Include="Fanex.Settlement.Converter" Version="1.0.0.1" />
+    <PackageReference Include="Polly" Version="8.5.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Settlement.Business.Core\Settlement.Business.Core.csproj" />
+    <ProjectReference Include="..\Settlement.Business\Settlement.Business.csproj" />
+  </ItemGroup>
+
+</Project>

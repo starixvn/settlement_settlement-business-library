@@ -2,13 +2,13 @@
 using Fanex.Settlement.Converter.Services;
 using NSubstitute;
 using Settlement.Business.Core.Models;
-using Settlement.Business.Criteria;
-using Settlement.Business.Requests;
-using Settlement.Business.Services;
+using Settlement.Business.Core.Requests;
+using Settlement.Business.Data.Criteria;
+using Settlement.Business.Data.Services;
 
-namespace Settlement.Business.Tests.Services;
+namespace Settlement.Business.Data.Tests;
 
-public class InsertHistoryDataTests
+public class HistoryDataTests
 {
     private readonly IDynamicRepository repository;
 
@@ -16,7 +16,7 @@ public class InsertHistoryDataTests
 
     private readonly HistoryDataImp service;
 
-    public InsertHistoryDataTests()
+    public HistoryDataTests()
     {
         repository = Substitute.For<IDynamicRepository>();
         xmlConvertService = Substitute.For<XmlConvertService>();
