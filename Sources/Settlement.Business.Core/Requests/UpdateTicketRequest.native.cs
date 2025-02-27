@@ -1,4 +1,4 @@
-﻿namespace Settlement.Business.Requests;
+﻿namespace Settlement.Business.Core.Requests;
 
 public class UpdateTicketRequest
 {

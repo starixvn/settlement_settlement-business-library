@@ -1,7 +1,7 @@
 ﻿using Settlement.Business.Core.Models;
-using Settlement.Business.Requests;
+using Settlement.Business.Core.Requests;
 
-namespace Settlement.Business.Services;
+namespace Settlement.Business.Data.Services;
 
 public interface SettleService
 {

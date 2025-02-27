@@ -1,6 +1,6 @@
 ﻿using Settlement.Business.Core.Models;
 
-namespace Settlement.Business.Requests;
+namespace Settlement.Business.Core.Requests;
 
 public class BatchTicketRequest
 {

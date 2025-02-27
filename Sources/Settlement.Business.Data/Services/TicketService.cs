@@ -1,10 +1,10 @@
 ﻿using Settlement.Business.Core.Constants;
 using Settlement.Business.Core.Models;
-using Settlement.Business.Criteria;
-using Settlement.Business.Requests;
+using Settlement.Business.Core.Requests;
+using Settlement.Business.Data.Criteria;
 using System.Text.Json;
 
-namespace Settlement.Business.Services;
+namespace Settlement.Business.Data.Services;
 
 public interface TicketService
 {

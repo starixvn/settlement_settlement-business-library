@@ -1,7 +1,7 @@
 ﻿using Fanex.Data;
 using Settlement.Business.Core.Constants;
 
-namespace Settlement.Business.Criteria;
+namespace Settlement.Business.Data.Criteria;
 
 public class LockMatchCriteria : CriteriaBase
 {

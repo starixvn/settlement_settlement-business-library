@@ -1,8 +1,8 @@
 ﻿using Settlement.Business.Core.Constants;
 using Settlement.Business.Core.Models;
-using Settlement.Business.Requests;
+using Settlement.Business.Core.Requests;
 
-namespace Settlement.Business.Services.Products;
+namespace Settlement.Business.Data.Services.Products;
 
 public interface HappyFiveProcessService
 {

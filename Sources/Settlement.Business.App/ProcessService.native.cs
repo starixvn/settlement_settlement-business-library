@@ -1,9 +1,9 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Settlement.Business.Core.Constants;
 using Settlement.Business.Core.Models;
-using Settlement.Business.Requests;
-using Settlement.Business.Services;
-using Settlement.Business.Services.Products;
+using Settlement.Business.Core.Requests;
+using Settlement.Business.Data.Services;
+using Settlement.Business.Data.Services.Products;
 
 namespace Settlement.Business.App;
 

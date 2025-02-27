@@ -1,6 +1,6 @@
 ﻿using Fanex.Data;
 
-namespace Settlement.Business.Criteria;
+namespace Settlement.Business.Data.Criteria;
 
 public class UpdateOtherSportsCriteria : NonQueryCommand
 {
