@@ -15,7 +15,7 @@ public class Ticket
     public byte StatusId { get; set; }
 
     [JsonPropertyName("sw")]
-    public byte StatusWinLost { get; set; }
+    public byte? StatusWinLost { get; set; }
 
     [JsonPropertyName("wi")]
     public decimal? WinLost { get; set; }

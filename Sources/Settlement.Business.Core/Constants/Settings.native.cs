@@ -4,6 +4,12 @@ public static class SportType
 {
     public const int Happy5 = 164;
 
+    public const int VirtualSteepleChase = 125;
+
+    public const int VirtualHarnessRacing = 126;
+
+    public const int VirtualMotorRacing = 127;
+
     public const int VirtualDogs = 177;
 
     public const int VirtualHorses = 198;

@@ -4,7 +4,7 @@ public static class BetTypes
 {
     public const int RacingWin = 2770;
 
-    public const int RacingPlace = 2771;
+    public const int KironWin = 15500;
 
     public const int FirstHalfHomeTeamOddEven = 136;
 

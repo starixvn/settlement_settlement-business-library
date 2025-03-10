@@ -135,8 +135,16 @@ public class TicketServiceImp(IDynamicRepository repository) : TicketService
 
     private static (byte, bool, short) GetEventAndNegativeBalance(int sportType)
     {
-        return sportType is SportType.VirtualDogs or SportType.VirtualHorses
+        return IsVirtualSport(sportType)
             ? (EventTable.VirtualRacing, false, (short)1201)
             : (EventTable.Match, true, (short)81);
+    }
+
+    private static bool IsVirtualSport(int sportType)
+    {
+        return sportType is SportType.VirtualDogs or SportType.VirtualHorses
+            or SportType.VirtualSteepleChase
+            or SportType.VirtualHarnessRacing
+            or SportType.VirtualMotorRacing;
     }
 }

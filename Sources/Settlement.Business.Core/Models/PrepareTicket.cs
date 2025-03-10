@@ -14,7 +14,7 @@ public class PrepareTicket
 
     public string Status { get; set; }
 
-    public byte StatusWinLost { get; set; }
+    public byte? StatusWinLost { get; set; }
 
     public bool IsUpdated { get; set; }
 

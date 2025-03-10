@@ -6,7 +6,7 @@ namespace Settlement.Business.Tests.Services;
 
 public class ModdsServiceTests
 {
-    private readonly ModdsService service;
+    private readonly ModdsServiceImp service;
 
     public ModdsServiceTests()
     {
@@ -91,11 +91,11 @@ public class ModdsServiceTests
     [Theory]
     [InlineData(2, 2, 1)]
     [InlineData(4, 3, -1)]
-    public void VirtualRacing_BetTypeNotEqual2770_ReturnsExpectedValue(int oddsId, int orid, int expected)
+    public void VirtualRacing_BetTypeNotEqual2770Or15500_ReturnsExpectedValue(int oddsId, int orid, int expected)
     {
         var ticket = new Ticket
         {
-            BetType = BetTypes.RacingPlace,
+            BetType = 123,
             OddsId = oddsId,
         };
 
@@ -104,6 +104,31 @@ public class ModdsServiceTests
             new()
             {
                 Orid = orid,
+            }
+        };
+
+        var actual = service.VirtualRacing(ticket, outright);
+
+        Assert.Equal(expected, actual);
+    }
+
+    [Theory]
+    [InlineData(2, 2, 1, 1)]
+    [InlineData(3, 3, 2, -1)]
+    public void VirtualRacing_BetTypeEqual15500_ReturnsExpectedValue(int oddsId, int orid, byte placing, int expected)
+    {
+        var ticket = new Ticket
+        {
+            BetType = BetTypes.KironWin,
+            OddsId = oddsId,
+        };
+
+        var outright = new List<Outright>()
+        {
+            new()
+            {
+                Orid = orid,
+                Placing = placing
             }
         };
 

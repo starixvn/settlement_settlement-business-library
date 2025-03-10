@@ -43,11 +43,16 @@ public class RacingProcessServiceImp(
 
     private static IEnumerable<Outright> CorrectOutrightResult(BatchTicketRequest request, IEnumerable<Outright> outright)
     {
-        int[] validPlacings = request.SportType == SportType.VirtualDogs && request.Racers == 6
+        int[] validPlacings = IsCheckedRacersWithSportType(request.SportType) && request.Racers == 6
             ? [1, 2]
             : [1, 2, 3];
 
         return outright.Where(x => validPlacings.Contains(x.Placing));
+    }
+
+    private static bool IsCheckedRacersWithSportType(int sportType)
+    {
+        return sportType is SportType.VirtualDogs or SportType.VirtualSteepleChase or SportType.VirtualHarnessRacing or SportType.VirtualMotorRacing;
     }
 
     private async Task<Result> ExecuteBatches(BatchTicketRequest batchTicketRequest, List<TicketBatch> batches, IEnumerable<Outright> outright)

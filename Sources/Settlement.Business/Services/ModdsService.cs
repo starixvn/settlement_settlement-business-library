@@ -27,10 +27,15 @@ public class ModdsServiceImp(ModdsValueService moddsValueService) : ModdsService
 
     public int VirtualRacing(Ticket ticket, List<Outright> outright)
     {
-        var isExisted = ticket.BetType == BetTypes.RacingWin
+        var isExisted = IsWinBetOption(ticket.BetType)
             ? outright.Exists(x => x.Orid == ticket.OddsId && x.Placing == 1)
             : outright.Exists(x => x.Orid == ticket.OddsId);
 
         return isExisted ? 1 : -1;
+    }
+
+    private static bool IsWinBetOption(short betType)
+    {
+        return betType is BetTypes.RacingWin or BetTypes.KironWin;
     }
 }

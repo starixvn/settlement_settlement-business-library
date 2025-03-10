@@ -80,6 +80,9 @@ public class TicketServiceTests
     [InlineData(SportType.Happy5, 1, true, 81)]
     [InlineData(SportType.VirtualDogs, 4, false, 1201)]
     [InlineData(SportType.VirtualHorses, 4, false, 1201)]
+    [InlineData(SportType.VirtualSteepleChase, 4, false, 1201)]
+    [InlineData(SportType.VirtualHarnessRacing, 4, false, 1201)]
+    [InlineData(SportType.VirtualMotorRacing, 4, false, 1201)]
     public async Task UpdateTicket_SportTypeIsVirtualRacing_ReturnsRightExpectedValue(int sportType, byte expectedEventTable, bool expectedHasNoBalanceNegative, short expectedCwlBettype)
     {
         await repository.ExecuteAsync(Arg.Any<UpdateOtherSportsCriteria>());

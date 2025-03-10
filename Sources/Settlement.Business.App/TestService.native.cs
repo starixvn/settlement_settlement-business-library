@@ -14,12 +14,12 @@ public class TestService(
 
     private async Task Testing()
     {
-        const int matchId = 10000084;
+        const int matchId = 10000282;
         string[] siteDbServer = { "DBSITE03" }; //, "DBSITE01", "DBSITE02"
         var request = new InputRequest
         {
             EventId = matchId,
-            Action = "CAL",
+            Action = "Cal",
             ActionId = 187,
         };
 
