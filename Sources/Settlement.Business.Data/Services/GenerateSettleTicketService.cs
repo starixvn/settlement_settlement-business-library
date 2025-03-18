@@ -9,7 +9,7 @@ public interface GenerateSettleTicketService
 {
     Task<List<Ticket>> Calc(List<Ticket> tickets, List<Resources> resources);
 
-    Task<List<Ticket>> Calc(List<Ticket> tickets, List<Outright> outright, List<Resources> resources);
+    Task<List<Ticket>> Calc(List<Ticket> tickets, IEnumerable<Outright> outright, List<Resources> resources, int sportType, byte racers);
 
     List<Ticket> Refund(List<Ticket> tickets);
 }
@@ -35,12 +35,12 @@ public class GenerateSettleTicketServiceImp(
         return tickets;
     }
 
-    public async Task<List<Ticket>> Calc(List<Ticket> tickets, List<Outright> outright, List<Resources> resources)
+    public async Task<List<Ticket>> Calc(List<Ticket> tickets, IEnumerable<Outright> outright, List<Resources> resources, int sportType, byte racers)
     {
         tickets.ForEach(item =>
         {
             var resource = resources.Find(r => r.ProfileId == item.ProfileId) ?? new Resources();
-            item.Modds = moddsService.VirtualRacing(item, outright);
+            item.Modds = moddsService.VirtualRacing(item, sportType, racers, outright);
             item.OddsType = resource.OddsType;
             item.ActualPayout = ticketValueService.GetActualPayout(item.Modds, item.Odds, item.OddsType, item.ActualStake, item.Stake);
         });

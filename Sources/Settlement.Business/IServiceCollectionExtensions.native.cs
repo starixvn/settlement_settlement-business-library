@@ -15,6 +15,7 @@ public static class IServiceCollectionExtensions
         services.AddTransient<TicketValueService, TicketValueServiceImp>();
         services.AddTransient<WinLostService, WinLostServiceImp>();
         services.AddTransient<WinLostByModdsService, WinLostByModdsServiceImp>();
+        services.AddTransient<OutrightResultService, OutrightResultServiceImp>();
 
         return services;
     }

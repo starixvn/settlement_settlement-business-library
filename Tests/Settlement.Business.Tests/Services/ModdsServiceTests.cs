@@ -1,4 +1,5 @@
-﻿using Settlement.Business.Core.Constants;
+﻿using NSubstitute;
+using Settlement.Business.Core.Constants;
 using Settlement.Business.Core.Models;
 using Settlement.Business.Services;
 
@@ -6,12 +7,14 @@ namespace Settlement.Business.Tests.Services;
 
 public class ModdsServiceTests
 {
-    private readonly ModdsServiceImp service;
+    private readonly OutrightResultService outrightResultService;
+    private ModdsServiceImp service;
 
     public ModdsServiceTests()
     {
+        outrightResultService = Substitute.For<OutrightResultService>();
         var moddsValueService = new ModdsValueServiceImp();
-        service = new ModdsServiceImp(moddsValueService);
+        service = new ModdsServiceImp(moddsValueService, outrightResultService);
     }
 
     [Theory]
@@ -83,7 +86,13 @@ public class ModdsServiceTests
            }
         };
 
-        var actual = service.VirtualRacing(ticket, outright);
+        const int sportType = 1;
+        const byte racers = 1;
+
+        outrightResultService.CorrectOutrightResult(Arg.Any<int>(), Arg.Any<byte>(), Arg.Any<IEnumerable<Outright>>())
+            .Returns(outright);
+
+        var actual = service.VirtualRacing(ticket, sportType, racers, outright);
 
         Assert.Equal(expected, actual);
     }
@@ -107,7 +116,13 @@ public class ModdsServiceTests
             }
         };
 
-        var actual = service.VirtualRacing(ticket, outright);
+        const int sportType = 1;
+        const byte racers = 1;
+
+        outrightResultService.CorrectOutrightResult(Arg.Any<int>(), Arg.Any<byte>(), Arg.Any<IEnumerable<Outright>>())
+            .Returns(outright);
+
+        var actual = service.VirtualRacing(ticket, sportType, racers, outright);
 
         Assert.Equal(expected, actual);
     }
@@ -132,7 +147,13 @@ public class ModdsServiceTests
             }
         };
 
-        var actual = service.VirtualRacing(ticket, outright);
+        const int sportType = 1;
+        const byte racers = 1;
+
+        outrightResultService.CorrectOutrightResult(Arg.Any<int>(), Arg.Any<byte>(), Arg.Any<IEnumerable<Outright>>())
+            .Returns(outright);
+
+        var actual = service.VirtualRacing(ticket, sportType, racers, outright);
 
         Assert.Equal(expected, actual);
     }

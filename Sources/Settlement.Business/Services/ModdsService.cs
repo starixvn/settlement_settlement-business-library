@@ -8,10 +8,12 @@ public interface ModdsService
 {
     int Happy5(int profileId, string betTeam, Resources resource);
 
-    int VirtualRacing(Ticket ticket, List<Outright> outright);
+    int VirtualRacing(Ticket ticket, int sportType, byte racers, IEnumerable<Outright> outright);
 }
 
-public class ModdsServiceImp(ModdsValueService moddsValueService) : ModdsService
+public class ModdsServiceImp(
+    ModdsValueService moddsValueService,
+    OutrightResultService outrightResultService) : ModdsService
 {
     public int Happy5(int profileId, string betTeam, Resources resource)
     {
@@ -25,11 +27,12 @@ public class ModdsServiceImp(ModdsValueService moddsValueService) : ModdsService
         return -1;
     }
 
-    public int VirtualRacing(Ticket ticket, List<Outright> outright)
+    public int VirtualRacing(Ticket ticket, int sportType, byte racers, IEnumerable<Outright> outright)
     {
+        var correctOutright = outrightResultService.CorrectOutrightResult(sportType, racers, outright).ToList();
         var isExisted = IsWinBetOption(ticket.BetType)
-            ? outright.Exists(x => x.Orid == ticket.OddsId && x.Placing == 1)
-            : outright.Exists(x => x.Orid == ticket.OddsId);
+            ? correctOutright.Exists(x => x.Orid == ticket.OddsId && x.Placing == 1)
+            : correctOutright.Exists(x => x.Orid == ticket.OddsId);
 
         return isExisted ? 1 : -1;
     }

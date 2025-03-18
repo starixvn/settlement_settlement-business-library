@@ -16,7 +16,6 @@ public class RacingProcessServiceImp(
     public async Task<Result> Settle(BatchTicketRequest request, IEnumerable<Outright> outright)
     {
         var listResult = new List<Result>();
-        var placingResult = CorrectOutrightResult(request, outright);
         var flag = true;
         while (flag)
         {
@@ -24,7 +23,7 @@ public class RacingProcessServiceImp(
 
             if (batches.Count > 0)
             {
-                var result = await ExecuteBatches(request, batches, placingResult);
+                var result = await ExecuteBatches(request, batches, outright);
                 if (result.ErrCode > 0)
                 {
                     listResult.Add(result);
@@ -41,20 +40,6 @@ public class RacingProcessServiceImp(
         };
     }
 
-    private static IEnumerable<Outright> CorrectOutrightResult(BatchTicketRequest request, IEnumerable<Outright> outright)
-    {
-        int[] validPlacings = IsCheckedRacersWithSportType(request.SportType) && request.Racers == 6
-            ? [1, 2]
-            : [1, 2, 3];
-
-        return outright.Where(x => validPlacings.Contains(x.Placing));
-    }
-
-    private static bool IsCheckedRacersWithSportType(int sportType)
-    {
-        return sportType is SportType.VirtualDogs or SportType.VirtualSteepleChase or SportType.VirtualHarnessRacing or SportType.VirtualMotorRacing;
-    }
-
     private async Task<Result> ExecuteBatches(BatchTicketRequest batchTicketRequest, List<TicketBatch> batches, IEnumerable<Outright> outright)
     {
         var tasks = new List<Task<Result>>();
@@ -62,7 +47,7 @@ public class RacingProcessServiceImp(
         {
             var request = ticketService.CreateTicketRequest(batchTicketRequest, batch);
 
-            var task = ProcessAsync(request, outright, batchTicketRequest.Resources);
+            var task = ProcessAsync(request, outright, batchTicketRequest.Resources, batchTicketRequest.Racers);
             tasks.Add(task);
         }
 
@@ -77,7 +62,7 @@ public class RacingProcessServiceImp(
         };
     }
 
-    private async Task<Result> ProcessAsync(TicketRequest request, IEnumerable<Outright> outright, List<Resources> resources)
+    private async Task<Result> ProcessAsync(TicketRequest request, IEnumerable<Outright> outright, List<Resources> resources, byte racers)
     {
         var result = new Result();
 
@@ -88,7 +73,7 @@ public class RacingProcessServiceImp(
             .ExecuteAsync(async () =>
             {
                 result = string.Equals(request.Action, ActionName.Calculate, StringComparison.OrdinalIgnoreCase)
-                    ? await settleService.Calc(request, outright.ToList(), resources)
+                    ? await settleService.Calc(request, outright.ToList(), resources, racers)
                     : await settleService.Refund(request);
                 return result.IsSuccessful;
             });

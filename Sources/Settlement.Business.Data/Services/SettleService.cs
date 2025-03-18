@@ -7,7 +7,7 @@ public interface SettleService
 {
     Task<Result> Calc(TicketRequest request, List<Resources> resources);
 
-    Task<Result> Calc(TicketRequest request, List<Outright> outright, List<Resources> resources);
+    Task<Result> Calc(TicketRequest request, IEnumerable<Outright> outright, List<Resources> resources, byte racers);
 
     Task<Result> Refund(TicketRequest request);
 }
@@ -37,14 +37,14 @@ public class SettleServiceImp(
         return result;
     }
 
-    public async Task<Result> Calc(TicketRequest request, List<Outright> outright, List<Resources> resources)
+    public async Task<Result> Calc(TicketRequest request, IEnumerable<Outright> outright, List<Resources> resources, byte racers)
     {
         var tickets = new List<Ticket>();
 
         var result = await TryCatch(request, async () =>
         {
             tickets = await ticketService.GetTickets(request);
-            var ticketsAfterCalculate = await generateSettleTicketService.Calc(tickets, outright, resources);
+            var ticketsAfterCalculate = await generateSettleTicketService.Calc(tickets, outright, resources, request.SportType, racers);
 
             return await ticketService.UpdateTicket(request, ticketsAfterCalculate);
         });

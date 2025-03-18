@@ -14,7 +14,7 @@ public class PrepareTicketServiceTests
 
     private readonly WinLostService winLostService;
 
-    private readonly PrepareTicketService service;
+    private readonly PrepareTicketServiceImp service;
 
     public PrepareTicketServiceTests()
     {
