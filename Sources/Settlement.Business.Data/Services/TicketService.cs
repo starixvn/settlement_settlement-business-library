@@ -19,9 +19,22 @@ public interface TicketService
 
 public class TicketServiceImp(IDynamicRepository repository) : TicketService
 {
+    private const short VIRTUAL_RACING_BETTYPE = 1201;
+    private const short MATCH_BETTYPE = 81;
+    private const byte BALANCE_TYPE = 4;
+
+    private static readonly HashSet<int> VirtualSports =
+    [
+        SportType.VirtualDogs,
+        SportType.VirtualHorses,
+        SportType.VirtualSteepleChase,
+        SportType.VirtualHarnessRacing,
+        SportType.VirtualMotorRacing
+    ];
+
     public TicketRequest CreateTicketRequest(BatchTicketRequest batchTicketRequest, TicketBatch batch)
     {
-        var resourceIds = string.Join(',', batchTicketRequest.Resources.Select(x => x.ResourceId).Distinct().ToArray());
+        var resourceIds = string.Join(',', batchTicketRequest.Resources.Select(x => x.ResourceId).Distinct());
 
         return new TicketRequest
         {
@@ -46,15 +59,14 @@ public class TicketServiceImp(IDynamicRepository repository) : TicketService
     public async Task<List<TicketBatch>> GetBatches(BatchTicketRequest request)
     {
         var batches = await GetBatchTicket(request);
-        var count = batches.Count;
-        if (count <= 0)
+        if (batches.Count <= 0)
         {
             request.LastCustId = 0;
             request.LastTransId = 0;
             return batches;
         }
 
-        var latestBatch = batches[count - 1];
+        var latestBatch = batches[^1];
         request.LastCustId = latestBatch.MaxCustId;
         request.LastTransId = latestBatch.MaxCustId_MaxTransId;
 
@@ -63,7 +75,7 @@ public class TicketServiceImp(IDynamicRepository repository) : TicketService
 
     private async Task<List<TicketBatch>> GetBatchTicket(BatchTicketRequest request)
     {
-        var resourceIds = string.Join(',', request.Resources.Select(x => x.ResourceId).Distinct().ToArray());
+        var resourceIds = string.Join(',', request.Resources.Select(x => x.ResourceId).Distinct());
 
         var criteria = new GetBatchTicketCriteria
         {
@@ -98,9 +110,8 @@ public class TicketServiceImp(IDynamicRepository repository) : TicketService
             MaxCustId_MinTransId = request.MaxCustId_MinTransId,
             MaxCustId_MaxTransId = request.MaxCustId_MaxTransId
         };
-        var result = (await repository.FetchAsync<Ticket>(criteria)).ToList();
 
-        return result;
+        return (await repository.FetchAsync<Ticket>(criteria)).ToList();
     }
 
     public async Task<Result> UpdateTicket(TicketRequest request, List<Ticket> tickets)
@@ -119,7 +130,7 @@ public class TicketServiceImp(IDynamicRepository repository) : TicketService
             HasNoBalanceNegative = hasNoBalanceNegative,
             Is3rd = true,
             IsCalculateBalance = true,
-            BalanceType = 4,
+            BalanceType = BALANCE_TYPE,
             CWLBettype = cwlBettype,
             SettleByApp = true
         };
@@ -136,15 +147,12 @@ public class TicketServiceImp(IDynamicRepository repository) : TicketService
     private static (byte, bool, short) GetEventAndNegativeBalance(int sportType)
     {
         return IsVirtualSport(sportType)
-            ? (EventTable.VirtualRacing, false, (short)1201)
-            : (EventTable.Match, true, (short)81);
+            ? (EventTable.VirtualRacing, false, VIRTUAL_RACING_BETTYPE)
+            : (EventTable.Match, true, MATCH_BETTYPE);
     }
 
     private static bool IsVirtualSport(int sportType)
     {
-        return sportType is SportType.VirtualDogs or SportType.VirtualHorses
-            or SportType.VirtualSteepleChase
-            or SportType.VirtualHarnessRacing
-            or SportType.VirtualMotorRacing;
+        return VirtualSports.Contains(sportType);
     }
 }
