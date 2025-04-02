@@ -15,30 +15,50 @@ public class ModdsServiceImp(
     ModdsValueService moddsValueService,
     OutrightResultService outrightResultService) : ModdsService
 {
+    private const int WinningModds = 1;
+
+    private const int LosingModds = -1;
+
     public int Happy5(int profileId, string betTeam, Resources resource)
     {
-        var mainValue = moddsValueService.GetValueByProfileIdOfHappy5(profileId, resource.Result1, resource.Result2);
+        var mainValue = moddsValueService.GetValueByProfileIdOfHappy5(
+            profileId,
+            resource.Result1,
+            resource.Result2);
 
-        if (HappyFiveConstants.Evaluate.TryGetValue((profileId, betTeam), out var evaluate))
-        {
-            return evaluate(mainValue) ? 1 : -1;
-        }
+        return IsHappy5Winner(profileId, betTeam, mainValue)
+            ? WinningModds
+            : LosingModds;
+    }
 
-        return -1;
+    private static bool IsHappy5Winner(int profileId, string betTeam, int mainValue)
+    {
+        return HappyFiveConstants.Evaluate.TryGetValue(
+            (profileId, betTeam),
+            out var evaluate) && evaluate(mainValue);
     }
 
     public int VirtualRacing(Ticket ticket, int sportType, byte racers, IEnumerable<Outright> outright)
     {
-        var correctOutright = outrightResultService.CorrectOutrightResult(sportType, racers, outright).ToList();
-        var isExisted = IsWinBetOption(ticket.BetType)
-            ? correctOutright.Exists(x => x.Orid == ticket.OddsId && x.Placing == 1)
-            : correctOutright.Exists(x => x.Orid == ticket.OddsId);
+        var correctOutright = outrightResultService
+            .CorrectOutrightResult(sportType, racers, outright)
+            .ToList();
 
-        return isExisted ? 1 : -1;
+        return IsVirtualRacingWinner(ticket, correctOutright)
+            ? WinningModds
+            : LosingModds;
     }
 
-    private static bool IsWinBetOption(short betType)
+    private static bool IsVirtualRacingWinner(
+        Ticket ticket,
+        IReadOnlyCollection<Outright> correctOutright)
     {
-        return betType is BetTypes.RacingWin or BetTypes.KironWin;
+        var isWinBetType = IsWinBetType(ticket.BetType);
+
+        return isWinBetType
+            ? correctOutright.Any(x => x.Orid == ticket.OddsId && x.Placing == 1)
+            : correctOutright.Any(x => x.Orid == ticket.OddsId);
     }
+
+    private static bool IsWinBetType(short betType) => betType is BetTypes.RacingWin or BetTypes.KironWin;
 }

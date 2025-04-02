@@ -16,8 +16,6 @@ public class PrepareTicket
 
     public byte? StatusWinLost { get; set; }
 
-    public bool IsUpdated { get; set; }
-
     public bool IsApplyMaxPayout { get; set; }
 
     public decimal? MaxWinLost { get; set; }

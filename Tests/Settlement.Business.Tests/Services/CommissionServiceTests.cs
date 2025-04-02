@@ -5,7 +5,7 @@ namespace Settlement.Business.Tests.Services;
 
 public class CommissionServiceTests
 {
-    private readonly CommissionService service = new CommissionServiceImp();
+    private readonly CommissionServiceImp service = new CommissionServiceImp();
 
     [Fact]
     public void ModdsHigherThanQuarter_Always_ReturnsExpectedCommission()

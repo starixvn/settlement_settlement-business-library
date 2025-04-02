@@ -16,46 +16,64 @@ public interface CommissionService
 public class CommissionServiceImp : CommissionService
 {
     public Commission ModdsHigherThanQuarter(Ticket ticket, PrepareTicket infos)
-    {
-        return new Commission
-        {
-            Comm = infos.CommWinRate * ticket.Discount * ticket.Stake * (1 - ticket.APositionTaking),
-            AComm = infos.CommWinRate * ticket.ADiscount * ticket.Stake * (1 - (ticket.MPositionTaking + ticket.APositionTaking)),
-            SComm = infos.CommWinRate * ticket.SDiscount * ticket.Stake * (1 - (ticket.SPositionTaking + ticket.MPositionTaking + ticket.APositionTaking)),
-            PlayerComm = infos.CommWinRate * ticket.PlayerDiscount * ticket.Stake
-        };
-    }
+        => CalculateCommission(ticket, infos.CommWinRate);
 
     public Commission ModdsEqualQuarter(Ticket ticket, PrepareTicket infos)
-    {
-        return new Commission
-        {
-            Comm = infos.CommWinRate * ticket.Discount * ticket.Stake * (1 - ticket.APositionTaking) * infos.CommHalfWLRate,
-            AComm = infos.CommWinRate * ticket.ADiscount * ticket.Stake * (1 - (ticket.MPositionTaking + ticket.APositionTaking)) * infos.CommHalfWLRate,
-            SComm = infos.CommWinRate * ticket.SDiscount * ticket.Stake * (1 - (ticket.SPositionTaking + ticket.MPositionTaking + ticket.APositionTaking)) * infos.CommHalfWLRate,
-            PlayerComm = infos.CommWinRate * ticket.PlayerDiscount * ticket.Stake * infos.CommHalfWLRate
-        };
-    }
+        => CalculateCommission(ticket, infos.CommWinRate, infos.CommHalfWLRate);
 
     public Commission ModdsEqualNegativeQuarter(Ticket ticket, PrepareTicket infos)
+        => CalculateCommission(ticket, infos.CommLostRate, infos.CommHalfWLRate);
+
+    public Commission ModdsLowerThanNegativeQuarter(Ticket ticket, PrepareTicket infos)
+        => CalculateCommission(ticket, infos.CommLostRate);
+
+    private static Commission CalculateCommission(
+        Ticket ticket,
+        decimal commissionRate,
+        decimal? halfWLRate = null)
     {
+        var multiplier = halfWLRate ?? 1m;
+        var positionTakings = GetPositionTakings(ticket);
+
         return new Commission
         {
-            Comm = infos.CommLostRate * ticket.Discount * ticket.Stake * (1 - ticket.APositionTaking) * infos.CommHalfWLRate,
-            AComm = infos.CommLostRate * ticket.ADiscount * ticket.Stake * (1 - (ticket.MPositionTaking + ticket.APositionTaking)) * infos.CommHalfWLRate,
-            SComm = infos.CommLostRate * ticket.SDiscount * ticket.Stake * (1 - (ticket.SPositionTaking + ticket.MPositionTaking + ticket.APositionTaking)) * infos.CommHalfWLRate,
-            PlayerComm = infos.CommLostRate * ticket.PlayerDiscount * ticket.Stake * infos.CommHalfWLRate
+            Comm = CalculateCommValue(
+                commissionRate,
+                ticket.Discount,
+                ticket.Stake,
+                positionTakings.AgentTaking,
+                multiplier),
+
+            AComm = CalculateCommValue(
+                commissionRate,
+                ticket.ADiscount,
+                ticket.Stake,
+                positionTakings.MasterAndAgentTaking,
+                multiplier),
+
+            SComm = CalculateCommValue(
+                commissionRate,
+                ticket.SDiscount,
+                ticket.Stake,
+                positionTakings.AllTaking,
+                multiplier),
+
+            PlayerComm = commissionRate * ticket.PlayerDiscount * ticket.Stake * multiplier
         };
     }
 
-    public Commission ModdsLowerThanNegativeQuarter(Ticket ticket, PrepareTicket infos)
-    {
-        return new Commission
-        {
-            Comm = infos.CommLostRate * ticket.Discount * ticket.Stake * (1 - ticket.APositionTaking),
-            AComm = infos.CommLostRate * ticket.ADiscount * ticket.Stake * (1 - (ticket.MPositionTaking + ticket.APositionTaking)),
-            SComm = infos.CommLostRate * ticket.SDiscount * ticket.Stake * (1 - (ticket.SPositionTaking + ticket.MPositionTaking + ticket.APositionTaking)),
-            PlayerComm = infos.CommLostRate * ticket.PlayerDiscount * ticket.Stake
-        };
-    }
+    private static decimal CalculateCommValue(
+        decimal commissionRate,
+        decimal discount,
+        decimal stake,
+        decimal positionTaking,
+        decimal multiplier)
+        => commissionRate * discount * stake * (1 - positionTaking) * multiplier;
+
+    private static (decimal AgentTaking, decimal MasterAndAgentTaking, decimal AllTaking) GetPositionTakings(Ticket ticket)
+        => (
+            ticket.APositionTaking,
+            ticket.MPositionTaking + ticket.APositionTaking,
+            ticket.SPositionTaking + ticket.MPositionTaking + ticket.APositionTaking
+        );
 }

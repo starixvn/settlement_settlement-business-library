@@ -1,7 +1,5 @@
-﻿using Settlement.Business.Core.Constants;
-using Settlement.Business.Core.Models;
+﻿using Settlement.Business.Core.Models;
 using Settlement.Business.Services;
-using static Settlement.Business.Core.Constants.Status;
 
 namespace Settlement.Business.Data.Services;
 
@@ -53,21 +51,7 @@ public class GenerateSettleTicketServiceImp(
 
     public List<Ticket> Refund(List<Ticket> tickets)
     {
-        tickets.ForEach(item =>
-        {
-            item.WinLost = item.ActualStake;
-            item.AWinLost = 0;
-            item.MWinLost = 0;
-            item.SWinLost = 0;
-            item.PlayerComm = 0;
-            item.Comm = 0;
-            item.AComm = 0;
-            item.SComm = 0;
-            item.Ruben = Ruben.Default;
-            item.StatusWinLost = StatusWinlost.Refund;
-            item.StatusId = StatusId.Refund;
-            item.Status = StatusName.Refund;
-        });
+        tickets.ForEach(ticket => ticketValueService.SetValue(ticket, false));
 
         return tickets;
     }

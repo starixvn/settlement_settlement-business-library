@@ -23,9 +23,15 @@ public static class Status
 
     public static class StatusWinlost
     {
+        public const byte Draw = 0;
+
+        public const byte HalfWin = 1;
+
         public const byte Win = 2;
 
-        public const byte Lost = 4;
+        public const byte HalfLoss = 3;
+
+        public const byte Loss = 4;
 
         public const byte Refund = 6;
     }

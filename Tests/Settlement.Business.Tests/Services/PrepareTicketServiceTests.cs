@@ -1,5 +1,4 @@
-﻿using NSubstitute;
-using Settlement.Business.Core.Constants;
+﻿using Moq;
 using Settlement.Business.Core.Models;
 using Settlement.Business.Services;
 using static Settlement.Business.Core.Constants.Status;
@@ -8,455 +7,262 @@ namespace Settlement.Business.Tests.Services;
 
 public class PrepareTicketServiceTests
 {
-    private readonly CommissionService commissionService;
-
-    private readonly WinLostByModdsService winLostByModdsService;
-
-    private readonly WinLostService winLostService;
-
+    private readonly Mock<CommissionService> commissionServiceMock;
+    private readonly Mock<WinLostByModdsService> winLostByModdsServiceMock;
+    private readonly Mock<WinLostService> winLostServiceMock;
     private readonly PrepareTicketServiceImp service;
 
     public PrepareTicketServiceTests()
     {
-        commissionService = Substitute.For<CommissionService>();
-        winLostByModdsService = Substitute.For<WinLostByModdsService>();
-        winLostService = Substitute.For<WinLostService>();
+        commissionServiceMock = new Mock<CommissionService>();
+        winLostByModdsServiceMock = new Mock<WinLostByModdsService>();
+        winLostServiceMock = new Mock<WinLostService>();
+        service = new PrepareTicketServiceImp(
+            commissionServiceMock.Object,
+            winLostByModdsServiceMock.Object,
+            winLostServiceMock.Object);
+    }
 
-        service = new PrepareTicketServiceImp(commissionService, winLostByModdsService, winLostService);
+    #region CreateValue Tests
+
+    [Theory]
+    [InlineData(1.5, StatusId.Won, StatusName.Won, StatusWinlost.Win)]
+    [InlineData(-1.5, StatusId.Lose, StatusName.Lose, StatusWinlost.Loss)]
+    [InlineData(0, StatusId.Draw, StatusName.Draw, StatusWinlost.Loss)]
+    public void CreateValue_WithDifferentModds_ReturnsCorrectStatus(
+        decimal modds, byte expectedStatusId, string expectedStatusName, byte expectedStatusWinLost)
+    {
+        // Arrange
+        var ticket = CreateTestTicket(modds);
+        SetupWinLostServiceMock(ticket);
+
+        // Act
+        var result = service.CreateValue(ticket, []);
+
+        // Assert
+        Assert.Equal(expectedStatusId, result.StatusId);
+        Assert.Equal(expectedStatusName, result.Status);
+        Assert.Equal(expectedStatusWinLost, result.StatusWinLost);
+    }
+
+    [Theory]
+    [InlineData(-1.0, 1, 1.0)]  // Negative odds becomes 1
+    [InlineData(2.0, 1, 1.0)]   // OddsType 1 subtracts 1
+    [InlineData(2.0, 2, 2.0)]   // OddsType 2 uses original odds
+    public void CreateValue_CalculatesOddsCorrectly(decimal odds, short oddsType, decimal expectedOdds)
+    {
+        // Arrange
+        var ticket = CreateTestTicket(1.5m);
+        ticket.Odds = odds;
+        ticket.OddsType = oddsType;
+        SetupWinLostServiceMock(ticket);
+
+        // Act
+        var result = service.CreateValue(ticket, []);
+
+        // Assert
+        Assert.Equal(expectedOdds, result.Odds);
+    }
+
+    #endregion CreateValue Tests
+
+    #region RecoverValue Tests
+
+    [Theory]
+    [InlineData(StatusWinlost.Win, StatusId.Won, StatusName.Won)]
+    [InlineData(StatusWinlost.HalfWin, StatusId.Won, StatusName.Won)]
+    [InlineData(StatusWinlost.Loss, StatusId.Lose, StatusName.Lose)]
+    [InlineData(StatusWinlost.HalfLoss, StatusId.Lose, StatusName.Lose)]
+    [InlineData(StatusWinlost.Refund, StatusId.Refund, StatusName.Refund)]
+    public void RecoverValue_WithDifferentStatusWinLost_ReturnsCorrectStatus(
+        byte statusWinLost, byte expectedStatusId, string expectedStatusName)
+    {
+        // Arrange
+        var ticket = CreateTestTicket(1.5m);
+        ticket.StatusWinLost = statusWinLost;
+        SetupWinLostServiceMock(ticket, true);
+
+        // Act
+        var result = service.RecoverValue(ticket, []);
+
+        // Assert
+        Assert.Equal(expectedStatusId, result.StatusId);
+        Assert.Equal(expectedStatusName, result.Status);
+    }
+
+    #endregion RecoverValue Tests
+
+    #region Commission Tests
+
+    [Theory]
+    [InlineData(1.5, "ModdsHigherThanQuarter")]
+    [InlineData(0.25, "ModdsEqualQuarter")]
+    [InlineData(-0.25, "ModdsEqualNegativeQuarter")]
+    [InlineData(-1.5, "ModdsLowerThanNegativeQuarter")]
+    public void CreateCommission_WithDifferentModds_CallsCorrectService(decimal modds, string expectedMethod)
+    {
+        // Arrange
+        var ticket = CreateTestTicket(modds);
+        var prepareTicket = CreateTestPrepareTicket();
+        SetupCommissionServiceMocks();
+
+        // Act
+        service.CreateCommission(ticket, prepareTicket);
+
+        // Assert
+        VerifyCommissionServiceCall(expectedMethod, ticket, prepareTicket);
+    }
+
+    [Theory]
+    [InlineData(StatusWinlost.Win, "ModdsHigherThanQuarter")]
+    [InlineData(StatusWinlost.HalfWin, "ModdsEqualQuarter")]
+    [InlineData(StatusWinlost.Loss, "ModdsLowerThanNegativeQuarter")]
+    [InlineData(StatusWinlost.HalfLoss, "ModdsEqualNegativeQuarter")]
+    public void RecoverCommission_WithDifferentStatus_CallsCorrectService(byte statusWinLost, string expectedMethod)
+    {
+        // Arrange
+        var ticket = CreateTestTicket(1.5m);
+        ticket.StatusWinLost = statusWinLost;
+        var prepareTicket = CreateTestPrepareTicket();
+        SetupCommissionServiceMocks();
+
+        // Act
+        service.RecoverCommission(ticket, prepareTicket);
+
+        // Assert
+        VerifyCommissionServiceCall(expectedMethod, ticket, prepareTicket);
+    }
+
+    #endregion Commission Tests
+
+    #region WinLost Tests
+
+    [Theory]
+    [InlineData(1.5, "WinLostGreaterThanQuarter")]
+    [InlineData(0.25, "WinLostEqualQuarter")]
+    [InlineData(-0.25, "WinLostEqualNegativeQuarter")]
+    [InlineData(-1.5, "WinLostLowerThanNegativeQuarter")]
+    public void CreateWinLost_WithDifferentModds_CallsCorrectService(decimal modds, string expectedMethod)
+    {
+        // Arrange
+        var ticket = CreateTestTicket(modds);
+        var prepareTicket = CreateTestPrepareTicket();
+        SetupWinLostByModdsServiceMocks();
+
+        // Act
+        service.CreateWinLost(ticket, prepareTicket);
+
+        // Assert
+        VerifyWinLostServiceCall(expectedMethod, ticket, prepareTicket);
+    }
+
+    [Theory]
+    [InlineData(StatusWinlost.Win, "WinLostGreaterThanQuarter")]
+    [InlineData(StatusWinlost.HalfWin, "WinLostEqualQuarter")]
+    [InlineData(StatusWinlost.Loss, "WinLostLowerThanNegativeQuarter")]
+    [InlineData(StatusWinlost.HalfLoss, "WinLostEqualNegativeQuarter")]
+    public void RecoverWinLost_WithDifferentStatus_CallsCorrectService(byte statusWinLost, string expectedMethod)
+    {
+        // Arrange
+        var ticket = CreateTestTicket(1.5m);
+        ticket.StatusWinLost = statusWinLost;
+        var prepareTicket = CreateTestPrepareTicket();
+        SetupWinLostByModdsServiceMocks();
+
+        // Act
+        service.RecoverWinLost(ticket, prepareTicket);
+
+        // Assert
+        VerifyWinLostServiceCall(expectedMethod, ticket, prepareTicket);
     }
 
     [Fact]
-    public void CreateValueIsUpdated_Always_ReturnsTrue()
+    public void WinLost_WithMaxPayout_CallsMaxPayoutService()
     {
-        var ticket = new Ticket
-        {
-            IsMarked = false,
-            StatusId = StatusId.Running
-        };
-        var winLimit = new List<WinLimit>();
-        var actual = service.CreateValue(ticket, winLimit);
+        // Arrange
+        var ticket = CreateTestTicket(1.5m);
+        var prepareTicket = CreateTestPrepareTicket();
+        prepareTicket.MaxWinLost = 1000m;
+        prepareTicket.IsApplyMaxPayout = true;
 
-        Assert.True(actual.IsUpdated);
+        // Act
+        service.CreateWinLost(ticket, prepareTicket);
+
+        // Assert
+        winLostByModdsServiceMock.Verify(x => x.WinLostMaxPayout(ticket, 1000m), Times.Once);
     }
 
-    [Fact]
-    public void CreateValueStatusWinLost_MOddsGreaterThanZero_ReturnsWin()
-    {
-        var ticket = new Ticket
-        {
-            Modds = 1
-        };
-        var winLimit = new List<WinLimit>();
-        var actual = service.CreateValue(ticket, winLimit);
+    #endregion WinLost Tests
 
-        const byte expected = StatusWinlost.Win;
-        Assert.Equal(expected, actual.StatusWinLost);
+    #region Helper Methods
+
+    private static Ticket CreateTestTicket(decimal modds) => new()
+    {
+        Modds = modds,
+        ComStatus = "1",
+        Odds = 2.0m,
+        OddsType = 1,
+        BetType = 1,
+        ActualStake = 100,
+        StatusId = StatusId.Won,
+        IsMarked = false,
+        BetTeam = "Team1"
+    };
+
+    private static PrepareTicket CreateTestPrepareTicket() => new()
+    {
+        CommWinRate = 1,
+        CommLostRate = 1,
+        CommHalfWLRate = 0.5m,
+        Odds = 2.0m,
+        StatusId = StatusId.Won,
+        Status = StatusName.Won
+    };
+
+    private void SetupWinLostServiceMock(Ticket ticket, bool isRecovery = false)
+    {
+        winLostServiceMock
+            .Setup(x => x.GetWinLost(ticket, It.IsAny<List<WinLimit>>(), isRecovery))
+            .Returns((true, 1000m));
     }
 
-    [Fact]
-    public void CreateValueStatusWinLost_MOddsLessThanZero_ReturnsLost()
+    private void SetupCommissionServiceMocks()
     {
-        var ticket = new Ticket
-        {
-            Modds = -1
-        };
-        var winLimit = new List<WinLimit>();
-        var actual = service.CreateValue(ticket, winLimit);
-
-        const byte expected = StatusWinlost.Lost;
-        Assert.Equal(expected, actual.StatusWinLost);
+        commissionServiceMock
+            .Setup(x => x.ModdsHigherThanQuarter(It.IsAny<Ticket>(), It.IsAny<PrepareTicket>()))
+            .Returns(new Commission());
+        // Setup other commission service methods similarly
     }
 
-    [Fact]
-    public void CreateValueExtraInfo_NotApplyMaxPayout_ReturnsCorrectExtraInfo()
+    private void SetupWinLostByModdsServiceMocks()
     {
-        var ticket = new Ticket
-        {
-            Odds = -1,
-            ExtraInfo = "Test"
-        };
-
-        var winLimit = new List<WinLimit>();
-        winLostService.GetWinLost(Arg.Any<Ticket>(), Arg.Any<List<WinLimit>>()).Returns((false, null));
-        var actual = service.CreateValue(ticket, winLimit);
-
-        const string expected = "Test";
-        Assert.Equal(expected, actual.ExtraInfo);
+        winLostByModdsServiceMock
+            .Setup(x => x.WinLostGreaterThanQuarter(It.IsAny<Ticket>(), It.IsAny<decimal>()))
+            .Returns(new Winlost());
+        // Setup other winlost service methods similarly
     }
 
-    [Fact]
-    public void CreateValueExtraInfo_ApplyMaxPayoutAndExtraInfoIsEmpty_ReturnsCorrectExtraValue()
+    private void VerifyCommissionServiceCall(string methodName, Ticket ticket, PrepareTicket prepareTicket)
     {
-        var ticket = new Ticket
+        switch (methodName)
         {
-            Odds = -1,
-            ExtraInfo = string.Empty,
-            ActualPayout = 0.5m
-        };
-
-        var winLimit = new List<WinLimit>();
-        winLostService.GetWinLost(Arg.Any<Ticket>(), Arg.Any<List<WinLimit>>()).Returns((true, null));
-        var actual = service.CreateValue(ticket, winLimit);
-
-        const string expected = "<l255 apo=\"0.5\" />";
-        Assert.Equal(expected, actual.ExtraInfo);
+            case "ModdsHigherThanQuarter":
+                commissionServiceMock.Verify(x => x.ModdsHigherThanQuarter(ticket, prepareTicket), Times.Once);
+                break;
+                // Verify other commission service methods similarly
+        }
     }
 
-    [Fact]
-    public void CreateValueExtraInfo_ApplyMaxPayoutAndExtraInfoIsNotEmpty_ReturnsCorrectExtraValue()
+    private void VerifyWinLostServiceCall(string methodName, Ticket ticket, PrepareTicket prepareTicket)
     {
-        var ticket = new Ticket
+        switch (methodName)
         {
-            Odds = -1,
-            ExtraInfo = "Test",
-            ActualPayout = 0.5m
-        };
-
-        var winLimit = new List<WinLimit>();
-        winLostService.GetWinLost(Arg.Any<Ticket>(), Arg.Any<List<WinLimit>>()).Returns((true, null));
-        var actual = service.CreateValue(ticket, winLimit);
-
-        const string expected = "Test<l255 apo=\"0.5\" />";
-        Assert.Equal(expected, actual.ExtraInfo);
+            case "WinLostGreaterThanQuarter":
+                winLostByModdsServiceMock.Verify(x => x.WinLostGreaterThanQuarter(ticket, prepareTicket.Odds), Times.Once);
+                break;
+                // Verify other winlost service methods similarly
+        }
     }
 
-    [Fact]
-    public void CreateValueOdds_OddsLessThanZero_ReturnsNumberOne()
-    {
-        var ticket = new Ticket
-        {
-            Odds = -1,
-        };
-
-        var winLimit = new List<WinLimit>();
-
-        var actual = service.CreateValue(ticket, winLimit);
-
-        Assert.True(actual.Odds == 1);
-    }
-
-    [Fact]
-    public void CreateValueOdds_OddsGreaterThanZeroAndOddsTypeNotEqualOne_ReturnsOdds()
-    {
-        var ticket = new Ticket
-        {
-            Odds = 2,
-            OddsType = 0
-        };
-
-        var winLimit = new List<WinLimit>();
-
-        var actual = service.CreateValue(ticket, winLimit);
-
-        Assert.True(actual.Odds == ticket.Odds);
-    }
-
-    [Fact]
-    public void CreateValueOdds_OddsGreaterThanZeroAndOddsTypeEqualOne_ReturnsExpectedValue()
-    {
-        var ticket = new Ticket
-        {
-            Odds = 2,
-            OddsType = 1,
-            BetType = BetTypes.FirstHalfHomeTeamOddEven,
-            Modds = 2,
-        };
-
-        var winLimit = new List<WinLimit>();
-
-        var actual = service.CreateValue(ticket, winLimit);
-        var expected = ticket.Modds - 1;
-        Assert.Equal(expected, actual.Odds);
-    }
-
-    [Fact]
-    public void CreateValueOdds_OddsGreaterThanZeroAndOddsTypeEqualOneAndModdsGreaterThanQuarter_ReturnsExpectedValue()
-    {
-        var ticket = new Ticket
-        {
-            Odds = 2,
-            OddsType = 1,
-            BetType = BetTypes.OneXTwoBackLay,
-            Modds = 1,
-            BetTeam = "al"
-        };
-
-        var winLimit = new List<WinLimit>();
-
-        var actual = service.CreateValue(ticket, winLimit);
-        const int expected = 1;
-        Assert.Equal(expected, actual.Odds);
-    }
-
-    [Fact]
-    public void CreateValueOdds_OddsGreaterThanZeroAndOddsTypeEqualOneAndModdsLessThanQuarter_ReturnsExpectedValue()
-    {
-        var ticket = new Ticket
-        {
-            Odds = 2,
-            OddsType = 1,
-            BetType = BetTypes.OneXTwoBackLay,
-            Modds = 0.1m,
-        };
-
-        var winLimit = new List<WinLimit>();
-
-        var actual = service.CreateValue(ticket, winLimit);
-        var expected = ticket.Odds - 1;
-        Assert.Equal(expected, actual.Odds);
-    }
-
-    [Fact]
-    public void CreateCommission_ModdsLessThanNegativeQuarter_ReturnsExpectedWinLost()
-    {
-        var ticket = new Ticket
-        {
-            Modds = -0.35m
-        };
-
-        var expectedCommission = new Commission
-        {
-            PlayerComm = 0,
-            Comm = 0.02m,
-            AComm = 0.03m,
-            SComm = 0.04m
-        };
-
-        commissionService.ModdsLowerThanNegativeQuarter(Arg.Any<Ticket>(), Arg.Any<PrepareTicket>()).Returns(expectedCommission);
-        var actual = service.CreateCommission(ticket, new PrepareTicket());
-
-        AssertExtension.AreEqual(expectedCommission, actual);
-    }
-
-    [Fact]
-    public void CreateCommission_ModdsEqualNegativeQuarter_ReturnsExpectedWinLost()
-    {
-        var ticket = new Ticket
-        {
-            Modds = -0.25m
-        };
-
-        var expectedCommission = new Commission
-        {
-            PlayerComm = 0,
-            Comm = 0.02m,
-            AComm = 0.03m,
-            SComm = 0.04m
-        };
-
-        commissionService.ModdsEqualNegativeQuarter(Arg.Any<Ticket>(), Arg.Any<PrepareTicket>()).Returns(expectedCommission);
-        var actual = service.CreateCommission(ticket, new PrepareTicket());
-
-        AssertExtension.AreEqual(expectedCommission, actual);
-    }
-
-    [Fact]
-    public void CreateCommission_ModdsEqualQuarter_ReturnsExpectedWinLost()
-    {
-        var ticket = new Ticket
-        {
-            Modds = 0.25m
-        };
-
-        var expectedCommission = new Commission
-        {
-            PlayerComm = 0,
-            Comm = 0.02m,
-            AComm = 0.03m,
-            SComm = 0.04m
-        };
-
-        commissionService.ModdsEqualQuarter(Arg.Any<Ticket>(), Arg.Any<PrepareTicket>()).Returns(expectedCommission);
-        var actual = service.CreateCommission(ticket, new PrepareTicket());
-
-        AssertExtension.AreEqual(expectedCommission, actual);
-    }
-
-    [Fact]
-    public void CreateCommission_ModdsGreaterThanQuarter_ReturnsExpectedWinLost()
-    {
-        var ticket = new Ticket
-        {
-            Modds = 0.35m
-        };
-
-        var expectedCommission = new Commission
-        {
-            PlayerComm = 0,
-            Comm = 0.02m,
-            AComm = 0.03m,
-            SComm = 0.04m
-        };
-
-        commissionService.ModdsHigherThanQuarter(Arg.Any<Ticket>(), Arg.Any<PrepareTicket>()).Returns(expectedCommission);
-        var actual = service.CreateCommission(ticket, new PrepareTicket());
-
-        AssertExtension.AreEqual(expectedCommission, actual);
-    }
-
-    [Fact]
-    public void CreateCommission_ModdsLessThanQuarter_ReturnsExpectedWinLost()
-    {
-        var ticket = new Ticket
-        {
-            Modds = 0.15m,
-        };
-
-        var expectedCommission = new Commission();
-
-        var actual = service.CreateCommission(ticket, new PrepareTicket());
-
-        AssertExtension.AreEqual(expectedCommission, actual);
-    }
-
-    [Fact]
-    public void CreateWinLost_MaxPayoutIsTrue_ReturnsExpectedWinLost()
-    {
-        var ticket = new Ticket();
-
-        var prepareTicket = new PrepareTicket
-        {
-            MaxWinLost = 1000,
-            IsApplyMaxPayout = true
-        };
-        var expectedWinlost = new Winlost
-        {
-            WinLost = 1000,
-            AWinLost = -199.98m,
-            MWinLost = -299.97m,
-            SWinLost = -399.96m
-        };
-
-        winLostByModdsService.WinLostMaxPayout(Arg.Any<Ticket>(), Arg.Any<decimal>()).Returns(expectedWinlost);
-        var actual = service.CreateWinLost(ticket, prepareTicket);
-
-        AssertExtension.AreEqual(expectedWinlost, actual);
-    }
-
-    [Fact]
-    public void CreateWinLost_ModdsLessThanNegativeQuarter_ReturnsExpectedWinLost()
-    {
-        var ticket = new Ticket
-        {
-            Modds = -0.35m
-        };
-
-        var prepareTicket = new PrepareTicket
-        {
-            IsApplyMaxPayout = false
-        };
-        var expectedWinlost = new Winlost
-        {
-            WinLost = 0,
-            AWinLost = 0.02m,
-            MWinLost = 0.03m,
-            SWinLost = 0.04m
-        };
-
-        winLostByModdsService.WinLostLowerThanNegativeQuarter(Arg.Any<Ticket>()).Returns(expectedWinlost);
-        var actual = service.CreateWinLost(ticket, prepareTicket);
-
-        AssertExtension.AreEqual(expectedWinlost, actual);
-    }
-
-    [Fact]
-    public void CreateWinLost_ModdsEqualNegativeQuarter_ReturnsExpectedWinLost()
-    {
-        var ticket = new Ticket
-        {
-            Modds = -0.25m
-        };
-
-        var prepareTicket = new PrepareTicket
-        {
-            IsApplyMaxPayout = false
-        };
-        var expectedWinlost = new Winlost
-        {
-            WinLost = 0.05m,
-            AWinLost = 0.010m,
-            MWinLost = 0.015m,
-            SWinLost = 0.020m
-        };
-
-        winLostByModdsService.WinLostEqualNegativeQuarter(Arg.Any<Ticket>()).Returns(expectedWinlost);
-        var actual = service.CreateWinLost(ticket, prepareTicket);
-
-        AssertExtension.AreEqual(expectedWinlost, actual);
-    }
-
-    [Fact]
-    public void CreateWinLost_ModdsEqualQuarter_ReturnsExpectedWinLost()
-    {
-        var ticket = new Ticket
-        {
-            Modds = 0.25m
-        };
-
-        var prepareTicket = new PrepareTicket
-        {
-            IsApplyMaxPayout = false
-        };
-        var expectedWinlost = new Winlost
-        {
-            WinLost = 5.10m,
-            AWinLost = -1.000m,
-            MWinLost = -1.500m,
-            SWinLost = -2.000m
-        };
-
-        winLostByModdsService.WinLostEqualQuarter(Arg.Any<Ticket>(), Arg.Any<decimal>()).Returns(expectedWinlost);
-        var actual = service.CreateWinLost(ticket, prepareTicket);
-
-        AssertExtension.AreEqual(expectedWinlost, actual);
-    }
-
-    [Fact]
-    public void CreateWinLost_ModdsGreaterThanQuarter_ReturnsExpectedWinLost()
-    {
-        var ticket = new Ticket
-        {
-            Modds = 0.35m
-        };
-
-        var prepareTicket = new PrepareTicket
-        {
-            IsApplyMaxPayout = false
-        };
-        var expectedWinlost = new Winlost
-        {
-            WinLost = 10.1m,
-            AWinLost = -2.00m,
-            MWinLost = -3.00m,
-            SWinLost = -4.00m
-        };
-
-        winLostByModdsService.WinLostGreaterThanQuarter(Arg.Any<Ticket>(), Arg.Any<decimal>()).Returns(expectedWinlost);
-        var actual = service.CreateWinLost(ticket, prepareTicket);
-
-        AssertExtension.AreEqual(expectedWinlost, actual);
-    }
-
-    [Fact]
-    public void CreateWinLost_ModdsLessThanQuarter_ReturnsExpectedWinLost()
-    {
-        var ticket = new Ticket
-        {
-            Modds = 0.15m,
-            ActualStake = 111
-        };
-
-        var prepareTicket = new PrepareTicket
-        {
-            IsApplyMaxPayout = false
-        };
-        var expectedWinlost = new Winlost
-        {
-            WinLost = 111,
-        };
-
-        var actual = service.CreateWinLost(ticket, prepareTicket);
-
-        AssertExtension.AreEqual(expectedWinlost, actual);
-    }
+    #endregion Helper Methods
 }

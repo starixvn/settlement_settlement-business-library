@@ -10,17 +10,39 @@ public interface OutrightResultService
 
 public class OutrightResultServiceImp : OutrightResultService
 {
+    private const byte SixRacers = 6;
+    private static readonly int[] TopTwoPlacings = [1, 2];
+    private static readonly int[] TopThreePlacings = [1, 2, 3];
+
+    private static readonly HashSet<int> VirtualRacingSportTypes =
+    [
+        SportType.VirtualDogs,
+        SportType.VirtualSteepleChase,
+        SportType.VirtualHarnessRacing,
+        SportType.VirtualMotorRacing
+    ];
+
     public IEnumerable<Outright> CorrectOutrightResult(int sportType, byte racers, IEnumerable<Outright> outright)
     {
-        int[] validPlacings = IsCheckedRacersWithSportType(sportType) && racers == 6
-            ? [1, 2]
-            : [1, 2, 3];
+        var validPlacings = GetValidPlacings(sportType, racers);
 
         return outright.Where(x => validPlacings.Contains(x.Placing));
     }
 
-    private static bool IsCheckedRacersWithSportType(int sportType)
+    private static int[] GetValidPlacings(int sportType, byte racers)
     {
-        return sportType is SportType.VirtualDogs or SportType.VirtualSteepleChase or SportType.VirtualHarnessRacing or SportType.VirtualMotorRacing;
+        return IsSpecialVirtualRacing(sportType, racers)
+            ? TopTwoPlacings
+            : TopThreePlacings;
+    }
+
+    private static bool IsSpecialVirtualRacing(int sportType, byte racers)
+    {
+        return IsVirtualRacingSport(sportType) && racers == SixRacers;
+    }
+
+    private static bool IsVirtualRacingSport(int sportType)
+    {
+        return VirtualRacingSportTypes.Contains(sportType);
     }
 }
