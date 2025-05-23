@@ -9,6 +9,8 @@ public interface ModdsValueService
 
 public class ModdsValueServiceImp : ModdsValueService
 {
+    private const int DefaultValue = -1;
+
     public int GetValueByProfileIdOfHappy5(int profileId, string homeValue, string awayValue)
     {
         return profileId switch
@@ -18,7 +20,7 @@ public class ModdsValueServiceImp : ModdsValueService
             HappyFiveConstants.FifthProfileId => int.Parse(homeValue),
             HappyFiveConstants.SecondProfileId => int.Parse(homeValue) % 2,
             HappyFiveConstants.FourthProfileId => int.Parse(homeValue) - int.Parse(awayValue),
-            _ => -1
+            _ => DefaultValue
         };
     }
 }

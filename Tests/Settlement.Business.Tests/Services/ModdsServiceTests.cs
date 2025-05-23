@@ -1,4 +1,5 @@
-﻿using Settlement.Business.Core.Constants;
+﻿using NSubstitute;
+using Settlement.Business.Core.Constants;
 using Settlement.Business.Core.Models;
 using Settlement.Business.Services;
 
@@ -6,12 +7,14 @@ namespace Settlement.Business.Tests.Services;
 
 public class ModdsServiceTests
 {
-    private readonly ModdsService service;
+    private readonly OutrightResultService outrightResultService;
+    private ModdsServiceImp service;
 
     public ModdsServiceTests()
     {
+        outrightResultService = Substitute.For<OutrightResultService>();
         var moddsValueService = new ModdsValueServiceImp();
-        service = new ModdsServiceImp(moddsValueService);
+        service = new ModdsServiceImp(moddsValueService, outrightResultService);
     }
 
     [Theory]
@@ -83,7 +86,13 @@ public class ModdsServiceTests
            }
         };
 
-        var actual = service.VirtualRacing(ticket, outright);
+        const int sportType = 1;
+        const byte racers = 1;
+
+        outrightResultService.CorrectOutrightResult(Arg.Any<int>(), Arg.Any<byte>(), Arg.Any<IEnumerable<Outright>>())
+            .Returns(outright);
+
+        var actual = service.VirtualRacing(ticket, sportType, racers, outright);
 
         Assert.Equal(expected, actual);
     }
@@ -91,11 +100,11 @@ public class ModdsServiceTests
     [Theory]
     [InlineData(2, 2, 1)]
     [InlineData(4, 3, -1)]
-    public void VirtualRacing_BetTypeNotEqual2770_ReturnsExpectedValue(int oddsId, int orid, int expected)
+    public void VirtualRacing_BetTypeNotEqual2770Or15500_ReturnsExpectedValue(int oddsId, int orid, int expected)
     {
         var ticket = new Ticket
         {
-            BetType = BetTypes.RacingPlace,
+            BetType = 123,
             OddsId = oddsId,
         };
 
@@ -107,7 +116,44 @@ public class ModdsServiceTests
             }
         };
 
-        var actual = service.VirtualRacing(ticket, outright);
+        const int sportType = 1;
+        const byte racers = 1;
+
+        outrightResultService.CorrectOutrightResult(Arg.Any<int>(), Arg.Any<byte>(), Arg.Any<IEnumerable<Outright>>())
+            .Returns(outright);
+
+        var actual = service.VirtualRacing(ticket, sportType, racers, outright);
+
+        Assert.Equal(expected, actual);
+    }
+
+    [Theory]
+    [InlineData(2, 2, 1, 1)]
+    [InlineData(3, 3, 2, -1)]
+    public void VirtualRacing_BetTypeEqual15500_ReturnsExpectedValue(int oddsId, int orid, byte placing, int expected)
+    {
+        var ticket = new Ticket
+        {
+            BetType = BetTypes.KironWin,
+            OddsId = oddsId,
+        };
+
+        var outright = new List<Outright>()
+        {
+            new()
+            {
+                Orid = orid,
+                Placing = placing
+            }
+        };
+
+        const int sportType = 1;
+        const byte racers = 1;
+
+        outrightResultService.CorrectOutrightResult(Arg.Any<int>(), Arg.Any<byte>(), Arg.Any<IEnumerable<Outright>>())
+            .Returns(outright);
+
+        var actual = service.VirtualRacing(ticket, sportType, racers, outright);
 
         Assert.Equal(expected, actual);
     }

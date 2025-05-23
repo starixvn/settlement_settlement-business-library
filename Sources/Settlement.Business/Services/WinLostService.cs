@@ -5,24 +5,38 @@ namespace Settlement.Business.Services;
 
 public interface WinLostService
 {
-    (bool isApplyMaxPayout, decimal? winLost) GetWinLost(Ticket ticket, List<WinLimit> listWinLimit);
+    (bool isApplyMaxPayout, decimal? winLost) GetWinLost(Ticket ticket, List<WinLimit> listWinLimit, bool isRecovery);
 }
 
 public class WinLostServiceImp : WinLostService
 {
-    public (bool isApplyMaxPayout, decimal? winLost) GetWinLost(Ticket ticket, List<WinLimit> listWinLimit)
+    public (bool isApplyMaxPayout, decimal? winLost) GetWinLost(Ticket ticket, List<WinLimit> listWinLimit, bool isRecovery)
     {
         var winLimit = listWinLimit.Find(w => w.CustId == ticket.CustId);
-        if (winLimit != null && CheckMaxWinLimit(ticket.Modds, ticket.ActualPayout, winLimit.MaxWinLimit))
+        if (winLimit is null)
         {
-            return (true, winLimit.MaxWinLimit);
+            return (false, ticket.WinLost);
         }
 
-        return (false, ticket.WinLost);
+        var shouldApplyMaxLimit = ShouldApplyMaxWinLimit(ticket, winLimit.MaxWinLimit, isRecovery);
+        return shouldApplyMaxLimit
+            ? (true, winLimit.MaxWinLimit)
+            : (false, ticket.WinLost);
     }
 
-    private static bool CheckMaxWinLimit(decimal modds, decimal? actualPayout, decimal maxWinLimit)
+    private static bool ShouldApplyMaxWinLimit(Ticket ticket, decimal maxWinLimit, bool isRecovery)
     {
-        return modds >= Modds.ModdsQuarter && actualPayout > maxWinLimit;
+        if (ticket.ActualPayout <= maxWinLimit)
+        {
+            return false;
+        }
+
+        return isRecovery
+            ? IsWinningStatus(ticket.StatusWinLost)
+            : IsWinningOdds(ticket.Modds);
     }
+
+    private static bool IsWinningOdds(decimal modds) => modds >= Modds.ModdsQuarter;
+
+    private static bool IsWinningStatus(byte? statusWinLost) => statusWinLost is Status.StatusWinlost.Win or Status.StatusWinlost.HalfWin;
 }
