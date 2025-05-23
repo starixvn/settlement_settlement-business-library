@@ -1,9 +1,16 @@
 ﻿using Settlement.Business.Core.Models;
+using System.Text.Json;
 
 namespace Settlement.Business.Core.Requests;
 
 public class BatchTicketRequest
 {
+    private static readonly JsonSerializerOptions Options = new()
+    {
+        PropertyNameCaseInsensitive = true,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+    };
+
     public int MatchId { get; set; }
 
     public int AdminId { get; set; }
@@ -27,4 +34,6 @@ public class BatchTicketRequest
     public int BatchTotal { get; set; }
 
     public string DbServer { get; set; }
+
+    public string ToJson() => JsonSerializer.Serialize(this, GetType(), Options);
 }
